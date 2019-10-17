@@ -48,7 +48,17 @@ void App_Init (void)
 
 void App_Run (void)
 {
+	/* Main program to generate a sinusoidal signal with de DAC, controlling the frequency
+	 * by an input voltage to the ADC:
+	 * The program waits a timer's interrupt that increments a global float variable t and
+	 * put to the DAC the nearest value of sin(2*PI*t/T), while the variable T is being
+	 * changed by the input of the ADC. It's important to decrement the variable t doing t - T
+	 * only when t is higher than T.
+	 */
 
+	/*Main program to probe FTM (TIMER, OUTPUT COMPARE, INPUT CAPTURE and PWM):
+	 *
+	 */
 }
 
 /*******************************************************************************
