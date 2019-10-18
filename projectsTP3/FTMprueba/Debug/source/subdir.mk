@@ -11,6 +11,7 @@ C_SRCS += \
 ../source/SysTick.c \
 ../source/comController2pc.c \
 ../source/pinsHandler.c \
+../source/timer.c \
 ../source/uart.c 
 
 OBJS += \
@@ -21,6 +22,7 @@ OBJS += \
 ./source/SysTick.o \
 ./source/comController2pc.o \
 ./source/pinsHandler.o \
+./source/timer.o \
 ./source/uart.o 
 
 C_DEPS += \
@@ -31,6 +33,7 @@ C_DEPS += \
 ./source/SysTick.d \
 ./source/comController2pc.d \
 ./source/pinsHandler.d \
+./source/timer.d \
 ./source/uart.d 
 
 

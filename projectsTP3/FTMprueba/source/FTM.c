@@ -138,18 +138,18 @@ void setFTMprescaler(FTMprescaler psc, FTM_Type * p2FTM)
 	p2FTM->SC |= FTM_SC_PS(psc);
 }
 
-void updatePWMduty(FTMmodules id, FTMchannels ch, uint8_t dutyPercent)
+void updatePWMduty(FTMmodules id, FTMchannels ch, int dutyPercent)
 {
 
 }
 
-void updatePWMperiod(FTMmodules id, FTMchannels ch, uint32_t newPeriodTime)
+void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime)
 {
 
 }
 
 
-void updateCnV(FTMmodules id, FTMchannels ch, uint32_t newCnV)
+void updateCnV(FTMmodules id, FTMchannels ch, int newCnV)
 {
 
 }

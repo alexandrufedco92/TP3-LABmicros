@@ -50,8 +50,8 @@ void writeDACvalue(DACids id, int value)
 	DAC_Type * p2DAC = arrayP2DAC[id];
 	if(IS_VALID_ID_DAC(id))
 	{
-		p2DAC->DAT[DATL] |= DAC_DATL_DATA0(4095);
-		p2DAC->DAT[DATH] |= DAC_DATL_DATA1(4095);
+		p2DAC->DAT[0].DATL |= DAC_DATL_DATA0(4095);
+		p2DAC->DAT[0].DATH |= DAC_DATH_DATA1(4095);
 	}
 }
 
