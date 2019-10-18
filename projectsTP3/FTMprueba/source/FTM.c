@@ -7,6 +7,7 @@
 
 #include "FTM.h"
 #include "pinsHandler.h"
+#include <stdbool.h>
 
 #define CANT_OF_MODES 5
 
@@ -15,9 +16,6 @@
 #define OUTPUT_COMPARE_TOGGLE_MODE (0x01)
 
 typedef enum {NO_CLOCK = 0, SYSTEM_CLOCK = 1, FIXED_CLOCK = 2, EXTERNAL_CLOCK = 3}clocksSource;
-
-typedef enum {FTM_CH0 = 0, FTM_CH1, FTM_CH2, FTM_CH3, FTM_CH4, FTM_CH5,
-				FTM_CH6, FTM_CH7}FTMchannels;
 
 FTM_Type * arrayP2FTM[] = FTM_BASE_PTRS;
 IRQn_Type arrayFTMirqs[] = FTM_IRQS;
@@ -66,7 +64,7 @@ void FTMinit(FTMconfig_t * p2config)
 		}
 		else if(p2config->mode == FTM_OUTPUT_COMPARE)
 		{
-			//MUXXXXXX
+			//MUXXXXXX FTM0_CH0
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
@@ -78,15 +76,15 @@ void FTMinit(FTMconfig_t * p2config)
 		}
 		else if(p2config->mode == FTM_INPUT_CAPTURE)
 		{
-			////MUXXXXX
+			////MUXXXX FTM3_CH5
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 			p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
-			(p2FTM->CONTROLS[FTM_CH1]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
-			(p2FTM->CONTROLS[FTM_CH1]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
-			(p2FTM->CONTROLS[FTM_CH1]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
-			(p2FTM->CONTROLS[FTM_CH1]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
+			(p2FTM->CONTROLS[FTM_CH5]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
+			(p2FTM->CONTROLS[FTM_CH5]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
+			(p2FTM->CONTROLS[FTM_CH5]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
+			(p2FTM->CONTROLS[FTM_CH5]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
 			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
-			p2FTM->CONTROLS[FTM_CH1].CnSC |= FTM_CnSC_CHIE(1);
+			p2FTM->CONTROLS[FTM_CH5].CnSC |= FTM_CnSC_CHIE(1);
 		}
 	}
 
@@ -119,7 +117,7 @@ void setFTMtimer(FTMmodules nModule, FTM_TIMERcountModes countMode, uint16_t nTi
 		}
 		arrayFTMcallbacks[nModule] = p2callback;
 		p2FTM->SC |=FTM_SC_TOIE(1);
-		NVIC_Enable(arrayFTMirqs[nModule]);
+		NVIC_EnableIRQ(arrayFTMirqs[nModule]);
 	}
 
 }
@@ -140,11 +138,57 @@ void setFTMprescaler(FTMprescaler psc, FTM_Type * p2FTM)
 	p2FTM->SC |= FTM_SC_PS(psc);
 }
 
+void updatePWMduty(FTMmodules id, FTMchannels ch, uint8_t dutyPercent)
+{
+
+}
+
+void updatePWMperiod(FTMmodules id, FTMchannels ch, uint32_t newPeriodTime)
+{
+
+}
+
+
+void updateCnV(FTMmodules id, FTMchannels ch, uint32_t newCnV)
+{
+
+}
+
+int getCnV(FTMmodules id, FTMchannels ch)
+{
+	return 0;
+}
+
+void enableFTMinterrupts(FTMmodules id)
+{
+	NVIC_EnableIRQ(arrayFTMirqs[id]);
+}
+
+void disableFTMinterrupts(FTMmodules id)
+{
+	NVIC_DisableIRQ(arrayFTMirqs[id]);
+}
+
 void FTMx_IRQHandler(FTMmodules nModule)
 {
-	if(arrayP2FTM[nModule]->SC & FTM_SC_TOF_MASK) //if the count is finished
+	FTM_Type * p2FTM = arrayP2FTM[nModule];
+	_Bool isChannelInterrupt = false;
+	int i = 0;
+	for(i = 0; (i < FTM_N_CHANNELS) && (!isChannelInterrupt); i++)	//is some channel's event.
 	{
-		arrayFTMcallbacks[nModule](); //It calls the callback of the indicated module.
+		if(p2FTM->CONTROLS[i].CnSC & FTM_CnSC_CHF_MASK)
+		{
+			isChannelInterrupt = true;
+		}
+	}
+	if(isChannelInterrupt)
+	{
+		arrayFTMcallbacks[nModule](i - 1);
+		p2FTM->CONTROLS[i - 1].CnSC &=  ~FTM_CnSC_CHF_MASK;  //reset flag
+	}
+	else if(arrayP2FTM[nModule]->SC & FTM_SC_TOF_MASK) //if the count is finished
+	{
+		arrayFTMcallbacks[nModule](FTM_NO_CHANNEL); //It calls the callback of the indicated module.
 		arrayP2FTM[nModule]->SC &= ~FTM_SC_TOF_MASK;   //reset the flag that indicates interrupt
 	}
 }

@@ -25,25 +25,25 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: uartSPI.axf
+all: FTMprueba.axf
 
 # Tool invocations
-uartSPI.axf: $(OBJS) $(USER_OBJS)
+FTMprueba.axf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	arm-none-eabi-gcc -nostdlib -Xlinker -Map="uartSPI.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "Blink_Debug.ld" -o "uartSPI.axf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -nostdlib -Xlinker -Map="FTMprueba.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "FTMprueba_Debug.ld" -o "FTMprueba.axf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) uartSPI.axf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) FTMprueba.axf
 	-@echo ' '
 
 post-build:
 	-@echo 'Performing post-build steps'
-	-arm-none-eabi-size "uartSPI.axf"; # arm-none-eabi-objcopy -v -O binary "uartSPI.axf" "uartSPI.bin" ; # checksum -p MK64FN1M0xxx12 -d "uartSPI.bin";
+	-arm-none-eabi-size "FTMprueba.axf"; # arm-none-eabi-objcopy -v -O binary "FTMprueba.axf" "FTMprueba.bin" ; # checksum -p MK64FN1M0xxx12 -d "FTMprueba.bin";
 	-@echo ' '
 
 .PHONY: all clean dependents post-build

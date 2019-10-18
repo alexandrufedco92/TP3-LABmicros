@@ -46,16 +46,19 @@ void writeDACvalue(DACids id, int value)
 	//writing directly to DACdata register...
 
 	//Vo = Vin*(1+DATA[11:0])/4096 --> DATA[11:0] = ((Vo/Vin)*4096)-1
-	uint16_t DACdataAux; ////////////////////////
+	//uint16_t DACdataAux; ////////////////////////
 	DAC_Type * p2DAC = arrayP2DAC[id];
 	if(IS_VALID_ID_DAC(id))
 	{
-		p2DAC->DAT = DACdataAux;  //Also could be possible this function not using DACdataAux.
+		p2DAC->DAT[DATL] |= DAC_DATL_DATA0(4095);
+		p2DAC->DAT[DATH] |= DAC_DATL_DATA1(4095);
 	}
 }
 
 void DACclockGating(void)
 {
 	SIM->SCGC2 |= SIM_SCGC2_DAC0_MASK;
-	SIM->SCGC6 |= SIM_SCGC6_DAC0_MASK;
+	//SIM->SCGC6 |= SIM_SCGC6_DAC0_MASK;
+
+	SIM->SCGC2 |= SIM_SCGC2_DAC1_MASK;
 }

@@ -4,51 +4,33 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../source/ADC.c \
 ../source/App.c \
-../source/FXOS8700CQ.c \
+../source/DAC.c \
+../source/FTM.c \
 ../source/SysTick.c \
-../source/accelerometer.c \
-../source/boardsInterface.c \
-../source/can.c \
 ../source/comController2pc.c \
-../source/coordHAL.c \
-../source/i2c.c \
 ../source/pinsHandler.c \
-../source/sphericalPos.c \
-../source/spi.c \
-../source/timer.c \
 ../source/uart.c 
 
 OBJS += \
+./source/ADC.o \
 ./source/App.o \
-./source/FXOS8700CQ.o \
+./source/DAC.o \
+./source/FTM.o \
 ./source/SysTick.o \
-./source/accelerometer.o \
-./source/boardsInterface.o \
-./source/can.o \
 ./source/comController2pc.o \
-./source/coordHAL.o \
-./source/i2c.o \
 ./source/pinsHandler.o \
-./source/sphericalPos.o \
-./source/spi.o \
-./source/timer.o \
 ./source/uart.o 
 
 C_DEPS += \
+./source/ADC.d \
 ./source/App.d \
-./source/FXOS8700CQ.d \
+./source/DAC.d \
+./source/FTM.d \
 ./source/SysTick.d \
-./source/accelerometer.d \
-./source/boardsInterface.d \
-./source/can.d \
 ./source/comController2pc.d \
-./source/coordHAL.d \
-./source/i2c.d \
 ./source/pinsHandler.d \
-./source/sphericalPos.d \
-./source/spi.d \
-./source/timer.d \
 ./source/uart.d 
 
 

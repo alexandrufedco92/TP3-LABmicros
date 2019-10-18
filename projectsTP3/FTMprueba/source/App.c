@@ -15,6 +15,7 @@ uint8_t aux;
 
 */
 #include "comController2pc.h"
+#include "DAC.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -35,7 +36,10 @@ uint8_t aux;
 
 void App_Init (void)
 {
+	DACconfig_t DACconfig;
 	initResourcesController2pc();
+	DACinit(DAC0, &DACconfig);
+	writeDACvalue(DAC0, 5);
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
