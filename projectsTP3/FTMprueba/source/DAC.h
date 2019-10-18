@@ -25,7 +25,7 @@ typedef struct
 
 void DACinit(DACids id, DACconfig_t * config);
 
-void writeDACvalue(DACids id, int value);
+void writeDACvalue(DACids id, float value);
 
 
 #endif /* DAC_H_ */

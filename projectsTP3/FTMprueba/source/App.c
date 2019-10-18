@@ -8,14 +8,12 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 /*
-#include "uart.h"
-
-char messageReceived[MAX_MSG_LEN+1];
-uint8_t aux;
 
 */
 #include "comController2pc.h"
 #include "DAC.h"
+#include "timer.h"
+#include <math.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -25,7 +23,7 @@ uint8_t aux;
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-
+void senoidalCallback(void);
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -38,8 +36,10 @@ void App_Init (void)
 {
 	DACconfig_t DACconfig;
 	initResourcesController2pc();
+	InitializeTimers();
 	DACinit(DAC0, &DACconfig);
-	writeDACvalue(DAC0, 5);
+	writeDACvalue(DAC0, 2.0);
+	SetTimer(SENOIDAL, 1, senoidalCallback);
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
@@ -56,6 +56,22 @@ void App_Run (void)
 	/*Main program to probe FTM (TIMER, OUTPUT COMPARE, INPUT CAPTURE and PWM):
 	 *
 	 */
+}
+
+void senoidalCallback(void)
+{
+	static float t = 0.0;
+
+	if(t >= 0.010)
+	{
+		t = 0.000;
+	}
+	else
+	{
+		t += 0.001;
+	}
+	float valueAux = 1.0000 + sin(2*M_PI*t*100); //100Hz
+	writeDACvalue(DAC0, valueAux);
 }
 
 /*******************************************************************************

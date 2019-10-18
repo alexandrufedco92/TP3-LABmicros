@@ -15,7 +15,7 @@
 /******************************************************************************************
  *  				TIPOS DE DATOS, CONSTANTES Y VARIABLES GLOBALES
  ******************************************************************************************/
-typedef enum {INACTIVITY, MAX_FPS_CLEAR, TIME_OUT_PC_ANSWER, REFRESH_PC, REFRESH_COORD, NUM_TIMERS}timerUd_t; //Timers utilizados
+typedef enum {SENOIDAL, INACTIVITY, MAX_FPS_CLEAR, TIME_OUT_PC_ANSWER, REFRESH_PC, NUM_TIMERS}timerUd_t; //Timers utilizados
 typedef void (*callback_ptr)(void);
 
 

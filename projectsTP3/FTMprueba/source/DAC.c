@@ -40,18 +40,21 @@ void DACinit(DACids id, DACconfig_t * config)
 	}
 }
 
-void writeDACvalue(DACids id, int value)
+void writeDACvalue(DACids id, float value)
 {
 	//assuming that the DACbuffer is not enable, so
 	//writing directly to DACdata register...
 
 	//Vo = Vin*(1+DATA[11:0])/4096 --> DATA[11:0] = ((Vo/Vin)*4096)-1
-	//uint16_t DACdataAux; ////////////////////////
+	float Vin = 3.3;
+	uint16_t DACdataAux = (uint16_t) ((value/Vin)*(float)(4096.0)) - (float)(1.0);
 	DAC_Type * p2DAC = arrayP2DAC[id];
 	if(IS_VALID_ID_DAC(id))
 	{
-		p2DAC->DAT[0].DATL |= DAC_DATL_DATA0(4095);
-		p2DAC->DAT[0].DATH |= DAC_DATH_DATA1(4095);
+		//p2DAC->DAT[0].DATL &= ~DAC_DATL_DATA0_MASK;
+		//p2DAC->DAT[0].DATL &= ~DAC_DATL_DATA0_MASK;
+		p2DAC->DAT[0].DATL = DAC_DATL_DATA0(DACdataAux);
+		p2DAC->DAT[0].DATH = DAC_DATH_DATA1(DACdataAux >> 8);
 	}
 }
 
