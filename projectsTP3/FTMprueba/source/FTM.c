@@ -6,12 +6,15 @@
  */
 
 #include "FTM.h"
-#include "pinsHandler.h"
+//#include "pinsHandler.h"
+#include "gpio.h"
 #include <stdbool.h>
+
 
 #define CANT_OF_MODES 5
 
 #define FTM_IS_VALID_MODULE(x) ( (x >= 0) && (x < NUMBER_OF_FTM_MODULES) )
+#define FTM_IS_VALID_CHANNEL(x) ( (x >= 0) && (x < FTM_N_CHANNELS) )
 
 #define OUTPUT_COMPARE_TOGGLE_MODE (0x01)
 
@@ -24,6 +27,7 @@ FTM_callback_t arrayFTMcallbacks[NUMBER_OF_FTM_MODULES];
 void FTMclockGating(void);
 void setFTMprescaler(FTMprescaler psc, FTM_Type * p2FTM);
 void setFTMtimer(FTMmodules nModule, FTM_TIMERcountModes countMode, uint16_t nTicks, FTM_callback_t p2callback);
+void enablePinFTM(FTMmodules id, FTMchannels ch);
 
 void FTMx_IRQHandler(FTMmodules nModule);
 void FTM0_IRQHandler(void);
@@ -43,14 +47,14 @@ void FTMinit(FTMconfig_t * p2config)
 	FTM_Type * p2FTM;
 	//1)
 	FTMclockGating();
-	if(FTM_IS__VALID_MODULE(p2config->nModule))
+	if(FTM_IS_VALID_MODULE(p2config->nModule))
 	{
 		p2FTM = arrayP2FTM[p2config->nModule];
+		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK); //deshabilito para permitir configurar
+		enablePinFTM(p2config->nModule, p2config->nChannel);
 		//2)
 		p2FTM->MODE |= FTM_MODE_FTMEN(1);
-		//3)
-		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK);
-		p2FTM->SC |= FTM_SC_CLKS(SYSTEM_CLOCK);
+
 		//4)
 		setFTMprescaler(p2config->prescaler, p2FTM);
 		//5)
@@ -59,12 +63,10 @@ void FTMinit(FTMconfig_t * p2config)
 
 		if(p2config->mode == FTM_TIMER)
 		{
-			////MUXXXXXX
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 		}
 		else if(p2config->mode == FTM_OUTPUT_COMPARE)
 		{
-			//MUXXXXXX FTM0_CH0
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
@@ -76,16 +78,28 @@ void FTMinit(FTMconfig_t * p2config)
 		}
 		else if(p2config->mode == FTM_INPUT_CAPTURE)
 		{
-			////MUXXXX FTM3_CH5
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 			p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
-			(p2FTM->CONTROLS[FTM_CH5]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
-			(p2FTM->CONTROLS[FTM_CH5]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
-			(p2FTM->CONTROLS[FTM_CH5]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
-			(p2FTM->CONTROLS[FTM_CH5]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
+			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
+			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
 			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
-			p2FTM->CONTROLS[FTM_CH5].CnSC |= FTM_CnSC_CHIE(1);
+			if(p2config->edge == UP_EDGE)
+			{
+				(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
+			}
+			else if(p2config->edge == UP_DOWN_EDGE)
+			{
+				(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= FTM_CnSC_ELSB(1) | FTM_CnSC_ELSA(1);
+			}
+			else if(p2config->edge == DOWN_EDGE)
+			{
+				(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= FTM_CnSC_ELSB(1) | FTM_CnSC_ELSA(0);
+			}
+			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
 		}
+		//3)
+		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK);
+		p2FTM->SC |= FTM_SC_CLKS(SYSTEM_CLOCK);
 	}
 
 }
@@ -93,7 +107,7 @@ void FTMinit(FTMconfig_t * p2config)
 void setFTMtimer(FTMmodules nModule, FTM_TIMERcountModes countMode, uint16_t nTicks, FTM_callback_t p2callback)
 {
 	FTM_Type * p2FTM;
-	if(FTM_IS__VALID_MODULE(nModule) && (nTicks > 0))
+	if(FTM_IS_VALID_MODULE(nModule) && (nTicks > 0))
 	{
 		p2FTM = arrayP2FTM[nModule];
 		p2FTM->QDCTRL &= ~((uint32_t)FTM_QDCTRL_QUADEN_MASK);
@@ -151,12 +165,47 @@ void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime)
 
 void updateCnV(FTMmodules id, FTMchannels ch, int newCnV)
 {
-
+	FTM_Type * p2FTM;
+	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch))
+	{
+		p2FTM = arrayP2FTM[id];
+		p2FTM->CONTROLS[ch].CnV = newCnV;
+	}
 }
 
 int getCnV(FTMmodules id, FTMchannels ch)
 {
-	return 0;
+	int ret = 0;
+	FTM_Type * p2FTM;
+	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch))
+	{
+		p2FTM = arrayP2FTM[id];
+		ret = p2FTM->CONTROLS[ch].CnV;
+	}
+	return ret;
+}
+int getMOD_FTM(FTMmodules id, FTMchannels ch)
+{
+	int ret = 0;
+	FTM_Type * p2FTM;
+	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch))
+	{
+		p2FTM = arrayP2FTM[id];
+		ret = p2FTM->MOD;
+	}
+	return ret;
+}
+
+int getCNTIN_FTM(FTMmodules id, FTMchannels ch)
+{
+	int ret = 0;
+	FTM_Type * p2FTM;
+	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch))
+	{
+		p2FTM = arrayP2FTM[id];
+		ret = p2FTM->CNTIN;
+	}
+	return ret;
 }
 
 void enableFTMinterrupts(FTMmodules id)
@@ -167,6 +216,18 @@ void enableFTMinterrupts(FTMmodules id)
 void disableFTMinterrupts(FTMmodules id)
 {
 	NVIC_DisableIRQ(arrayFTMirqs[id]);
+}
+
+void enablePinFTM(FTMmodules id, FTMchannels ch)  //This function has to be enhanced.
+{
+	if((id == FTM0_INDEX) && (ch == FTM_CH0))  //PC1 (ALT 4)
+	{
+		setPCRmux(PORTC, 1, 4);
+	}
+	else if((id == FTM0_INDEX) && (ch == FTM_CH2)) //PC9 (ALT 3)
+	{
+		setPCRmux(PORTC, 5, 7);
+	}
 }
 
 void FTMx_IRQHandler(FTMmodules nModule)

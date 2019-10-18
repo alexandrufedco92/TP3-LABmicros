@@ -6,7 +6,8 @@
  */
 
 #include "uart.h"
-#include "pinsHandler.h"
+//#include "pinsHandler.h"
+#include "gpio.h"
 #include <stdbool.h>
 #include "hardware.h"
 

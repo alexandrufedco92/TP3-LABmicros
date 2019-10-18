@@ -13,7 +13,7 @@
 #define FTM_MIN_PRESCALER 1
 #define FTM_DEFAULT_PRESCALER FTM_MIN_PRESCALER
 
-typedef enum {FTM0_INDEX, FTM1_INDEX, FTM2_INDEX, FTM3_INDEX}FTMmodules;
+typedef enum {FTM0_INDEX = 0, FTM1_INDEX = 1, FTM2_INDEX = 2, FTM3_INDEX = 3}FTMmodules;
 
 typedef enum {FTM_CH0 = 0, FTM_CH1, FTM_CH2, FTM_CH3, FTM_CH4, FTM_CH5,
 								FTM_CH6, FTM_CH7, FTM_N_CHANNELS, FTM_NO_CHANNEL}FTMchannels;
@@ -66,6 +66,10 @@ void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime);
 void updateCnV(FTMmodules id, FTMchannels ch, int newCnV);
 
 int getCnV(FTMmodules id, FTMchannels ch);
+
+int getMOD_FTM(FTMmodules id, FTMchannels ch);
+
+int getCNTIN_FTM(FTMmodules id, FTMchannels ch);
 
 void enableFTMinterrupts(FTMmodules id);
 
