@@ -20,13 +20,6 @@ uint8_t aux;
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define REFRESH_RATE 250 // (> 30FPS)
-#define COORDS_TO_REFRESH 3
-#define REFRESH_PER_COORD 10 //mseconds
-#define ROLL_COORD_NUMBER 3
-#define HEAD_COORD_NUMBER 2
-#define ORIENTATION_COORD_NUMBER 1
-
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
