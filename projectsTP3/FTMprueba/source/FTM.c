@@ -12,7 +12,12 @@
 
 #define FTM_IS_VALID_MODULE(x) ( (x >= 0) && (x < NUMBER_OF_FTM_MODULES) )
 
+#define OUTPUT_COMPARE_TOGGLE_MODE (0x01)
+
 typedef enum {NO_CLOCK = 0, SYSTEM_CLOCK = 1, FIXED_CLOCK = 2, EXTERNAL_CLOCK = 3}clocksSource;
+
+typedef enum {FTM_CH0 = 0, FTM_CH1, FTM_CH2, FTM_CH3, FTM_CH4, FTM_CH5,
+				FTM_CH6, FTM_CH7}FTMchannels;
 
 FTM_Type * arrayP2FTM[] = FTM_BASE_PTRS;
 IRQn_Type arrayFTMirqs[] = FTM_IRQS;
@@ -56,7 +61,32 @@ void FTMinit(FTMconfig_t * p2config)
 
 		if(p2config->mode == FTM_TIMER)
 		{
+			////MUXXXXXX
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
+		}
+		else if(p2config->mode == FTM_OUTPUT_COMPARE)
+		{
+			//MUXXXXXX
+			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
+			(p2FTM->CONTROLS[FTM_CH0]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
+			(p2FTM->CONTROLS[FTM_CH0]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
+			(p2FTM->CONTROLS[FTM_CH0]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
+			(p2FTM->CONTROLS[FTM_CH0]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
+			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
+			p2FTM->CONTROLS[FTM_CH0].CnSC |= FTM_CnSC_CHIE(1);
+
+		}
+		else if(p2config->mode == FTM_INPUT_CAPTURE)
+		{
+			////MUXXXXX
+			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
+			p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
+			(p2FTM->CONTROLS[FTM_CH1]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
+			(p2FTM->CONTROLS[FTM_CH1]).CnSC |= FTM_CnSC_ELSB(0) | FTM_CnSC_ELSA(1);
+			(p2FTM->CONTROLS[FTM_CH1]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
+			(p2FTM->CONTROLS[FTM_CH1]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
+			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
+			p2FTM->CONTROLS[FTM_CH1].CnSC |= FTM_CnSC_CHIE(1);
 		}
 	}
 
