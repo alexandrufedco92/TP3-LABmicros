@@ -113,13 +113,13 @@ void ApplyFIR(uint8_t cant)
 
 		for(j=0; j< FIR_ORDER+1; j++)
 		{
-			if( (PreFiltered_signal.curr-cant+i-j)<0 )
+			if( (result_signal.curr-j)<0 )
 			{
-				aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr-cant+i-j);
+				aux_index = CIRCULAR_BUFFER_SIZE + (result_signal.curr-j);
 			}
 			else
 			{
-				aux_index = PreFiltered_signal.curr-cant+i-j;
+				aux_index = result_signal.curr-j;
 			}
 			aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
 		}
