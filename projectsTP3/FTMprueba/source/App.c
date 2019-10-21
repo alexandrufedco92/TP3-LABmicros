@@ -27,6 +27,7 @@
  ******************************************************************************/
 void senoidalCallback(void);
 void FTMtimerCallback(FTMchannels ch);
+void FTMicCallback(FTMchannels ch);
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -76,20 +77,22 @@ void App_Init (void)
 	FTMtimerConfig.numOverflows = 0;
 	FTMtimerConfig.p2callback = FTMtimerCallback;
 
+
+
 	FTMconfig_t FTMconfigIC;
 	FTMconfigIC.mode = FTM_INPUT_CAPTURE;
-	FTMconfigIC.nModule = FTM0_INDEX;
-	FTMconfigIC.nChannel = FTM_CH2;
+	FTMconfigIC.nModule = FTM2_INDEX;
+	FTMconfigIC.nChannel = FTM_CH0;
 	FTMconfigIC.edge = UP_EDGE;
 	FTMconfigIC.nTicks = 0xFFFF;
 	FTMconfigIC.numOverflows = 0;
-	FTMconfigIC.prescaler = FTM_PSCX128;
-	FTMconfigIC.p2callback = FTMtimerCallback;
+	FTMconfigIC.prescaler = FTM_PSCX32;
+	FTMconfigIC.p2callback = FTMicCallback;
 
 	FTMinit(&FTMtimerConfig);
-	disableFTMinterrupts(FTM0_INDEX);
+	//disableFTMinterrupts(FTM0_INDEX);
 	FTMinit(&FTMconfigIC);
-	enableFTMinterrupts(FTM0_INDEX);
+	//enableFTMinterrupts(FTM0_INDEX);
 
 	gpioMode (PORTNUM2PIN(PB, 9), OUTPUT);
 
@@ -135,9 +138,7 @@ void senoidalCallback(void)
  ******************************************************************************/
 void FTMtimerCallback(FTMchannels ch)
 {
-	static int i = 0;
-	static int firstMeasure = 0;
-	static int secondMeasure = 0;
+
 	if(ch == FTM_CH0)
 	{
 		updateCnV(FTM0_INDEX, FTM_CH0, getCnV(FTM0_INDEX, FTM_CH0)+ 100);
@@ -147,16 +148,27 @@ void FTMtimerCallback(FTMchannels ch)
 		}
 		gpioToggle(PORTNUM2PIN(PB, 9));
 	}
-	else if(ch == FTM_CH2)
+	else //overflow
+	{
+		//gpioToggle(PORTNUM2PIN(PB, 9));
+	}
+}
+
+void FTMicCallback(FTMchannels ch)
+{
+	static int i = 0;
+	static int firstMeasure = 0;
+	static int secondMeasure = 0;
+	 if(ch == FTM_CH0)
 	{
 		i++;
 		if(i == 1)
 		{
-			firstMeasure = getCnV(FTM0_INDEX, FTM_CH2);
+			firstMeasure = getCnV(FTM2_INDEX, FTM_CH0);
 		}
 		else if(i == 2)
 		{
-			secondMeasure = getCnV(FTM0_INDEX, FTM_CH2);
+			secondMeasure = getCnV(FTM2_INDEX, FTM_CH0);
 			dif = secondMeasure - firstMeasure;
 		}
 

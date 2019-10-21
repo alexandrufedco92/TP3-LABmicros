@@ -37,7 +37,7 @@ pinIrqFun_t p2irqFunctions[NUMBER_OF_PORTS][NUMBER_OF_PINS_PORT];
 
 _Bool isPinValid(pin_t pin);
 
-void setPCRmux(PORT_Type * p2port, uint8_t numPin, uint8_t mux);
+
 
 void setPCRpullEnable(PORT_Type * portPointer, uint8_t numPin);
 
@@ -47,7 +47,7 @@ void setPCRpullDown(PORT_Type * portPointer, uint8_t numPin);
 
 void setGPIOdataOut(GPIO_Type * gpioPortPointer, uint8_t numPin, _Bool value);
 
-void setPCRirqc(PORT_Type * p2port, uint8_t numPin, uint8_t irqMode);
+
 
 void setGPIOddr(GPIO_Type * p2port, uint8_t numPin, uint32_t mode);
 

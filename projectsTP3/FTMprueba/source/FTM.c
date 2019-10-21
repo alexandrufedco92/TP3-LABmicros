@@ -224,9 +224,9 @@ void enablePinFTM(FTMmodules id, FTMchannels ch)  //This function has to be enha
 	{
 		setPCRmux(PORTC, 1, 4);
 	}
-	else if((id == FTM0_INDEX) && (ch == FTM_CH2)) //PC9 (ALT 3)
+	else if((id == FTM2_INDEX) && (ch == FTM_CH0)) //PC9 (ALT 3)
 	{
-		setPCRmux(PORTC, 5, 7);
+		setPCRmux(PORTB, 18, 3);
 	}
 }
 
@@ -237,7 +237,7 @@ void FTMx_IRQHandler(FTMmodules nModule)
 	int i = 0;
 	for(i = 0; (i < FTM_N_CHANNELS) && (!isChannelInterrupt); i++)	//is some channel's event.
 	{
-		if(p2FTM->CONTROLS[i].CnSC & FTM_CnSC_CHF_MASK)
+		if(((p2FTM->CONTROLS[i]).CnSC) & (FTM_CnSC_CHF_MASK))
 		{
 			isChannelInterrupt = true;
 		}
