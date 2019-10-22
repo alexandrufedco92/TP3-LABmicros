@@ -109,7 +109,11 @@ void FTMinit(FTMconfig_t * p2config)
 			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
 
 			(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= (FTM_CnSC_MSB_MASK) | FTM_CnSC_ELSB_MASK;
+			p2FTM->CONTROLS[p2config->nChannel].CnV = ((p2FTM->MOD & FTM_MOD_MOD_MASK)/2);
+			updatePWMduty(p2config->nModule, p2config->nChannel, 20);
+			updatePWMperiod(p2config->nModule, p2config->nChannel, 100);
 			p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
+			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
 
 		}
 		//3)
@@ -174,8 +178,9 @@ void updatePWMduty(FTMmodules id, FTMchannels ch, int dutyPercent)
 	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch) && (dutyPercent > 0))
 	{
 		p2FTM = arrayP2FTM[id];
+		p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		nTicksPeriod = (p2FTM->MOD & FTM_MOD_MOD_MASK) - (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK);
-		p2FTM->CONTROLS[ch].CnV = (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK) + (uint32_t)((nTicksPeriod*100)/dutyPercent);
+		p2FTM->CONTROLS[ch].CnV = (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK) + (uint32_t)((nTicksPeriod*dutyPercent)/100);
 	}
 }
 
@@ -188,7 +193,7 @@ int getPWMduty(FTMmodules id, FTMchannels ch)
 	{
 		p2FTM = arrayP2FTM[id];
 		nTicksPeriod = (p2FTM->MOD & FTM_MOD_MOD_MASK) - (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK);
-		dutyPercent = ((nTicksPeriod*100)/(p2FTM->CONTROLS[ch].CnV - (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK)));
+		dutyPercent = ((p2FTM->CONTROLS[ch].CnV - (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK))*100)/nTicksPeriod;
 	}
 	return dutyPercent;
 }
@@ -202,12 +207,13 @@ void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime)
 	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch))
 	{
 		p2FTM = arrayP2FTM[id];
+		p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		dutyAux = getPWMduty(id, ch);
 		p2FTM->CNTIN &= ~((uint32_t)FTM_CNTIN_INIT_MASK);
 		p2FTM->MOD &= ~((uint32_t)FTM_MOD_MOD_MASK);
 
 		prescalerFactor = getPrescalerFactor(p2FTM);
-		nTicks = (((uint32_t)newPeriodTime)*prescalerFactor)/(F_CLOCK);
+		nTicks = (((uint32_t)newPeriodTime)*F_CLOCK)/(prescalerFactor);
 		p2FTM->MOD |= FTM_MOD_MOD(nTicks - 1);
 		updatePWMduty(id, ch, dutyAux);
 	}
