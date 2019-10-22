@@ -112,7 +112,19 @@ void FTMinit(FTMconfig_t * p2config)
 			p2FTM->CONTROLS[p2config->nChannel].CnV = ((p2FTM->MOD & FTM_MOD_MOD_MASK)/2);
 			updatePWMduty(p2config->nModule, p2config->nChannel, 20);
 			updatePWMperiod(p2config->nModule, p2config->nChannel, 100);
+
+			//SYNCHRONIZATION
+			p2FTM->MODE |= FTM_MODE_PWMSYNC(1);
+			p2FTM->SYNCONF |= FTM_SYNCONF_SYNCMODE(1);
+			p2FTM->SYNCONF |= FTM_SYNCONF_CNTINC(1);
+			p2FTM->SYNCONF |= FTM_SYNCONF_SWWRBUF(1);
+			p2FTM->SYNCONF |= FTM_SYNCONF_SWRSTCNT(1);
+
+			p2FTM->COMBINE |= FTM_COMBINE_SYNCEN0(1);
+
 			p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
+
+			/////
 			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
 
 		}
@@ -181,6 +193,8 @@ void updatePWMduty(FTMmodules id, FTMchannels ch, int dutyPercent)
 		p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		nTicksPeriod = (p2FTM->MOD & FTM_MOD_MOD_MASK) - (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK);
 		p2FTM->CONTROLS[ch].CnV = (p2FTM->CNTIN & FTM_CNTIN_INIT_MASK) + (uint32_t)((nTicksPeriod*dutyPercent)/100);
+		p2FTM->SYNC |= FTM_SYNC_SWSYNC(1);
+		p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 	}
 }
 
@@ -216,6 +230,8 @@ void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime)
 		nTicks = (((uint32_t)newPeriodTime)*F_CLOCK)/(prescalerFactor);
 		p2FTM->MOD |= FTM_MOD_MOD(nTicks - 1);
 		updatePWMduty(id, ch, dutyAux);
+		//p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
+		//p2FTM->SYNC |= FTM_SYNC_SWSYNC(1);
 	}
 }
 
