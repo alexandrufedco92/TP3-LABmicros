@@ -229,9 +229,10 @@ void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime)
 		prescalerFactor = getPrescalerFactor(p2FTM);
 		nTicks = (((uint32_t)newPeriodTime)*F_CLOCK)/(prescalerFactor);
 		p2FTM->MOD |= FTM_MOD_MOD(nTicks - 1);
+
+		p2FTM->SYNC |= FTM_SYNC_SWSYNC(1);
+		p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		updatePWMduty(id, ch, dutyAux);
-		//p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
-		//p2FTM->SYNC |= FTM_SYNC_SWSYNC(1);
 	}
 }
 
