@@ -17,7 +17,7 @@ typedef enum {FTM0_INDEX = 0, FTM1_INDEX = 1, FTM2_INDEX = 2, FTM3_INDEX = 3}FTM
 
 typedef enum {FTM_CH0 = 0, FTM_CH1, FTM_N_CHANNELS, FTM_NO_CHANNEL}FTMchannels;
 
-typedef enum {FTM_TIMER, FTM_INPUT_CAPTURE, FTM_OUTPUT_COMPARE, FTM_PWM}FTMmodes;
+typedef enum {FTM_TIMER, FTM_INPUT_CAPTURE, FTM_OUTPUT_COMPARE, FTM_EPWM}FTMmodes;
 
 typedef enum {FTM_PSCX1, FTM_PSCX2, FTM_PSCX4, FTM_PSCX8, FTM_PSCX16, FTM_PSCX32,
 												FTM_PSCX64, FTM_PSCX128}FTMprescaler;
@@ -59,6 +59,7 @@ typedef struct{
 void FTMinit(FTMconfig_t * p2config);
 
 void updatePWMduty(FTMmodules id, FTMchannels ch, int dutyPercent);
+int getPWMduty(FTMmodules id, FTMchannels ch);
 
 void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime);
 

@@ -28,6 +28,7 @@
 void senoidalCallback(void);
 void FTMtimerCallback(FTMchannels ch);
 void FTMicCallback(FTMchannels ch);
+void FTMpwmCallback(FTMchannels ch);
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -66,7 +67,7 @@ void App_Init (void)
 		int CnV;
 
 	}FTMconfig_t;*/
-	FTMconfig_t FTMtimerConfig;
+	/*FTMconfig_t FTMtimerConfig;
 	FTMtimerConfig.mode = FTM_OUTPUT_COMPARE;
 	FTMtimerConfig.nModule = FTM0_INDEX;
 	FTMtimerConfig.nChannel = FTM_CH0;
@@ -94,8 +95,23 @@ void App_Init (void)
 	FTMinit(&FTMconfigIC);
 	//enableFTMinterrupts(FTM0_INDEX);
 
-	gpioMode (PORTNUM2PIN(PB, 9), OUTPUT);
+	gpioMode (PORTNUM2PIN(PB, 9), OUTPUT);*/
 
+	FTMconfig_t FTMpwmConfig;
+	FTMpwmConfig.mode = FTM_EPWM;
+	FTMpwmConfig.nModule = FTM0_INDEX;
+	FTMpwmConfig.nChannel = FTM_CH0;
+	FTMpwmConfig.countMode = UP_COUNTER;
+	FTMpwmConfig.prescaler = FTM_PSCX32;
+	FTMpwmConfig.CnV = 0;
+	FTMpwmConfig.nTicks = 0xFFFF;
+	FTMpwmConfig.numOverflows = 0;
+	FTMpwmConfig.p2callback = FTMpwmCallback;
+
+	FTMinit(&FTMpwmConfig);
+
+	updatePWMperiod(FTMpwmConfig.nModule, FTMpwmConfig.nChannel, 100); //100us
+	updatePWMduty(FTMpwmConfig.nModule, FTMpwmConfig.nChannel, 20); //20%
 
 }
 /* Función que se llama constantemente en un ciclo infinito */
@@ -176,6 +192,26 @@ void FTMicCallback(FTMchannels ch)
 	else //overflow
 	{
 		//gpioToggle(PORTNUM2PIN(PB, 9));
+	}
+}
+
+void FTMpwmCallback(FTMchannels ch)
+{
+	static int counter = 0;
+	if(ch == FTM_NO_CHANNEL) //al final de cada periodo
+	{
+		counter++;
+		if(counter == 5) //luego de 5 p
+		{
+			updatePWMperiod(FTM0_INDEX, FTM_CH0, 50); //50us
+			updatePWMduty(FTM0_INDEX, FTM_CH0, 80); //80%
+		}
+		else if(counter == 10)
+		{
+			updatePWMperiod(FTM0_INDEX, FTM_CH0, 100); //100us
+			updatePWMduty(FTM0_INDEX, FTM_CH0, 20); //20%
+			counter = 0;
+		}
 	}
 }
 
