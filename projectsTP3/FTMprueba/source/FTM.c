@@ -108,8 +108,8 @@ void FTMinit(FTMconfig_t * p2config)
 			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
 			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
 
-			(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= (FTM_CnSC_MSB_MASK);
-
+			(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= (FTM_CnSC_MSB_MASK) | FTM_CnSC_ELSB_MASK;
+			p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 
 		}
 		//3)
