@@ -15,7 +15,7 @@
 												//The minimum voltage of the DAC's output
 												//is equal to the reference voltage divided by 4096
 
-typedef enum {DAC0, DAC1, NUMBER_OF_DACS}DACids;
+typedef enum {DAC0_ID, DAC1_ID, NUMBER_OF_DACS}DACids;
 
 typedef struct
 {

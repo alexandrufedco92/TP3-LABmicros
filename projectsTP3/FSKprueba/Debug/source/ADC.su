@@ -1,0 +1,15 @@
+core_cm4.h:1626:22:NVIC_EnableIRQ	16	static
+ADC.c:9:6:ADC_Init	8	static
+ADC.c:28:6:ADC_SetResolution	16	static
+ADC.c:33:6:ADC_SetCycles	16	static
+ADC.c:48:6:ADC_SetInterruptMode	16	static
+ADC.c:56:6:ADC_IsInterruptPending	16	static
+ADC.c:61:6:ADC_ClearInterruptFlag	16	static
+ADC.c:68:11:ADC_GetResolution	16	static
+ADC.c:75:13:ADC_GetSCycles	16	static
+ADC.c:83:6:ADC_SetHardwareAverage	16	static
+ADC.c:95:11:ADC_GetHardwareAverage	16	static
+ADC.c:103:6:ADC_Calibrate	88	static
+ADC.c:179:6:ADC_Start	16	static
+ADC.c:189:6:ADC_IsReady	16	static
+ADC.c:194:11:ADC_getData	16	static

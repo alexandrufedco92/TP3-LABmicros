@@ -10,7 +10,7 @@ C_SRCS += \
 ../source/FTM.c \
 ../source/SysTick.c \
 ../source/comController2pc.c \
-../source/pinsHandler.c \
+../source/gpio.c \
 ../source/timer.c \
 ../source/uart.c 
 
@@ -21,7 +21,7 @@ OBJS += \
 ./source/FTM.o \
 ./source/SysTick.o \
 ./source/comController2pc.o \
-./source/pinsHandler.o \
+./source/gpio.o \
 ./source/timer.o \
 ./source/uart.o 
 
@@ -32,7 +32,7 @@ C_DEPS += \
 ./source/FTM.d \
 ./source/SysTick.d \
 ./source/comController2pc.d \
-./source/pinsHandler.d \
+./source/gpio.d \
 ./source/timer.d \
 ./source/uart.d 
 
