@@ -63,11 +63,17 @@ typedef enum{
 typedef enum{
 	AD0 = 0X00, AD1, AD2, AD3, AD4, AD5, AD6, AD7, AD8, AD9,
 	AD10, AD11, AD12, AD13, AD14, AD15, AD16, AD17, AD18,
-	AD19, AD20, AD21, AD22, AD23,
+	AD19, AD20, AD21, AD22, AD23
 }ADC_Channel_t;
+
+typedef enum{
+	FIRST_ADC=0,	//ID for ADC0
+	SECOND_ADC=1	//ID for ADC1
+}ADC_ID_t;
 
 
 typedef struct{
+	ADC_ID_t id;
 	ADC_Channel_t channel_sel;
 	ADC_Resolution_t resolution;
 	ADC_Clock_t clock_type;
