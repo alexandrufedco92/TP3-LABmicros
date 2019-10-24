@@ -6,6 +6,8 @@
  */
 
 #include "MK64F12.h"
+#include "CMP.h"
+#include "pinsHandler.h"
 
 #define CMP_ANALOG_IN 1U // PTC7, CMP0_IN1				//PTC3, CMP1_IN1
 #define CMP_ANALOG_REF 7U	//elijo dac
@@ -23,20 +25,24 @@ uint8_t CMP_out_pins[] = {PORTNUM2PIN(PC, 5), PORTNUM2PIN(PC, 4)};
 CMP_Type * arrayP2CMP[] = CMP_BASE_PTRS;
 IRQn_Type arrayCMPirqs[] = CMP_IRQS;
 
-static void CMPClockGating();
+static void clockGating();
+static void enableInterrupts(CMP_Type* base);
+static void configurePins(uint8_t id);
+void initCMP(cmps_ids id);
+static void configureInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInput);
+static void configureDAC(CMP_Type* base);
 
 
-void CMPClockGating(){
-	SIM_Type* sim;
-	sim->SIM_SCGC4 |= SIM_SCGC4_CMP_MASK;
-	sim->SCGC5 |= SIM_SCGC5_PORTC_MASK;
+void clockGating(){
+	SIM->SCGC4 |= SIM_SCGC4_CMP_MASK;
+	SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
 
 }
 
-void CMPConfigurePins(uint8_t id){
+void configurePins(uint8_t id){
 	uint8_t cmp_in_mux = 0;
 	uint8_t cmp_out_mux = 6;
-	switch(channel)
+	switch(id)
 	{
 	case CMP_0:
 		cmp_in_mux = 0;
@@ -61,18 +67,18 @@ void CMPConfigurePins(uint8_t id){
 	setPCRirqc(portPointers[port_out], num_pin_out, IRQ_MODE_DISABLE);
 
 
-	setPCRpullEnable(portPointers[port_in], num_pin_in);
-	setPCRpullUp(portPointers[port_in], num_pin_in);
-	setPCRpullEnable(portPointers[port_out], num_pin_out);
-	setPCRpullUp(portPointers[port_out], num_pin_out);
+//	setPCRpullEnable(portPointers[port_in], num_pin_in);
+//	setPCRpullUp(portPointers[port_in], num_pin_in);
+//	setPCRpullEnable(portPointers[port_out], num_pin_out);
+//	setPCRpullUp(portPointers[port_out], num_pin_out);
 }
 
 
 void initCMP(cmps_ids id){
 
 	CMP_Type* base = arrayP2CMP[id];	//todo hacerlo generico
-	CMPClockGating();
-	CMPConfigurePins();		//solo CMP0
+	clockGating();
+	configurePins(id);		//solo CMP0
 
 	//windowed mode for zero crossing detection
 	base->CR1 |= CMP_CR1_WE_MASK;
@@ -84,16 +90,23 @@ void initCMP(cmps_ids id){
 	base->CR0 |= CMP_CR0_HYSTCTR(HYST_MASK);
 
 
-	configureDAC(CMP_Type* base);
-	void setInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInput);
+	configureDAC(base);
+	configureInputs(base, CMP_ANALOG_REF, CMP_ANALOG_IN);
 
 	//setEnableDMA()
 	base->CR1 |= CMP_CR1_EN_MASK;		//enable module
+	enableInterrupts(base);
 	NVIC_EnableIRQ(arrayCMPirqs[id]);
 }
 
+void enableInterrupts(CMP_Type* base){
+	uint8_t mask = 0U;
+	mask |= CMP_SCR_IER_MASK; 	//rising edge interrupt
+	mask |= CMP_SCR_IEF_MASK; 	//falling edge interrupt
+	base->SCR |= mask;
+}
 
-void setInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInput){
+void configureInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInput){
 
 	uint8_t mask = base->MUXCR;
 
@@ -116,16 +129,17 @@ void configureDAC(CMP_Type* base){
 
 	mask |= CMP_DACCR_VOSEL(dac_value);
 
-	base = mask;
+	base->DACCR = mask;
 }
 
-void setEnableDMA(){
+void enableDMA(){
 	//todo
 }
 
 
 
 void CMP0_IRQHandler(void){
-
+	CMP_Type* base = arrayP2CMP[CMP_0];
+	base->SCR |= (CMP_SCR_CFF_MASK | CMP_SCR_CFR_MASK);
 
 }

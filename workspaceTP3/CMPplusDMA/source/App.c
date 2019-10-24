@@ -12,6 +12,7 @@
 */
 #include "comController2pc.h"
 #include "DAC.h"
+#include "CMP.h"
 #include "timer.h"
 #include <math.h>
 
@@ -34,6 +35,7 @@ void senoidalCallback(void);
 
 void App_Init (void)
 {
+	initCMP(CMP_0);
 	DACconfig_t DACconfig;
 	initResourcesController2pc();
 	InitializeTimers();
