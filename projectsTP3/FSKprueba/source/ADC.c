@@ -20,7 +20,7 @@ static ADC_Type * ADC;
 /*********************************************************
  * 					HEADER FUNCTIONS
  *********************************************************/
-void ADC_Init( const ADC_Config_t* config )
+bool ADC_Init( const ADC_Config_t* config )
 {
 	if(!initialized)
 	{
@@ -36,43 +36,75 @@ void ADC_Init( const ADC_Config_t* config )
 			SIM->SCGC3 |= SIM_SCGC3_ADC1_MASK;	//Clock gating para el ADC1
 			NVIC_EnableIRQ(ADC1_IRQn);			//Enable ADC1 interrupts
 		}
-		Calibrate();						//Calibration
+		//Calibrate();						//Calibration
 
 		//Update CFG1 register
-		ADC->CFG1 |= ADC_CFG1_ADLPC( config->low_power ); //Low power configuration.
-		ADC->CFG1 |= ADC_CFG1_ADICLK( config->clock_type ); //Clock select
-		ADC->CFG1 |= ADC_CFG1_ADIV( config->clock_divide ); //Clock frequency divider
-		ADC->CFG1 |= ADC_CFG1_ADLSMP( config->sample_time ); //Sample time
-		ADC->CFG1 |= ADC_CFG1_MODE( config->resolution ); //Number of bits of result.
+		ADC->CFG1 = (ADC->CFG1 & (~ADC_CFG1_ADLPC_MASK)) | ( ADC_CFG1_ADLPC( config->low_power ) ); //Low power configuration.
+		ADC->CFG1 = (ADC->CFG1 & (~ADC_CFG1_ADICLK_MASK)) | ADC_CFG1_ADICLK( config->clock_type ); //Clock select
+		ADC->CFG1 = (ADC->CFG1 & (~ADC_CFG1_ADIV_MASK)) | ADC_CFG1_ADIV( config->clock_divide ); //Clock frequency divider
+		ADC->CFG1 = (ADC->CFG1 & (~ADC_CFG1_ADLSMP_MASK)) | ADC_CFG1_ADLSMP( config->sample_time ); //Sample time
+		ADC->CFG1 = (ADC->CFG1 & (~ADC_CFG1_MODE_MASK)) | ADC_CFG1_MODE( config->resolution ); //Number of bits of result.
 		//Update SC2 register
-		ADC->SC2 |= ADC_SC2_ADTRG( config->trigger );				//Trigger select
-		ADC->SC2 |= ADC_SC2_REFSEL( config->voltage_reference );	//Reference select
+		ADC->SC2 = (ADC->SC2 & (~ADC_SC2_ADTRG_MASK)) | ADC_SC2_ADTRG( config->trigger );				//Trigger select
+		ADC->SC2 = (ADC->SC2 & (~ADC_SC2_REFSEL_MASK)) | ADC_SC2_REFSEL( config->voltage_reference );	//Reference select
 
 		//Update SC3 register
-		ADC->SC3 |= ADC_SC3_ADCO( config->enable_cont_conversions ); //Continuous conversion enable
-		ADC->SC3 |= ADC_SC3_AVGE( config->enable_hardware_avg ); //Hardware average enable
-		ADC->SC3 |= ADC_SC3_AVGS( config->samples_to_average ); //Average select.
+		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_ADCO_MASK)) | ADC_SC3_ADCO( config->enable_cont_conversions ); //Continuous conversion enable
+		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_AVGE_MASK)) | ADC_SC3_AVGE( config->enable_hardware_avg ); //Hardware average enable
+		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_AVGS_MASK)) | ADC_SC3_AVGS( config->samples_to_average ); //Average select.
 		//Update SC1 registers
-		ADC->SC1[0] |= ADC_SC1_AIEN( config->enable_interrupts );//Interrupt enable
-		ADC->SC1[0] |= ADC_SC1_DIFF( config->diffential_mode ); //Differential mode
+		ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_AIEN_MASK)) | ADC_SC1_AIEN( config->enable_interrupts );//Interrupt enable
+		ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_DIFF_MASK)) | ADC_SC1_DIFF( config->diffential_mode ); //Differential mode
 		if( (config->diffential_mode) && ( (config->channel_sel) > AD3) )
 		{
 			return false;	//Invalid configuration
 		}
 		else
 		{
-			ADC->SC1[0] |= ADC_SC1_ADCH( config->channel_sel ); //Select ADC input
+			ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_ADCH_MASK)) | ADC_SC1_ADCH( config->channel_sel ); //Select ADC input
 		}
 
 		initialized = true;
 		return true;
 	}
+	else
+	{
+		return false;
+	}
 
 }
 
+bool StartConversion(ADC_Channel_t channel, bool interrupt_enable)
+{
+	if( !(ADC->SC2 & ADC_SC2_ADTRG_MASK) )
+	{
+		(ADC->SC1[0]) = ( (ADC->SC1[0]) & (~ADC_SC1_ADCH_MASK) ) | ADC_SC1_ADCH(channel);
+		(ADC->SC1[0]) = ( (ADC->SC1[0]) & (~ADC_SC1_AIEN_MASK) ) | ADC_SC1_AIEN(interrupt_enable);
+		return true;
+	}
+	return false;
+}
+
+bool IsConversionFinished(void)
+{
+	if( (ADC->SC1[0]) & ADC_SC1_COCO_MASK )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+ADC_Data_t GetConversionResult(void)
+{
+	return (ADC_Data_t) (ADC->R)[0];
+}
 /************************************************************
  * 					LOCAL FUNCTIONS
  ************************************************************/
+/*
 bool ADC_Calibrate (void)
 {
 	if(!initialized)
@@ -87,7 +119,7 @@ bool ADC_Calibrate (void)
 
 	/// SETUP
 	ADC->SC1[0] = 0x1F;
-	scr3 = adc->SC3;
+	scr3 = ADC->SC3;
 	ADC->SC3 &= (ADC_SC3_AVGS(0x03) | ADC_SC3_AVGE_MASK);
 
 	/// INITIAL CALIBRATION
@@ -152,4 +184,5 @@ bool ADC_Calibrate (void)
 
 	return true;
 }
+*/
 

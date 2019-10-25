@@ -4,17 +4,26 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../source/ADC.c \
+../source/DAC.c \
 ../source/FSK_Demodulator.c \
+../source/gpio.c \
 ../source/hardware.c \
 ../source/main.c 
 
 OBJS += \
+./source/ADC.o \
+./source/DAC.o \
 ./source/FSK_Demodulator.o \
+./source/gpio.o \
 ./source/hardware.o \
 ./source/main.o 
 
 C_DEPS += \
+./source/ADC.d \
+./source/DAC.d \
 ./source/FSK_Demodulator.d \
+./source/gpio.d \
 ./source/hardware.d \
 ./source/main.d 
 
