@@ -97,9 +97,12 @@ typedef int16_t ADC_Data_t;
 
 /*
  * @brief Initializes the ADC peripheric.
- * @param config contains all the information needed for initialization
+ * @param config contains all the information needed for initialization.
+ * @return true if initialization was succesful, false otherwise.
  */
-void ADC_Init( const ADC_Config_t* config);
+bool ADC_Init( const ADC_Config_t* config);
+
+bool ADC_Calibrate(void);
 
 bool StartConversion(void);
 
