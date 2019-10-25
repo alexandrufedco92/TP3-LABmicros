@@ -11,7 +11,7 @@
 
 #define CMP_ANALOG_IN 1U // PTC7, CMP0_IN1				//PTC3, CMP1_IN1
 #define CMP_ANALOG_REF 7U	//elijo dac
-#define HYST_MASK 0U
+#define HYST_MASK 2U
 #define DAC_VALUE 32U
 #define VREF_SOURCE_VINX 0U
 
@@ -24,13 +24,43 @@ uint8_t CMP_out_pins[] = {PORTNUM2PIN(PC, 5), PORTNUM2PIN(PC, 4)};
 
 CMP_Type * arrayP2CMP[] = CMP_BASE_PTRS;
 IRQn_Type arrayCMPirqs[] = CMP_IRQS;
+CMP_Type* base;
 
 static void clockGating();
-static void enableInterrupts(CMP_Type* base);
+static void enableInterrupts();
 static void configurePins(uint8_t id);
 void initCMP(cmps_ids id);
-static void configureInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInput);
-static void configureDAC(CMP_Type* base);
+static void configureInputs(uint8_t positiveInput, uint8_t negativeInput);
+static void configureDAC();
+
+
+
+
+void initCMP(cmps_ids id){
+
+	base = arrayP2CMP[id];	//todo hacerlo generico
+	clockGating();
+	configurePins(id);		//solo CMP0
+
+	//windowed mode for zero crossing detection
+//	base->CR1 |= CMP_CR1_WE_MASK;
+
+	//todo debug para que la salida salga por el pin
+	base->CR1 |= CMP_CR1_OPE_MASK;
+
+	//histeresis+
+	base->CR0 |= CMP_CR0_HYSTCTR(HYST_MASK);
+
+//	base->CR0 &= ~CMP_CR0_FILTER_CNT_MASK;
+
+	configureDAC();
+	configureInputs(CMP_ANALOG_IN, CMP_ANALOG_REF);
+
+	//setEnableDMA()
+	base->CR1 |= CMP_CR1_EN_MASK;		//enable module
+	enableInterrupts();
+	NVIC_EnableIRQ(arrayCMPirqs[id]);
+}
 
 
 void clockGating(){
@@ -61,6 +91,15 @@ void configurePins(uint8_t id){
 	uint8_t port_out = PIN2PORT(CMP_out_pins[id]);
 	uint8_t num_pin_out = PIN2NUM(CMP_out_pins[id]);
 
+	//borrar esto
+	uint8_t cmp_test_mux = 0;
+
+	uint8_t port_test = PIN2PORT(PORTNUM2PIN(PC, 8));
+	uint8_t num_pin_test = PIN2NUM(PORTNUM2PIN(PC, 8));
+	setPCRmux(portPointers[port_test], num_pin_test, cmp_test_mux);
+	setPCRirqc(portPointers[port_test], num_pin_test, IRQ_MODE_DISABLE);
+	//lo de arriba
+
 	setPCRmux(portPointers[port_in], num_pin_in, cmp_in_mux);
 	setPCRmux(portPointers[port_out], num_pin_out, cmp_out_mux);
 	setPCRirqc(portPointers[port_in], num_pin_in, IRQ_MODE_DISABLE); //deshabilito interrupciones de puerto
@@ -74,41 +113,19 @@ void configurePins(uint8_t id){
 }
 
 
-void initCMP(cmps_ids id){
-
-	CMP_Type* base = arrayP2CMP[id];	//todo hacerlo generico
-	clockGating();
-	configurePins(id);		//solo CMP0
-
-	//windowed mode for zero crossing detection
-	base->CR1 |= CMP_CR1_WE_MASK;
-
-	//todo debug para que la salida salga por el pin
-	base->CR1 |= CMP_CR1_OPE_MASK;
-
-	//histeresis
-	base->CR0 |= CMP_CR0_HYSTCTR(HYST_MASK);
-
-
-	configureDAC(base);
-	configureInputs(base, CMP_ANALOG_REF, CMP_ANALOG_IN);
-
-	//setEnableDMA()
-	base->CR1 |= CMP_CR1_EN_MASK;		//enable module
-	enableInterrupts(base);
-	NVIC_EnableIRQ(arrayCMPirqs[id]);
+void enableInterrupts(){
+	base->SCR |= (CMP_SCR_IEF_MASK | CMP_SCR_IER_MASK);
 }
 
-void enableInterrupts(CMP_Type* base){
-	uint8_t mask = 0U;
-	mask |= CMP_SCR_IER_MASK; 	//rising edge interrupt
-	mask |= CMP_SCR_IEF_MASK; 	//falling edge interrupt
-	base->SCR |= mask;
-}
-
-void configureInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInput){
+void configureInputs(uint8_t positiveInput, uint8_t negativeInput){
 
 	uint8_t mask = base->MUXCR;
+
+
+	//borrar esto
+	negativeInput = 2U;
+	//lo de arriba
+
 
 	//borro los selectores que tiene
 	mask &= ~(uint8_t)(CMP_MUXCR_PSEL_MASK | CMP_MUXCR_MSEL_MASK);
@@ -117,7 +134,7 @@ void configureInputs(CMP_Type* base, uint8_t positiveInput, uint8_t negativeInpu
 }
 
 
-void configureDAC(CMP_Type* base){
+void configureDAC(){
 
 	uint8_t vref_source_vinX = VREF_SOURCE_VINX;
 	uint8_t dac_value = DAC_VALUE;                 // half voltage of logic high level

@@ -36,12 +36,12 @@ void senoidalCallback(void);
 void App_Init (void)
 {
 	initCMP(CMP_0);
-	DACconfig_t DACconfig;
-	initResourcesController2pc();
-	InitializeTimers();
-	DACinit(DAC0, &DACconfig);
-	writeDACvalue(DAC0, 2.0);
-	SetTimer(SENOIDAL, 1, senoidalCallback);
+//	DACconfig_t DACconfig;
+//	initResourcesController2pc();
+//	InitializeTimers();
+//	DACinit(DAC0, &DACconfig);
+//	writeDACvalue(DAC0, 2.0);
+//	SetTimer(SENOIDAL, 1, senoidalCallback);
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
