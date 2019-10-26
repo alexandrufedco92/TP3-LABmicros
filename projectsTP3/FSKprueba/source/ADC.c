@@ -16,12 +16,20 @@
  *********************************************************/
 bool initialized;
 static ADC_Type * ADC;
+static callback func;
+
+/********************************************************
+ * 				LOCAL FUNCTION DEFINITIONS
+ ********************************************************/
+
+bool SetChannelADC(ADC_Channel_t ch, bool diff, bool in_en);
 
 /*********************************************************
  * 					HEADER FUNCTIONS
  *********************************************************/
 bool ADC_Init( const ADC_Config_t* config )
 {
+	bool valid = false;
 	if(!initialized)
 	{
 		if( config->id == FIRST_ADC)
@@ -36,6 +44,7 @@ bool ADC_Init( const ADC_Config_t* config )
 			SIM->SCGC3 |= SIM_SCGC3_ADC1_MASK;	//Clock gating para el ADC1
 			NVIC_EnableIRQ(ADC1_IRQn);			//Enable ADC1 interrupts
 		}
+		func = config->intterupt_func;
 		//Calibrate();						//Calibration
 
 		//Update CFG1 register
@@ -53,15 +62,10 @@ bool ADC_Init( const ADC_Config_t* config )
 		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_AVGE_MASK)) | ADC_SC3_AVGE( config->enable_hardware_avg ); //Hardware average enable
 		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_AVGS_MASK)) | ADC_SC3_AVGS( config->samples_to_average ); //Average select.
 		//Update SC1 registers
-		ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_AIEN_MASK)) | ADC_SC1_AIEN( config->enable_interrupts );//Interrupt enable
-		ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_DIFF_MASK)) | ADC_SC1_DIFF( config->diffential_mode ); //Differential mode
-		if( (config->diffential_mode) && ( (config->channel_sel) > AD3) )
+		valid = SetChannelADC(config->channel_sel, config->diffential_mode, config->enable_interrupts);
+		if( !valid )
 		{
-			return false;	//Invalid configuration
-		}
-		else
-		{
-			ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_ADCH_MASK)) | ADC_SC1_ADCH( config->channel_sel ); //Select ADC input
+			return false;
 		}
 
 		initialized = true;
@@ -74,15 +78,33 @@ bool ADC_Init( const ADC_Config_t* config )
 
 }
 
-bool StartConversion(ADC_Channel_t channel, bool interrupt_enable)
+bool StartConversion(ADC_Channel_t channel, bool differential_mode, bool interrupt_enable)
 {
 	if( !(ADC->SC2 & ADC_SC2_ADTRG_MASK) )
 	{
-		(ADC->SC1[0]) = ( (ADC->SC1[0]) & (~ADC_SC1_ADCH_MASK) ) | ADC_SC1_ADCH(channel);
-		(ADC->SC1[0]) = ( (ADC->SC1[0]) & (~ADC_SC1_AIEN_MASK) ) | ADC_SC1_AIEN(interrupt_enable);
+		SetChannelADC(channel, differential_mode, interrupt_enable);
 		return true;
 	}
 	return false;
+}
+
+bool SetChannelADC(ADC_Channel_t channel, bool differential_mode, bool interrupt_enable)
+{
+	ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_AIEN_MASK)) | ADC_SC1_AIEN( interrupt_enable );//Interrupt enable
+	ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_DIFF_MASK)) | ADC_SC1_DIFF( differential_mode ); //Differential mode
+	if( (differential_mode) && ( (channel) > AD3) )
+	{
+		return false;	//Invalid configuration
+	}
+	else
+	{
+		ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_ADCH_MASK)) | ADC_SC1_ADCH( channel ); //Select ADC input
+	}
+}
+
+void SetInterruptCallback(callback call)
+{
+	func = call;
 }
 
 bool IsConversionFinished(void)
@@ -99,11 +121,23 @@ bool IsConversionFinished(void)
 
 ADC_Data_t GetConversionResult(void)
 {
-	return (ADC_Data_t) (ADC->R)[0];
+	return (ADC->R)[0];
 }
 /************************************************************
  * 					LOCAL FUNCTIONS
  ************************************************************/
+
+void ADC0_IRQHandler(void)
+{
+	func();
+}
+
+void ADC1_IRQHandler(void)
+{
+	func();
+	//Clear interrupt flag
+}
+
 /*
 bool ADC_Calibrate (void)
 {
