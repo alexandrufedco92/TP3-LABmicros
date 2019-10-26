@@ -24,6 +24,7 @@
  ******************************************************************************/
 
 typedef enum {CMP_0, CMP_1, CMP_COUNT}cmps_ids;
+enum{CMP_FLAG_RISING, CMP_FLAG_FALLING, CMP_OUTPUT_EVENT};
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -38,6 +39,6 @@ typedef enum {CMP_0, CMP_1, CMP_COUNT}cmps_ids;
  * @brief initializes CMP module
 */
 
-void initCMP(void);
+void initCMP(cmps_ids id);
 
 #endif /* CMP_H_ */

@@ -12,6 +12,7 @@
 */
 #include "comController2pc.h"
 #include "DAC.h"
+#include "CMP.h"
 #include "timer.h"
 #include <math.h>
 
@@ -34,12 +35,13 @@ void senoidalCallback(void);
 
 void App_Init (void)
 {
-	DACconfig_t DACconfig;
-	initResourcesController2pc();
-	InitializeTimers();
-	DACinit(DAC0, &DACconfig);
-	writeDACvalue(DAC0, 2.0);
-	SetTimer(SENOIDAL, 1, senoidalCallback);
+	initCMP(CMP_0);
+//	DACconfig_t DACconfig;
+//	initResourcesController2pc();
+//	InitializeTimers();
+//	DACinit(DAC0, &DACconfig);
+//	writeDACvalue(DAC0, 2.0);
+//	SetTimer(SENOIDAL, 1, senoidalCallback);
 }
 /* Función que se llama constantemente en un ciclo infinito */
 

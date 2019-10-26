@@ -104,7 +104,7 @@ bool ADC_Init( const ADC_Config_t* config);
 
 bool ADC_Calibrate(void);
 
-bool StartConversion(void);
+bool StartConversion(ADC_Channel_t channel, bool interrupt_enable);
 
 bool IsConversionFinished(void);
 

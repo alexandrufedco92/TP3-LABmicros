@@ -17,5 +17,8 @@ VERSION 2:
 		1) Relacionar input capture con DMA.
 		2) Hacer módulo que detecte frecuencias de señales cuadradas, 
 			unificando el mismo con el módulo de senoidales de la versión 1.
+
+
+SOBRE DDS: https://www.analog.com/media/en/training-seminars/tutorials/MT-085.pdf
 	 
 		

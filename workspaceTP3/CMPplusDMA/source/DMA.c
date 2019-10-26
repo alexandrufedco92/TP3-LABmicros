@@ -13,8 +13,7 @@ static void DMAClockGating();
 
 
 void DMAClockGating(){
-	SIM_Type* sim;
-	sim->SIM_SCGC7 |= SIM_SCGC7_DMA_MASK;
-	sim->SIM_SCGC6 |= SIM_SCGC6_DMAMUX_MASK;
+	SIM->SCGC7 |= SIM_SCGC7_DMA_MASK;
+	SIM->SCGC6 |= SIM_SCGC6_DMAMUX_MASK;
 
 }
