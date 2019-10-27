@@ -17,7 +17,7 @@
 #define CIRCULAR_BUFFER_SIZE 50
 
 typedef struct{
-	int16_t buffer[CIRCULAR_BUFFER_SIZE];
+	float buffer[CIRCULAR_BUFFER_SIZE];
 	int16_t curr; //indice del ultimo elemento agregado
 }circular_buffer_t;
 /***********************************************************
@@ -62,9 +62,9 @@ void DemodulatorInit(uint32_t fs_)
 	prev_samples = (uint8_t)( DELAY*fs);
 }
 
-void DemodulateSignal(int16_t* recieved,uint8_t buffer_size)
+void DemodulateSignal(float* recieved,uint8_t buffer_size)
 {
-	int16_t aux = 0;
+	float aux = 0;
 	int i =0;
 	uint16_t aux_index = 0;
 
@@ -123,6 +123,7 @@ void ApplyFIR(uint8_t cant)
 			}
 			aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
 		}
-		(result_signal.buffer)[result_signal.curr] = (int16_t) aux;
+		(result_signal.buffer)[result_signal.curr] = aux;
 	}
+	return;
 }

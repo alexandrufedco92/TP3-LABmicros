@@ -6,14 +6,18 @@
  */
 
 #include "MK64F12.h"
+#include "DMA.h"
+#include "DMAMUX.h"
 
 
-static void DMAClockGating();
+static void initDMAMUX(void);
 
 
-
-void DMAClockGating(){
+void clockGating(){
 	SIM->SCGC7 |= SIM_SCGC7_DMA_MASK;
-	SIM->SCGC6 |= SIM_SCGC6_DMAMUX_MASK;
+}
+
+void initDMA(void){
 
 }
+
