@@ -7,9 +7,8 @@
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-/*
 
-*/
+#include "bitStreamQueue.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -26,17 +25,31 @@
  *******************************************************************************
  ******************************************************************************/
 
+static int array[50];
+static int i;
+
 /* Función que se llama 1 vez, al comienzo del programa */
 
 void App_Init (void)
 {
-
+	bitStreamQueueInit();
+	pushChar('A');
+	pushChar('Z');
+	i = 0;
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
 void App_Run (void)
 {
-
+	while(!isQueueEmpty()){
+		if(popBit()){ /* 1 */
+			array[i] = 1;
+		}
+		else{ /* 0 */
+			array[i] = 0;
+		}
+		i++;
+	}
 }
 
 /*******************************************************************************

@@ -132,16 +132,16 @@ static void PITenable(PIT_Type * base, bool enable){
 bool PITtimerInit(uint8_t timerNbr, bool interruptEnable){;
 	if(interruptEnable){
 		/* Enable Timer 1 interrupts. */
-		PIT->CHANNEL[timerNbr].TCTRL = TIE;
+		PIT->CHANNEL[timerNbr].TCTRL = 1 /*TIE*/;
 	}
 	/* Start Timer 1. */
-	PIT->CHANNEL[timerNbr].TCTRL |= TEN;
+	PIT->CHANNEL[timerNbr].TCTRL |= 1 /*TEN*/;
 }
 
 bool PITtimerSet(uint8_t timerNbr, uint32_t tValue){
 	if(tValue == CHAIN_MODE_VALUE){
 		/* Setup chain mode. */
-		PIT->CHANNEL[timerNbr].TCTRL |= CHN;
+		PIT->CHANNEL[timerNbr].TCTRL |= 1 /*CHN*/;
 	}
 	else{
 		/* Setup timer value. */

@@ -34,13 +34,26 @@ typedef struct{
 
 static queue_t queue;
 
+static void recursiveStore(int index, char value);
+
+static void recursiveStore(int index, char value){
+	if(index == -1){
+		queue.bitStreamQueue[index+1] = value;
+	}
+	else{
+		queue.bitStreamQueue[index+1] = queue.bitStreamQueue[index];
+		index--;
+		recursiveStore(index,value);
+	}
+}
+
 /*******************************************************************************
  * FUNCTION DEFINITIONS WITH GLOBAL SCOPE
  ******************************************************************************/
 
 void bitStreamQueueInit(void){
 	queue.top = -1;
-	queue.bitIdx = LSB_IDX;
+	queue.bitIdx = MSB_IDX;
 }
 
 bool pushChar(char value){
@@ -48,8 +61,9 @@ bool pushChar(char value){
 		return false;
 	}
 	else{ /* Insert new item in queue. */
+		recursiveStore(queue.top, value);
 		queue.top++;
-		queue.bitStreamQueue[queue.top] = value;
+		return true;
 	}
 }
 
@@ -65,11 +79,11 @@ bool isQueueEmpty(void){
 bool popBit(void){
 	bool finalValue;
 	/* Current value. */
-	char currValue = queue.bitStreamQueue[top];
+	char currValue = queue.bitStreamQueue[queue.top];
 	/* Mask to detect current bit*/
 	char mask = 0x1 <<  queue.bitIdx;
 	/* Value to determine current bit value. Results in zeros in other bits and the value of the bit in current bit. */
-	maskValue = currValue & mask;
+	char maskValue = currValue & mask;
 	/* Save bit Value*/
 	if(maskValue == 0){
 		finalValue = false; /* Current bit is 0. */
@@ -78,12 +92,12 @@ bool popBit(void){
 		finalValue = true; /* Current bit is 1. */
 	}
 	/* Update index in queue. */
-	if(queue.bitIdx == MSB_IDX){ /* All bits in char were read. Pop char from queue. */
+	if(queue.bitIdx == LSB_IDX){ /* All bits in char were read. Pop char from queue. */
 		queue.top--;
-		queue.bitIdx = LSB_IDX;
+		queue.bitIdx = MSB_IDX;
 	}
 	else{ /* Other bits still to be read from char. */
-		queue.bitIdx++;
+		queue.bitIdx--;
 	}
 	return finalValue;
 }
