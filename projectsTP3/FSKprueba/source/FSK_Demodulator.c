@@ -6,15 +6,18 @@
  */
 
 #include "FSK_Demodulator.h"
+#include <stdbool.h>
 /***********************************************************
  *					 DEFINES AND MACROS
  ***********************************************************/
 #define FL 1200	//Frequency of a logical '1'
 #define FH 2200	//Frequency of a logical '0'
 #define DELAY 0.0004464 //Delay optimo en s
+#define VLOW -0.25
+#define VHIGH 0.25
 #define FIR_ORDER 18
 //Size of Buffers
-#define CIRCULAR_BUFFER_SIZE 50
+#define CIRCULAR_BUFFER_SIZE 80
 
 typedef struct{
 	float buffer[CIRCULAR_BUFFER_SIZE];
@@ -39,6 +42,7 @@ static float fir_coeffs[] = {0.0099524156275609069, 0.025829664997474223, 0.0052
 							0.0099524156275609069};
 
 
+
 /***********************************************************
  * 				LOCAL FUNCTIONS DECLARATIONS
  ***********************************************************/
@@ -49,17 +53,29 @@ static float fir_coeffs[] = {0.0099524156275609069, 0.025829664997474223, 0.0052
 */
 void ApplyFIR(uint8_t cant);
 
+/**
+ * @brief Stores value of digital signal
+ * @param digital_signal
+ * @param cant number of samples from analog signal
+*/
+void ReconstructSignal(bool* digital_signal, uint8_t cant);
+
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  ***********************************************************/
 void DemodulatorInit(uint32_t fs_)
 {
+	int i =0;
 	fs = fs_;
 	FSK_signal.curr = -1;
 	PreFiltered_signal.curr = -1;
 	result_signal.curr = -1;
 
 	prev_samples = (uint8_t)( DELAY*fs);
+	for(i=0; i< CIRCULAR_BUFFER_SIZE; i++)
+	{
+		result_signal.buffer[i] = 1; //By default the initial state is all '1'.
+	}
 }
 
 void DemodulateSignal(float* recieved,uint8_t buffer_size)
@@ -97,6 +113,21 @@ void DemodulateSignal(float* recieved,uint8_t buffer_size)
 
 }
 
+void GetData(float* data_buffer,uint8_t num_samples)
+{
+	int i =0;
+	int aux_index = 0;
+	for(i=1; i<= num_samples; i++)
+	{
+		aux_index = result_signal.curr-num_samples+i;
+		if( aux_index < 0 )
+		{
+			aux_index += CIRCULAR_BUFFER_SIZE;
+		}
+		data_buffer[i] = result_signal.buffer[aux_index];
+	}
+}
+
 /***********************************************************
  * 				FUNCTIONS WITH LOCAL SCOPE
  ***********************************************************/
@@ -123,7 +154,34 @@ void ApplyFIR(uint8_t cant)
 			}
 			aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
 		}
-		(result_signal.buffer)[result_signal.curr] = aux;
+		//ApplyComparator
+		if( (result_signal.buffer)[(result_signal.curr)-1] == 0)
+		{
+			if( aux < VLOW )
+			{
+				(result_signal.buffer)[result_signal.curr] = 1;
+			}
+			else
+			{
+				(result_signal.buffer)[result_signal.curr] = 0;
+			}
+		}
+		else
+		{
+			if( aux > VHIGH )
+			{
+				(result_signal.buffer)[result_signal.curr] = 0;
+			}
+			else
+			{
+				(result_signal.buffer)[result_signal.curr] = 1;
+			}
+		}
 	}
 	return;
+}
+
+void ReconstructSignal(bool* digital_signal, uint8_t cant);
+{
+
 }

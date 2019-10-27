@@ -13,7 +13,7 @@
 #include "ADC.h"
 
 #define PI 3.14159
-#define SIZE 20
+#define SIZE 45
 
 #define __FOREVER__ 	for(;;)
 
@@ -27,13 +27,13 @@ int main (void)
 
 	float vector[SIZE];
 	int i =0;
-	uint32_t sample_freq = 12000;
-	int f = 1200;
+	float sample_freq = 12000;
+	int f = 2200;
 	DemodulatorInit(sample_freq);
 	float amplitude = 100;
 	for(i=0; i<SIZE; i++)
 	{
-		vector[i] = 1000;
+		vector[i] = sin( (2*PI*f*i)/sample_freq );
 	}
 
 	DemodulateSignal(vector, SIZE);
