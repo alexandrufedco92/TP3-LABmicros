@@ -18,16 +18,21 @@
   18              		.align	1
   21              	adc_data:
   22 0000 0000     		.space	2
-  23              		.section	.text.main,"ax",%progbits
-  24              		.align	1
-  25              		.global	main
-  26              		.syntax unified
-  27              		.thumb
-  28              		.thumb_func
-  29              		.fpu fpv4-sp-d16
-  31              	main:
-  32              	.LFB123:
-  33              		.file 1 "../source/main.c"
+  23              		.global	__aeabi_i2d
+  24              		.global	__aeabi_dmul
+  25              		.global	__aeabi_f2d
+  26              		.global	__aeabi_ddiv
+  27              		.global	__aeabi_d2f
+  28              		.section	.text.main,"ax",%progbits
+  29              		.align	1
+  30              		.global	main
+  31              		.syntax unified
+  32              		.thumb
+  33              		.thumb_func
+  34              		.fpu fpv4-sp-d16
+  36              	main:
+  37              	.LFB123:
+  38              		.file 1 "../source/main.c"
    1:../source/main.c **** /*
    2:../source/main.c ****  * main.c
    3:../source/main.c ****  *
@@ -43,7 +48,7 @@
   13:../source/main.c **** #include "ADC.h"
   14:../source/main.c **** 
   15:../source/main.c **** #define PI 3.14159
-  16:../source/main.c **** #define SIZE 20
+  16:../source/main.c **** #define SIZE 45
   17:../source/main.c **** 
   18:../source/main.c **** #define __FOREVER__ 	for(;;)
   19:../source/main.c **** 
@@ -54,110 +59,161 @@
   24:../source/main.c **** 
   25:../source/main.c **** int main (void)
   26:../source/main.c **** {
-  34              		.loc 1 26 0
-  35              		.cfi_startproc
-  36              		@ args = 0, pretend = 0, frame = 96
-  37              		@ frame_needed = 1, uses_anonymous_args = 0
-  38 0000 80B5     		push	{r7, lr}
-  39              		.cfi_def_cfa_offset 8
-  40              		.cfi_offset 7, -8
-  41              		.cfi_offset 14, -4
-  42 0002 98B0     		sub	sp, sp, #96
-  43              		.cfi_def_cfa_offset 104
-  44 0004 00AF     		add	r7, sp, #0
-  45              		.cfi_def_cfa_register 7
+  39              		.loc 1 26 0
+  40              		.cfi_startproc
+  41              		@ args = 0, pretend = 0, frame = 200
+  42              		@ frame_needed = 1, uses_anonymous_args = 0
+  43 0000 B0B5     		push	{r4, r5, r7, lr}
+  44              		.cfi_def_cfa_offset 16
+  45              		.cfi_offset 4, -16
+  46              		.cfi_offset 5, -12
+  47              		.cfi_offset 7, -8
+  48              		.cfi_offset 14, -4
+  49 0002 B2B0     		sub	sp, sp, #200
+  50              		.cfi_def_cfa_offset 216
+  51 0004 00AF     		add	r7, sp, #0
+  52              		.cfi_def_cfa_register 7
   27:../source/main.c **** 
   28:../source/main.c **** 	float vector[SIZE];
   29:../source/main.c **** 	int i =0;
-  46              		.loc 1 29 0
-  47 0006 0023     		movs	r3, #0
-  48 0008 FB65     		str	r3, [r7, #92]
-  30:../source/main.c **** 	uint32_t sample_freq = 12000;
-  49              		.loc 1 30 0
-  50 000a 42F6E063 		movw	r3, #12000
-  51 000e BB65     		str	r3, [r7, #88]
-  31:../source/main.c **** 	int f = 1200;
-  52              		.loc 1 31 0
-  53 0010 4FF49663 		mov	r3, #1200
-  54 0014 7B65     		str	r3, [r7, #84]
+  53              		.loc 1 29 0
+  54 0006 0023     		movs	r3, #0
+  55 0008 C7F8C430 		str	r3, [r7, #196]
+  30:../source/main.c **** 	float sample_freq = 12000;
+  56              		.loc 1 30 0
+  57 000c 364B     		ldr	r3, .L5+8
+  58 000e C7F8C030 		str	r3, [r7, #192]	@ float
+  31:../source/main.c **** 	int f = 2200;
+  59              		.loc 1 31 0
+  60 0012 40F69803 		movw	r3, #2200
+  61 0016 C7F8BC30 		str	r3, [r7, #188]
   32:../source/main.c **** 	DemodulatorInit(sample_freq);
-  55              		.loc 1 32 0
-  56 0016 B86D     		ldr	r0, [r7, #88]
-  57 0018 FFF7FEFF 		bl	DemodulatorInit
+  62              		.loc 1 32 0
+  63 001a D7ED307A 		vldr.32	s15, [r7, #192]
+  64 001e FCEEE77A 		vcvt.u32.f32	s15, s15
+  65 0022 17EE900A 		vmov	r0, s15	@ int
+  66 0026 FFF7FEFF 		bl	DemodulatorInit
   33:../source/main.c **** 	float amplitude = 100;
-  58              		.loc 1 33 0
-  59 001c 0E4B     		ldr	r3, .L5
-  60 001e 3B65     		str	r3, [r7, #80]	@ float
+  67              		.loc 1 33 0
+  68 002a 304B     		ldr	r3, .L5+12
+  69 002c C7F8B830 		str	r3, [r7, #184]	@ float
   34:../source/main.c **** 	for(i=0; i<SIZE; i++)
-  61              		.loc 1 34 0
-  62 0020 0023     		movs	r3, #0
-  63 0022 FB65     		str	r3, [r7, #92]
-  64 0024 0AE0     		b	.L2
-  65              	.L3:
+  70              		.loc 1 34 0
+  71 0030 0023     		movs	r3, #0
+  72 0032 C7F8C430 		str	r3, [r7, #196]
+  73 0036 42E0     		b	.L2
+  74              	.L3:
   35:../source/main.c **** 	{
-  36:../source/main.c **** 		vector[i] = 1000;
-  66              		.loc 1 36 0 discriminator 3
-  67 0026 FB6D     		ldr	r3, [r7, #92]
-  68 0028 9B00     		lsls	r3, r3, #2
-  69 002a 07F16002 		add	r2, r7, #96
-  70 002e 1344     		add	r3, r3, r2
-  71 0030 603B     		subs	r3, r3, #96
-  72 0032 0A4A     		ldr	r2, .L5+4
-  73 0034 1A60     		str	r2, [r3]	@ float
+  36:../source/main.c **** 		vector[i] = sin( (2*PI*f*i)/sample_freq );
+  75              		.loc 1 36 0 discriminator 3
+  76 0038 D7F8BC00 		ldr	r0, [r7, #188]
+  77 003c FFF7FEFF 		bl	__aeabi_i2d
+  78              	.LVL0:
+  79 0040 27A3     		adr	r3, .L5
+  80 0042 D3E90023 		ldrd	r2, [r3]
+  81 0046 FFF7FEFF 		bl	__aeabi_dmul
+  82              	.LVL1:
+  83 004a 0346     		mov	r3, r0
+  84 004c 0C46     		mov	r4, r1
+  85 004e 2546     		mov	r5, r4
+  86 0050 1C46     		mov	r4, r3
+  87 0052 D7F8C400 		ldr	r0, [r7, #196]
+  88 0056 FFF7FEFF 		bl	__aeabi_i2d
+  89              	.LVL2:
+  90 005a 0246     		mov	r2, r0
+  91 005c 0B46     		mov	r3, r1
+  92 005e 2046     		mov	r0, r4
+  93 0060 2946     		mov	r1, r5
+  94 0062 FFF7FEFF 		bl	__aeabi_dmul
+  95              	.LVL3:
+  96 0066 0346     		mov	r3, r0
+  97 0068 0C46     		mov	r4, r1
+  98 006a 2546     		mov	r5, r4
+  99 006c 1C46     		mov	r4, r3
+ 100 006e D7F8C000 		ldr	r0, [r7, #192]	@ float
+ 101 0072 FFF7FEFF 		bl	__aeabi_f2d
+ 102              	.LVL4:
+ 103 0076 0246     		mov	r2, r0
+ 104 0078 0B46     		mov	r3, r1
+ 105 007a 2046     		mov	r0, r4
+ 106 007c 2946     		mov	r1, r5
+ 107 007e FFF7FEFF 		bl	__aeabi_ddiv
+ 108              	.LVL5:
+ 109 0082 0346     		mov	r3, r0
+ 110 0084 0C46     		mov	r4, r1
+ 111 0086 44EC173B 		vmov	d7, r3, r4
+ 112 008a B0EE470A 		vmov.f32	s0, s14
+ 113 008e F0EE670A 		vmov.f32	s1, s15
+ 114 0092 FFF7FEFF 		bl	sin
+ 115 0096 54EC103B 		vmov	r3, r4, d0
+ 116 009a 1846     		mov	r0, r3
+ 117 009c 2146     		mov	r1, r4
+ 118 009e FFF7FEFF 		bl	__aeabi_d2f
+ 119              	.LVL6:
+ 120 00a2 0246     		mov	r2, r0	@ float
+ 121 00a4 D7F8C430 		ldr	r3, [r7, #196]
+ 122 00a8 9B00     		lsls	r3, r3, #2
+ 123 00aa 07F1C801 		add	r1, r7, #200
+ 124 00ae 0B44     		add	r3, r3, r1
+ 125 00b0 C43B     		subs	r3, r3, #196
+ 126 00b2 1A60     		str	r2, [r3]	@ float
   34:../source/main.c **** 	for(i=0; i<SIZE; i++)
-  74              		.loc 1 34 0 discriminator 3
-  75 0036 FB6D     		ldr	r3, [r7, #92]
-  76 0038 0133     		adds	r3, r3, #1
-  77 003a FB65     		str	r3, [r7, #92]
-  78              	.L2:
+ 127              		.loc 1 34 0 discriminator 3
+ 128 00b4 D7F8C430 		ldr	r3, [r7, #196]
+ 129 00b8 0133     		adds	r3, r3, #1
+ 130 00ba C7F8C430 		str	r3, [r7, #196]
+ 131              	.L2:
   34:../source/main.c **** 	for(i=0; i<SIZE; i++)
-  79              		.loc 1 34 0 is_stmt 0 discriminator 1
-  80 003c FB6D     		ldr	r3, [r7, #92]
-  81 003e 132B     		cmp	r3, #19
-  82 0040 F1DD     		ble	.L3
+ 132              		.loc 1 34 0 is_stmt 0 discriminator 1
+ 133 00be D7F8C430 		ldr	r3, [r7, #196]
+ 134 00c2 2C2B     		cmp	r3, #44
+ 135 00c4 B8DD     		ble	.L3
   37:../source/main.c **** 	}
   38:../source/main.c **** 
   39:../source/main.c **** 	DemodulateSignal(vector, SIZE);
-  83              		.loc 1 39 0 is_stmt 1
-  84 0042 3B46     		mov	r3, r7
-  85 0044 1421     		movs	r1, #20
-  86 0046 1846     		mov	r0, r3
-  87 0048 FFF7FEFF 		bl	DemodulateSignal
-  88 004c 0023     		movs	r3, #0
+ 136              		.loc 1 39 0 is_stmt 1
+ 137 00c6 3B1D     		adds	r3, r7, #4
+ 138 00c8 2D21     		movs	r1, #45
+ 139 00ca 1846     		mov	r0, r3
+ 140 00cc FFF7FEFF 		bl	DemodulateSignal
+ 141 00d0 0023     		movs	r3, #0
   40:../source/main.c **** 
   41:../source/main.c **** 
   42:../source/main.c **** 
   43:../source/main.c **** }
-  89              		.loc 1 43 0
-  90 004e 1846     		mov	r0, r3
-  91 0050 6037     		adds	r7, r7, #96
-  92              		.cfi_def_cfa_offset 8
-  93 0052 BD46     		mov	sp, r7
-  94              		.cfi_def_cfa_register 13
-  95              		@ sp needed
-  96 0054 80BD     		pop	{r7, pc}
-  97              	.L6:
-  98 0056 00BF     		.align	2
-  99              	.L5:
- 100 0058 0000C842 		.word	1120403456
- 101 005c 00007A44 		.word	1148846080
- 102              		.cfi_endproc
- 103              	.LFE123:
- 105              		.text
- 106              	.Letext0:
- 107              		.file 2 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\sys\\libconfig-arm.h"
- 108              		.file 3 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\stdint.h"
- 109              		.file 4 "C:\\Users\\HP\\source\\repos\\TP3-LABmicros\\projectsTP3\\FSKprueba\\CMSIS/core_cm4.h"
- 110              		.file 5 "C:\\Users\\HP\\source\\repos\\TP3-LABmicros\\projectsTP3\\FSKprueba\\CMSIS/system_MK64F12
- 111              		.file 6 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\math.h"
- 112              		.file 7 "../source/ADC.h"
+ 142              		.loc 1 43 0
+ 143 00d2 1846     		mov	r0, r3
+ 144 00d4 C837     		adds	r7, r7, #200
+ 145              		.cfi_def_cfa_offset 16
+ 146 00d6 BD46     		mov	sp, r7
+ 147              		.cfi_def_cfa_register 13
+ 148              		@ sp needed
+ 149 00d8 B0BD     		pop	{r4, r5, r7, pc}
+ 150              	.L6:
+ 151 00da 00BFAFF3 		.align	3
+ 151      0080
+ 152              	.L5:
+ 153 00e0 6E861BF0 		.word	-266631570
+ 154 00e4 F9211940 		.word	1075388921
+ 155 00e8 00803B46 		.word	1178304512
+ 156 00ec 0000C842 		.word	1120403456
+ 157              		.cfi_endproc
+ 158              	.LFE123:
+ 160              		.text
+ 161              	.Letext0:
+ 162              		.file 2 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\sys\\libconfig-arm.h"
+ 163              		.file 3 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\stdint.h"
+ 164              		.file 4 "C:\\Users\\HP\\source\\repos\\TP3-LABmicros\\projectsTP3\\FSKprueba\\CMSIS/core_cm4.h"
+ 165              		.file 5 "C:\\Users\\HP\\source\\repos\\TP3-LABmicros\\projectsTP3\\FSKprueba\\CMSIS/system_MK64F12
+ 166              		.file 6 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\math.h"
+ 167              		.file 7 "../source/ADC.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 main.c
-C:\Users\HP\AppData\Local\Temp\ccUzFBYN.s:18     .bss.adc_data:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccUzFBYN.s:21     .bss.adc_data:00000000 adc_data
-C:\Users\HP\AppData\Local\Temp\ccUzFBYN.s:24     .text.main:00000000 $t
-C:\Users\HP\AppData\Local\Temp\ccUzFBYN.s:31     .text.main:00000000 main
-C:\Users\HP\AppData\Local\Temp\ccUzFBYN.s:100    .text.main:00000058 $d
+C:\Users\HP\AppData\Local\Temp\ccj2DwSX.s:18     .bss.adc_data:00000000 $d
+C:\Users\HP\AppData\Local\Temp\ccj2DwSX.s:21     .bss.adc_data:00000000 adc_data
+C:\Users\HP\AppData\Local\Temp\ccj2DwSX.s:29     .text.main:00000000 $t
+C:\Users\HP\AppData\Local\Temp\ccj2DwSX.s:36     .text.main:00000000 main
+C:\Users\HP\AppData\Local\Temp\ccj2DwSX.s:153    .text.main:000000e0 $d
                            .group:00000000 wm4.0.33db8b643112917ec54934b4f2c2f387
                            .group:00000000 wm4.redlib_version.h.16.f905717e4b3a91dcbdbb631865150df4
                            .group:00000000 wm4.libconfigarm.h.18.1ad1d24f96d0dc8c4cf52dc19b0aa2c7
@@ -176,5 +232,11 @@ C:\Users\HP\AppData\Local\Temp\ccUzFBYN.s:100    .text.main:00000058 $d
                            .group:00000000 wm4.DAC.h.9.a0a8b96f131343e08c8609ae233571d2
 
 UNDEFINED SYMBOLS
+__aeabi_i2d
+__aeabi_dmul
+__aeabi_f2d
+__aeabi_ddiv
+__aeabi_d2f
 DemodulatorInit
+sin
 DemodulateSignal
