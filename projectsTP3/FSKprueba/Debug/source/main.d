@@ -9,7 +9,7 @@ source/main.o source/main.d: ../source/main.c ../source/hardware.h \
  C:\Users\HP\source\repos\TP3-LABmicros\projectsTP3\FSKprueba\CMSIS/system_MK64F12.h \
  C:\Users\HP\source\repos\TP3-LABmicros\projectsTP3\FSKprueba\CMSIS/MK64F12_features.h \
  C:\Users\HP\source\repos\TP3-LABmicros\projectsTP3\FSKprueba\CMSIS/core_cm4.h \
- ../source/FSK_Demodulator.h
+ ../source/FSK_Demodulator.h ../source/DAC.h ../source/ADC.h
 
 ../source/hardware.h:
 
@@ -34,3 +34,7 @@ C:\Users\HP\source\repos\TP3-LABmicros\projectsTP3\FSKprueba\CMSIS/MK64F12_featu
 C:\Users\HP\source\repos\TP3-LABmicros\projectsTP3\FSKprueba\CMSIS/core_cm4.h:
 
 ../source/FSK_Demodulator.h:
+
+../source/DAC.h:
+
+../source/ADC.h:

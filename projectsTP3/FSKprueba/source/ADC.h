@@ -71,6 +71,7 @@ typedef enum{
 	SECOND_ADC=1	//ID for ADC1
 }ADC_ID_t;
 
+typedef void (*callback)(void);
 
 typedef struct{
 	ADC_ID_t id;
@@ -87,9 +88,10 @@ typedef struct{
 	ADC_AverageSelect_t samples_to_average;
 	ADC_Trigger_t trigger;
 	ADC_VoltageRef_t voltage_reference;
+	callback intterupt_func;
 }ADC_Config_t;
 
-typedef int16_t ADC_Data_t;
+typedef uint16_t ADC_Data_t;
 
 /*************************************************************
  * 					HEADER FUNCTIONS
@@ -104,7 +106,11 @@ bool ADC_Init( const ADC_Config_t* config);
 
 bool ADC_Calibrate(void);
 
-bool StartConversion(void);
+bool SetChannelADC(ADC_Channel_t ch, bool diff, bool in_en);
+
+void SetInterruptCallback(callback intrpt_func);
+
+bool StartConversion(ADC_Channel_t channel, bool differential_mode, bool interrupt_enable);
 
 bool IsConversionFinished(void);
 

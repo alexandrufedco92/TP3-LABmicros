@@ -24,14 +24,14 @@ void DemodulatorInit(uint32_t fs);
  * @param recieved Buffer with the data to demodulate
  * @param buffer_size Number of elements to demodulate
 */
-void DemodulateSignal(int16_t* recieved,uint8_t buffer_size);
+void DemodulateSignal(float* recieved,uint8_t buffer_size);
 
 /**
  * @brief Gets the values of the last demodulated signal
  * @param data_buffer Buffer in which to paste the desired values
  * @param num_samples Number of elements to paste on buffer
 */
-void GetData(int16_t* data_buffer,uint8_t num_samples);
+void GetData(float* data_buffer,uint8_t num_samples);
 
 
 

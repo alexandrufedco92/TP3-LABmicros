@@ -9,18 +9,23 @@
 #include <math.h>
 #include <stdint.h>
 #include "FSK_Demodulator.h"
+#include "DAC.h"
+#include "ADC.h"
 
 #define PI 3.14159
 #define SIZE 20
 
 #define __FOREVER__ 	for(;;)
 
+void adc_func(void);
 
+
+static ADC_Data_t adc_data;
 
 int main (void)
 {
 
-	int16_t vector[SIZE];
+	float vector[SIZE];
 	int i =0;
 	uint32_t sample_freq = 12000;
 	int f = 1200;
@@ -28,21 +33,13 @@ int main (void)
 	float amplitude = 100;
 	for(i=0; i<SIZE; i++)
 	{
-		vector[i] = (int16_t) ( amplitude*sin( (2*PI*i*f)/sample_freq ) );
+		vector[i] = 1000;
 	}
 
 	DemodulateSignal(vector, SIZE);
 
 
 
-
-
-	// 		hw_DisableInterrupts();
-
-	__FOREVER__;
-
-	// Enable interrupts
-	//hw_EnableInterrupts();
-
 }
+
 
