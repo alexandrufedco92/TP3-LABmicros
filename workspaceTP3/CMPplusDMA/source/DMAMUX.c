@@ -12,18 +12,19 @@ DMAMUX_Type * dma_mux_ptrs[] = DMAMUX_BASE_PTRS;
 
 
 
-
 static void clockGating();
 
 
 
 void clockGating(){
 	SIM->SCGC6 |= SIM_SCGC6_DMAMUX_MASK;
-
 }
 
-void initDMAMUX(dma_mux_channels channel, dma_mux_sources source, bool periodic_trigger){
+void initDMAMUX(){
 	clockGating();
+}
+
+void configureDMAMUX(dma_mux_channels channel, dma_request_source_t source, bool periodic_trigger){
 
 	dma_mux_ptrs->CHCFG[channel] &= ~DMAMUX_CHCFG_SOURCE_MASK;	//borro la source actual
 

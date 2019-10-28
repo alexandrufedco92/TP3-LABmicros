@@ -13,6 +13,8 @@
 #include "comController2pc.h"
 #include "DAC.h"
 #include "CMP.h"
+#include "DMA.h"
+#include "DMAMUX.h"
 #include "timer.h"
 #include <math.h>
 
@@ -33,9 +35,25 @@ void senoidalCallback(void);
 
 /* Función que se llama 1 vez, al comienzo del programa */
 
+uint16_t sourceBuffer[10] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756};
+uint8_t destinationBuffer[10];
+
 void App_Init (void)
 {
 	initCMP(CMP_0);
+	initDMA();
+	configureDMAMUX(0, 51, false);
+	dma_transfer_conf_t conf;
+	conf.source_address = sourceBuffer;
+	conf.dest_address = destinationBuffer;
+	conf.source_offset = 0x02;
+	conf.dest_offset = 0x01;
+	conf.source_transf_size = 0; //1 byte
+	conf.dest_transf_size = 0; //1 byte
+	conf.minor_loop_bytes = 0x01;
+
+
+	DMAPrepareTransfer(0, &conf);
 //	DACconfig_t DACconfig;
 //	initResourcesController2pc();
 //	InitializeTimers();
