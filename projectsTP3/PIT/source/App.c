@@ -9,6 +9,7 @@
  ******************************************************************************/
 
 #include "bitStreamQueue.h"
+#include "PIT.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -17,7 +18,7 @@
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
- *******************************************************************************
+ *******************************************************************************/
 
 /*******************************************************************************
  *******************************************************************************
@@ -25,31 +26,30 @@
  *******************************************************************************
  ******************************************************************************/
 
-static int array[50];
-static int i;
-
 /* Función que se llama 1 vez, al comienzo del programa */
+
+static void fun(void){
+	static int i = 0;
+	i++;
+}
 
 void App_Init (void)
 {
+	config_t config = {	{500000,0,0,0}, /* timerVal. */
+						{true,false,false,false}, /* interruptEnable. */
+						{true,false,false,false}, /* timerEnable. */
+						{false,false,false,false}, /* chainMode. */
+						{fun,NULL,NULL,NULL} }; /* pitCallbacks. */
+
 	bitStreamQueueInit();
-	pushChar('A');
-	pushChar('Z');
-	i = 0;
+	PITinit(&config);
+
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
 void App_Run (void)
 {
-	while(!isQueueEmpty()){
-		if(popBit()){ /* 1 */
-			array[i] = 1;
-		}
-		else{ /* 0 */
-			array[i] = 0;
-		}
-		i++;
-	}
+
 }
 
 /*******************************************************************************

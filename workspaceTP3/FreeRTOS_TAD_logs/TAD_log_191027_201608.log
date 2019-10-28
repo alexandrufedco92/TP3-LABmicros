@@ -1,0 +1,20 @@
+"FreeRTOS Task Aware Debugger for GDB" version 1.0.4 (201805021525)
+(c) 2016-2018 NXP Semiconductors, Inc.
+==================================
+20:15:43.904 INFO: [TadModel] DSF session ID 11 has started.
+20:15:50.30 INFO: [TadState] TAD state changed:  DEBUG_STARTED -> DEBUG_INIT_0 (SUSPENDED, USER_REQUEST)
+20:15:52.629 INFO: [TadState] TAD state changed:  DEBUG_INIT_0 -> DEBUG_INIT_1 (RESUMED, USER_REQUEST)
+20:15:52.690 INFO: [TadState] TAD state changed:  DEBUG_INIT_1 -> DEBUG_SUSPENDED (SUSPENDED, BREAKPOINT)
+20:15:54.953 INFO: [TadState] TAD state changed:  DEBUG_SUSPENDED -> DEBUG_RESUMED (RESUMED, USER_REQUEST)
+20:15:55.23 INFO: [TadState] TAD state changed:  DEBUG_RESUMED -> READY (SUSPENDED, BREAKPOINT)
+20:15:57.147 INFO: [TadState] TAD state changed:  READY -> DEBUG_RESUMED (RESUMED, STEP)
+20:15:57.460 INFO: [TadState] TAD state changed:  DEBUG_RESUMED -> READY (SUSPENDED, STEP)
+20:15:58.135 INFO: [TadState] TAD state changed:  READY -> DEBUG_RESUMED (RESUMED, STEP)
+20:15:58.307 INFO: [TadState] TAD state changed:  DEBUG_RESUMED -> READY (SUSPENDED, BREAKPOINT)
+20:15:59.167 INFO: [TadState] TAD state changed:  READY -> DEBUG_RESUMED (RESUMED, STEP)
+20:15:59.290 INFO: [TadState] TAD state changed:  DEBUG_RESUMED -> READY (SUSPENDED, STEP)
+20:15:59.760 INFO: [TadState] TAD state changed:  READY -> DEBUG_RESUMED (RESUMED, STEP)
+20:15:59.883 INFO: [TadState] TAD state changed:  DEBUG_RESUMED -> READY (SUSPENDED, STEP)
+20:16:00.686 INFO: [TadState] TAD state changed:  READY -> DEBUG_RESUMED (RESUMED, STEP)
+20:16:00.817 INFO: [TadState] TAD state changed:  DEBUG_RESUMED -> READY (SUSPENDED, STEP)
+20:16:08.869 INFO: [TadModel] DSF session ID 11 has ended.
