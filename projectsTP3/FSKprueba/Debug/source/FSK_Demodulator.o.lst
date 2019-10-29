@@ -17,7 +17,7 @@
   17              		.section	.bss.FSK_signal,"aw",%nobits
   18              		.align	2
   21              	FSK_signal:
-  22 0000 00000000 		.space	324
+  22 0000 00000000 		.space	164
   22      00000000 
   22      00000000 
   22      00000000 
@@ -25,61 +25,74 @@
   23              		.section	.bss.PreFiltered_signal,"aw",%nobits
   24              		.align	2
   27              	PreFiltered_signal:
-  28 0000 00000000 		.space	324
+  28 0000 00000000 		.space	164
   28      00000000 
   28      00000000 
   28      00000000 
   28      00000000 
-  29              		.section	.bss.result_signal,"aw",%nobits
+  29              		.section	.data.last_fir_output,"aw",%progbits
   30              		.align	2
-  33              	result_signal:
-  34 0000 00000000 		.space	324
-  34      00000000 
-  34      00000000 
-  34      00000000 
-  34      00000000 
-  35              		.section	.bss.fs,"aw",%nobits
+  33              	last_fir_output:
+  34 0000 0000803F 		.word	1065353216
+  35              		.section	.bss.last_sample_value,"aw",%nobits
   36              		.align	2
-  39              	fs:
+  39              	last_sample_value:
   40 0000 00000000 		.space	4
-  41              		.section	.bss.prev_samples,"aw",%nobits
-  44              	prev_samples:
-  45 0000 00       		.space	1
-  46              		.section	.data.fir_coeffs,"aw",%progbits
-  47              		.align	2
-  50              	fir_coeffs:
-  51 0000 750F233C 		.word	1008930677
-  52 0004 BC98D33C 		.word	1020500156
-  53 0008 0D62AB3B 		.word	1001087501
-  54 000c 147AA8BC 		.word	-1129809388
-  55 0010 18DC4DBD 		.word	-1118970856
-  56 0014 58BB21BD 		.word	-1121862824
-  57 0018 43BAF73C 		.word	1022868035
-  58 001c 814F153E 		.word	1041584001
-  59 0020 DB79823E 		.word	1048738267
-  60 0024 6170993E 		.word	1050243169
-  61 0028 DB79823E 		.word	1048738267
-  62 002c 814F153E 		.word	1041584001
-  63 0030 43BAF73C 		.word	1022868035
-  64 0034 58BB21BD 		.word	-1121862824
-  65 0038 18DC4DBD 		.word	-1118970856
-  66 003c 147AA8BC 		.word	-1129809388
-  67 0040 0D62AB3B 		.word	1001087501
-  68 0044 BC98D33C 		.word	1020500156
-  69 0048 750F233C 		.word	1008930677
-  70              		.global	__aeabi_ui2d
-  71              		.global	__aeabi_dmul
-  72              		.global	__aeabi_d2uiz
-  73              		.section	.text.DemodulatorInit,"ax",%progbits
-  74              		.align	1
-  75              		.global	DemodulatorInit
-  76              		.syntax unified
-  77              		.thumb
-  78              		.thumb_func
-  79              		.fpu fpv4-sp-d16
-  81              	DemodulatorInit:
-  82              	.LFB0:
-  83              		.file 1 "../source/FSK_Demodulator.c"
+  41              		.section	.bss.average_aux,"aw",%nobits
+  42              		.align	2
+  45              	average_aux:
+  46 0000 00000000 		.space	4
+  47              		.section	.bss.sample_counter,"aw",%nobits
+  50              	sample_counter:
+  51 0000 00       		.space	1
+  52              		.section	.bss.idle_counter,"aw",%nobits
+  55              	idle_counter:
+  56 0000 00       		.space	1
+  57              		.section	.data.idle,"aw",%progbits
+  60              	idle:
+  61 0000 01       		.byte	1
+  62              		.section	.bss.fs,"aw",%nobits
+  63              		.align	2
+  66              	fs:
+  67 0000 00000000 		.space	4
+  68              		.section	.bss.prev_samples,"aw",%nobits
+  71              	prev_samples:
+  72 0000 00       		.space	1
+  73              		.section	.data.fir_coeffs,"aw",%progbits
+  74              		.align	2
+  77              	fir_coeffs:
+  78 0000 750F233C 		.word	1008930677
+  79 0004 BC98D33C 		.word	1020500156
+  80 0008 0D62AB3B 		.word	1001087501
+  81 000c 147AA8BC 		.word	-1129809388
+  82 0010 18DC4DBD 		.word	-1118970856
+  83 0014 58BB21BD 		.word	-1121862824
+  84 0018 43BAF73C 		.word	1022868035
+  85 001c 814F153E 		.word	1041584001
+  86 0020 DB79823E 		.word	1048738267
+  87 0024 6170993E 		.word	1050243169
+  88 0028 DB79823E 		.word	1048738267
+  89 002c 814F153E 		.word	1041584001
+  90 0030 43BAF73C 		.word	1022868035
+  91 0034 58BB21BD 		.word	-1121862824
+  92 0038 18DC4DBD 		.word	-1118970856
+  93 003c 147AA8BC 		.word	-1129809388
+  94 0040 0D62AB3B 		.word	1001087501
+  95 0044 BC98D33C 		.word	1020500156
+  96 0048 750F233C 		.word	1008930677
+  97              		.global	__aeabi_ui2d
+  98              		.global	__aeabi_dmul
+  99              		.global	__aeabi_d2uiz
+ 100              		.section	.text.DemodulatorInit,"ax",%progbits
+ 101              		.align	1
+ 102              		.global	DemodulatorInit
+ 103              		.syntax unified
+ 104              		.thumb
+ 105              		.thumb_func
+ 106              		.fpu fpv4-sp-d16
+ 108              	DemodulatorInit:
+ 109              	.LFB0:
+ 110              		.file 1 "../source/FSK_Demodulator.c"
    1:../source/FSK_Demodulator.c **** /*
    2:../source/FSK_Demodulator.c ****  * FSK_Demodulator.c
    3:../source/FSK_Demodulator.c ****  *
@@ -94,685 +107,789 @@
   12:../source/FSK_Demodulator.c **** #define FL 1200	//Frequency of a logical '1'
   13:../source/FSK_Demodulator.c **** #define FH 2200	//Frequency of a logical '0'
   14:../source/FSK_Demodulator.c **** #define DELAY 0.0004464 //Delay optimo en s
-  15:../source/FSK_Demodulator.c **** #define VLOW -0.25
-  16:../source/FSK_Demodulator.c **** #define VHIGH 0.25
-  17:../source/FSK_Demodulator.c **** #define FIR_ORDER 18
-  18:../source/FSK_Demodulator.c **** //Size of Buffers
-  19:../source/FSK_Demodulator.c **** #define CIRCULAR_BUFFER_SIZE 80
-  20:../source/FSK_Demodulator.c **** 
-  21:../source/FSK_Demodulator.c **** typedef struct{
-  22:../source/FSK_Demodulator.c **** 	float buffer[CIRCULAR_BUFFER_SIZE];
-  23:../source/FSK_Demodulator.c **** 	int16_t curr; //indice del ultimo elemento agregado
-  24:../source/FSK_Demodulator.c **** }circular_buffer_t;
-  25:../source/FSK_Demodulator.c **** /***********************************************************
-  26:../source/FSK_Demodulator.c ****  * 				VARIABLES WITH GLOBAL SCOPE
-  27:../source/FSK_Demodulator.c ****  ***********************************************************/
-  28:../source/FSK_Demodulator.c **** static circular_buffer_t FSK_signal;
-  29:../source/FSK_Demodulator.c **** static circular_buffer_t PreFiltered_signal;
-  30:../source/FSK_Demodulator.c **** static circular_buffer_t result_signal;
-  31:../source/FSK_Demodulator.c **** 
-  32:../source/FSK_Demodulator.c **** 
-  33:../source/FSK_Demodulator.c **** static uint32_t fs; //Sample frequency of the FSK signal
-  34:../source/FSK_Demodulator.c **** static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
-  35:../source/FSK_Demodulator.c **** static float fir_coeffs[] = {0.0099524156275609069, 0.025829664997474223, 0.0052301942208776179,
-  36:../source/FSK_Demodulator.c **** 							-0.020566023428597952, -0.050258725765821938, -0.039485305772910186,
-  37:../source/FSK_Demodulator.c **** 							0.030240182765554114, 0.14581109542716533, 0.2548359331518294,
-  38:../source/FSK_Demodulator.c **** 							0.29968551708002261, 0.2548359331518294, 0.14581109542716533,
-  39:../source/FSK_Demodulator.c **** 							0.030240182765554114, -0.039485305772910186, -0.050258725765821938,
-  40:../source/FSK_Demodulator.c **** 							-0.020566023428597952, 0.0052301942208776179, 0.025829664997474223,
-  41:../source/FSK_Demodulator.c **** 							0.0099524156275609069};
+  15:../source/FSK_Demodulator.c **** #define F_SAMPLE 12000 //Sample frecuency of 12KHz
+  16:../source/FSK_Demodulator.c **** #define VLOW -0.25
+  17:../source/FSK_Demodulator.c **** #define VHIGH 0.25
+  18:../source/FSK_Demodulator.c **** #define FIR_ORDER 18
+  19:../source/FSK_Demodulator.c **** //Reconstruction parameters
+  20:../source/FSK_Demodulator.c **** #define AVG_SAMPLES 10 //Number of samples to average to decide '1' or '0'.
+  21:../source/FSK_Demodulator.c **** #define MID 0.5				//Treshold for deciding between '0' and '1'.
+  22:../source/FSK_Demodulator.c **** #define IDLE_LIMIT 8		//Nummber of '1' symbols in a row that start idle state.
+  23:../source/FSK_Demodulator.c **** 
+  24:../source/FSK_Demodulator.c **** //Size of Buffers
+  25:../source/FSK_Demodulator.c **** #define CIRCULAR_BUFFER_SIZE 40
+  26:../source/FSK_Demodulator.c **** 
+  27:../source/FSK_Demodulator.c **** typedef struct{
+  28:../source/FSK_Demodulator.c **** 	float buffer[CIRCULAR_BUFFER_SIZE];
+  29:../source/FSK_Demodulator.c **** 	int16_t curr; //indice del ultimo elemento agregado
+  30:../source/FSK_Demodulator.c **** }circular_buffer_t;
+  31:../source/FSK_Demodulator.c **** /***********************************************************
+  32:../source/FSK_Demodulator.c ****  * 				VARIABLES WITH GLOBAL SCOPE
+  33:../source/FSK_Demodulator.c ****  ***********************************************************/
+  34:../source/FSK_Demodulator.c **** static circular_buffer_t FSK_signal;
+  35:../source/FSK_Demodulator.c **** static circular_buffer_t PreFiltered_signal;
+  36:../source/FSK_Demodulator.c **** static float last_fir_output = 1;
+  37:../source/FSK_Demodulator.c **** static float last_sample_value;		//Last digital value recieved
+  38:../source/FSK_Demodulator.c **** static float average_aux = 0;		//Average of Comparatpr samples.
+  39:../source/FSK_Demodulator.c **** static uint8_t sample_counter = 0;	//Counts number of samples averaged.
+  40:../source/FSK_Demodulator.c **** static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
+  41:../source/FSK_Demodulator.c **** static bool idle = true;		//Flag that indicates if in idle state
   42:../source/FSK_Demodulator.c **** 
-  43:../source/FSK_Demodulator.c **** 
-  44:../source/FSK_Demodulator.c **** 
-  45:../source/FSK_Demodulator.c **** /***********************************************************
-  46:../source/FSK_Demodulator.c ****  * 				LOCAL FUNCTIONS DECLARATIONS
-  47:../source/FSK_Demodulator.c ****  ***********************************************************/
-  48:../source/FSK_Demodulator.c **** 
-  49:../source/FSK_Demodulator.c **** /**
-  50:../source/FSK_Demodulator.c ****  * @brief Applys FIR filter and stores the results
-  51:../source/FSK_Demodulator.c ****  * @param cant Number of values to calculate
-  52:../source/FSK_Demodulator.c **** */
-  53:../source/FSK_Demodulator.c **** void ApplyFIR(uint8_t cant);
+  43:../source/FSK_Demodulator.c **** static uint32_t fs; //Sample frequency of the FSK signal
+  44:../source/FSK_Demodulator.c **** static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
+  45:../source/FSK_Demodulator.c **** static float fir_coeffs[] = {0.0099524156275609069, 0.025829664997474223, 0.0052301942208776179,
+  46:../source/FSK_Demodulator.c **** 							-0.020566023428597952, -0.050258725765821938, -0.039485305772910186,
+  47:../source/FSK_Demodulator.c **** 							0.030240182765554114, 0.14581109542716533, 0.2548359331518294,
+  48:../source/FSK_Demodulator.c **** 							0.29968551708002261, 0.2548359331518294, 0.14581109542716533,
+  49:../source/FSK_Demodulator.c **** 							0.030240182765554114, -0.039485305772910186, -0.050258725765821938,
+  50:../source/FSK_Demodulator.c **** 							-0.020566023428597952, 0.0052301942208776179, 0.025829664997474223,
+  51:../source/FSK_Demodulator.c **** 							0.0099524156275609069};
+  52:../source/FSK_Demodulator.c **** 
+  53:../source/FSK_Demodulator.c **** 
   54:../source/FSK_Demodulator.c **** 
   55:../source/FSK_Demodulator.c **** /***********************************************************
-  56:../source/FSK_Demodulator.c ****  * 				FUNCTIONS WITH GLOBAL SCOPE
+  56:../source/FSK_Demodulator.c ****  * 				LOCAL FUNCTIONS DECLARATIONS
   57:../source/FSK_Demodulator.c ****  ***********************************************************/
-  58:../source/FSK_Demodulator.c **** void DemodulatorInit(uint32_t fs_)
-  59:../source/FSK_Demodulator.c **** {
-  84              		.loc 1 59 0
-  85              		.cfi_startproc
-  86              		@ args = 0, pretend = 0, frame = 16
-  87              		@ frame_needed = 1, uses_anonymous_args = 0
-  88 0000 90B5     		push	{r4, r7, lr}
-  89              		.cfi_def_cfa_offset 12
-  90              		.cfi_offset 4, -12
-  91              		.cfi_offset 7, -8
-  92              		.cfi_offset 14, -4
-  93 0002 85B0     		sub	sp, sp, #20
-  94              		.cfi_def_cfa_offset 32
-  95 0004 00AF     		add	r7, sp, #0
-  96              		.cfi_def_cfa_register 7
-  97 0006 7860     		str	r0, [r7, #4]
-  60:../source/FSK_Demodulator.c **** 	int i =0;
-  98              		.loc 1 60 0
-  99 0008 0023     		movs	r3, #0
- 100 000a FB60     		str	r3, [r7, #12]
-  61:../source/FSK_Demodulator.c **** 	fs = fs_;
- 101              		.loc 1 61 0
- 102 000c 1E4A     		ldr	r2, .L4+8
- 103 000e 7B68     		ldr	r3, [r7, #4]
- 104 0010 1360     		str	r3, [r2]
-  62:../source/FSK_Demodulator.c **** 	FSK_signal.curr = -1;
- 105              		.loc 1 62 0
- 106 0012 1E4B     		ldr	r3, .L4+12
- 107 0014 4FF6FF72 		movw	r2, #65535
- 108 0018 A3F84021 		strh	r2, [r3, #320]	@ movhi
-  63:../source/FSK_Demodulator.c **** 	PreFiltered_signal.curr = -1;
- 109              		.loc 1 63 0
- 110 001c 1C4B     		ldr	r3, .L4+16
- 111 001e 4FF6FF72 		movw	r2, #65535
- 112 0022 A3F84021 		strh	r2, [r3, #320]	@ movhi
-  64:../source/FSK_Demodulator.c **** 	result_signal.curr = -1;
- 113              		.loc 1 64 0
- 114 0026 1B4B     		ldr	r3, .L4+20
- 115 0028 4FF6FF72 		movw	r2, #65535
- 116 002c A3F84021 		strh	r2, [r3, #320]	@ movhi
-  65:../source/FSK_Demodulator.c **** 
-  66:../source/FSK_Demodulator.c **** 	prev_samples = (uint8_t)( DELAY*fs);
- 117              		.loc 1 66 0
- 118 0030 154B     		ldr	r3, .L4+8
- 119 0032 1B68     		ldr	r3, [r3]
- 120 0034 1846     		mov	r0, r3
- 121 0036 FFF7FEFF 		bl	__aeabi_ui2d
- 122              	.LVL0:
- 123 003a 11A3     		adr	r3, .L4
- 124 003c D3E90023 		ldrd	r2, [r3]
- 125 0040 FFF7FEFF 		bl	__aeabi_dmul
- 126              	.LVL1:
- 127 0044 0346     		mov	r3, r0
- 128 0046 0C46     		mov	r4, r1
- 129 0048 1846     		mov	r0, r3
- 130 004a 2146     		mov	r1, r4
- 131 004c FFF7FEFF 		bl	__aeabi_d2uiz
- 132              	.LVL2:
- 133 0050 0346     		mov	r3, r0
- 134 0052 DAB2     		uxtb	r2, r3
- 135 0054 104B     		ldr	r3, .L4+24
- 136 0056 1A70     		strb	r2, [r3]
-  67:../source/FSK_Demodulator.c **** 	for(i=0; i< CIRCULAR_BUFFER_SIZE; i++)
- 137              		.loc 1 67 0
- 138 0058 0023     		movs	r3, #0
- 139 005a FB60     		str	r3, [r7, #12]
- 140 005c 09E0     		b	.L2
- 141              	.L3:
-  68:../source/FSK_Demodulator.c **** 	{
-  69:../source/FSK_Demodulator.c **** 		result_signal.buffer[i] = 1; //By default the initial state is all '1'.
- 142              		.loc 1 69 0 discriminator 3
- 143 005e 0D4A     		ldr	r2, .L4+20
- 144 0060 FB68     		ldr	r3, [r7, #12]
- 145 0062 9B00     		lsls	r3, r3, #2
- 146 0064 1344     		add	r3, r3, r2
- 147 0066 4FF07E52 		mov	r2, #1065353216
- 148 006a 1A60     		str	r2, [r3]	@ float
-  67:../source/FSK_Demodulator.c **** 	for(i=0; i< CIRCULAR_BUFFER_SIZE; i++)
- 149              		.loc 1 67 0 discriminator 3
- 150 006c FB68     		ldr	r3, [r7, #12]
- 151 006e 0133     		adds	r3, r3, #1
- 152 0070 FB60     		str	r3, [r7, #12]
- 153              	.L2:
-  67:../source/FSK_Demodulator.c **** 	for(i=0; i< CIRCULAR_BUFFER_SIZE; i++)
- 154              		.loc 1 67 0 is_stmt 0 discriminator 1
- 155 0072 FB68     		ldr	r3, [r7, #12]
- 156 0074 4F2B     		cmp	r3, #79
- 157 0076 F2DD     		ble	.L3
-  70:../source/FSK_Demodulator.c **** 	}
-  71:../source/FSK_Demodulator.c **** }
- 158              		.loc 1 71 0 is_stmt 1
- 159 0078 00BF     		nop
- 160 007a 1437     		adds	r7, r7, #20
- 161              		.cfi_def_cfa_offset 12
- 162 007c BD46     		mov	sp, r7
- 163              		.cfi_def_cfa_register 13
- 164              		@ sp needed
- 165 007e 90BD     		pop	{r4, r7, pc}
- 166              	.L5:
- 167              		.align	3
- 168              	.L4:
- 169 0080 08A3A366 		.word	1722000136
- 170 0084 59413D3F 		.word	1060979033
- 171 0088 00000000 		.word	fs
- 172 008c 00000000 		.word	FSK_signal
- 173 0090 00000000 		.word	PreFiltered_signal
- 174 0094 00000000 		.word	result_signal
- 175 0098 00000000 		.word	prev_samples
- 176              		.cfi_endproc
- 177              	.LFE0:
- 179              		.section	.text.DemodulateSignal,"ax",%progbits
- 180              		.align	1
- 181              		.global	DemodulateSignal
- 182              		.syntax unified
- 183              		.thumb
- 184              		.thumb_func
- 185              		.fpu fpv4-sp-d16
- 187              	DemodulateSignal:
- 188              	.LFB1:
-  72:../source/FSK_Demodulator.c **** 
-  73:../source/FSK_Demodulator.c **** void DemodulateSignal(float* recieved,uint8_t buffer_size)
-  74:../source/FSK_Demodulator.c **** {
- 189              		.loc 1 74 0
- 190              		.cfi_startproc
- 191              		@ args = 0, pretend = 0, frame = 24
- 192              		@ frame_needed = 1, uses_anonymous_args = 0
- 193 0000 80B5     		push	{r7, lr}
- 194              		.cfi_def_cfa_offset 8
- 195              		.cfi_offset 7, -8
- 196              		.cfi_offset 14, -4
- 197 0002 86B0     		sub	sp, sp, #24
- 198              		.cfi_def_cfa_offset 32
- 199 0004 00AF     		add	r7, sp, #0
- 200              		.cfi_def_cfa_register 7
- 201 0006 7860     		str	r0, [r7, #4]
- 202 0008 0B46     		mov	r3, r1
- 203 000a FB70     		strb	r3, [r7, #3]
-  75:../source/FSK_Demodulator.c **** 	float aux = 0;
- 204              		.loc 1 75 0
- 205 000c 4FF00003 		mov	r3, #0
- 206 0010 FB60     		str	r3, [r7, #12]	@ float
-  76:../source/FSK_Demodulator.c **** 	int i =0;
- 207              		.loc 1 76 0
- 208 0012 0023     		movs	r3, #0
- 209 0014 7B61     		str	r3, [r7, #20]
-  77:../source/FSK_Demodulator.c **** 	uint16_t aux_index = 0;
- 210              		.loc 1 77 0
- 211 0016 0023     		movs	r3, #0
- 212 0018 7B82     		strh	r3, [r7, #18]	@ movhi
-  78:../source/FSK_Demodulator.c **** 
-  79:../source/FSK_Demodulator.c **** 	//Update FSK Buffer
-  80:../source/FSK_Demodulator.c **** 	for(i=0; i<buffer_size; i++)
- 213              		.loc 1 80 0
- 214 001a 0023     		movs	r3, #0
- 215 001c 7B61     		str	r3, [r7, #20]
- 216 001e 22E0     		b	.L7
- 217              	.L8:
-  81:../source/FSK_Demodulator.c **** 	{
-  82:../source/FSK_Demodulator.c **** 		FSK_signal.curr = (FSK_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
- 218              		.loc 1 82 0 discriminator 3
- 219 0020 424B     		ldr	r3, .L13
- 220 0022 B3F94031 		ldrsh	r3, [r3, #320]
- 221 0026 5A1C     		adds	r2, r3, #1
- 222 0028 414B     		ldr	r3, .L13+4
- 223 002a 83FB0213 		smull	r1, r3, r3, r2
- 224 002e 5911     		asrs	r1, r3, #5
- 225 0030 D317     		asrs	r3, r2, #31
- 226 0032 C91A     		subs	r1, r1, r3
- 227 0034 0B46     		mov	r3, r1
- 228 0036 9B00     		lsls	r3, r3, #2
- 229 0038 0B44     		add	r3, r3, r1
- 230 003a 1B01     		lsls	r3, r3, #4
- 231 003c D11A     		subs	r1, r2, r3
- 232 003e 0AB2     		sxth	r2, r1
- 233 0040 3A4B     		ldr	r3, .L13
- 234 0042 A3F84021 		strh	r2, [r3, #320]	@ movhi
-  83:../source/FSK_Demodulator.c **** 		(FSK_signal.buffer)[FSK_signal.curr] = recieved[i];
- 235              		.loc 1 83 0 discriminator 3
- 236 0046 7B69     		ldr	r3, [r7, #20]
- 237 0048 9B00     		lsls	r3, r3, #2
- 238 004a 7A68     		ldr	r2, [r7, #4]
- 239 004c 1344     		add	r3, r3, r2
- 240 004e 374A     		ldr	r2, .L13
- 241 0050 B2F94021 		ldrsh	r2, [r2, #320]
- 242 0054 1046     		mov	r0, r2
- 243 0056 1A68     		ldr	r2, [r3]	@ float
- 244 0058 3449     		ldr	r1, .L13
- 245 005a 8300     		lsls	r3, r0, #2
- 246 005c 0B44     		add	r3, r3, r1
- 247 005e 1A60     		str	r2, [r3]	@ float
-  80:../source/FSK_Demodulator.c **** 	{
- 248              		.loc 1 80 0 discriminator 3
- 249 0060 7B69     		ldr	r3, [r7, #20]
- 250 0062 0133     		adds	r3, r3, #1
- 251 0064 7B61     		str	r3, [r7, #20]
- 252              	.L7:
-  80:../source/FSK_Demodulator.c **** 	{
- 253              		.loc 1 80 0 is_stmt 0 discriminator 1
- 254 0066 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
- 255 0068 7A69     		ldr	r2, [r7, #20]
- 256 006a 9A42     		cmp	r2, r3
- 257 006c D8DB     		blt	.L8
-  84:../source/FSK_Demodulator.c **** 	}
-  85:../source/FSK_Demodulator.c **** 
-  86:../source/FSK_Demodulator.c **** 	//Update PreFiltered Buffer
-  87:../source/FSK_Demodulator.c **** 	for(i=0; i<buffer_size; i++)
- 258              		.loc 1 87 0 is_stmt 1
- 259 006e 0023     		movs	r3, #0
- 260 0070 7B61     		str	r3, [r7, #20]
- 261 0072 4FE0     		b	.L9
- 262              	.L12:
-  88:../source/FSK_Demodulator.c **** 	{
-  89:../source/FSK_Demodulator.c **** 		PreFiltered_signal.curr = (PreFiltered_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
- 263              		.loc 1 89 0
- 264 0074 2F4B     		ldr	r3, .L13+8
- 265 0076 B3F94031 		ldrsh	r3, [r3, #320]
- 266 007a 5A1C     		adds	r2, r3, #1
- 267 007c 2C4B     		ldr	r3, .L13+4
- 268 007e 83FB0213 		smull	r1, r3, r3, r2
- 269 0082 5911     		asrs	r1, r3, #5
- 270 0084 D317     		asrs	r3, r2, #31
- 271 0086 C91A     		subs	r1, r1, r3
- 272 0088 0B46     		mov	r3, r1
- 273 008a 9B00     		lsls	r3, r3, #2
- 274 008c 0B44     		add	r3, r3, r1
- 275 008e 1B01     		lsls	r3, r3, #4
- 276 0090 D11A     		subs	r1, r2, r3
- 277 0092 0AB2     		sxth	r2, r1
- 278 0094 274B     		ldr	r3, .L13+8
- 279 0096 A3F84021 		strh	r2, [r3, #320]	@ movhi
-  90:../source/FSK_Demodulator.c **** 		aux =  (FSK_signal.buffer)[PreFiltered_signal.curr];
- 280              		.loc 1 90 0
- 281 009a 264B     		ldr	r3, .L13+8
- 282 009c B3F94031 		ldrsh	r3, [r3, #320]
- 283 00a0 224A     		ldr	r2, .L13
- 284 00a2 9B00     		lsls	r3, r3, #2
- 285 00a4 1344     		add	r3, r3, r2
- 286 00a6 1B68     		ldr	r3, [r3]	@ float
- 287 00a8 FB60     		str	r3, [r7, #12]	@ float
-  91:../source/FSK_Demodulator.c **** 		if( (PreFiltered_signal.curr - prev_samples) < 0 )
- 288              		.loc 1 91 0
- 289 00aa 224B     		ldr	r3, .L13+8
- 290 00ac B3F94031 		ldrsh	r3, [r3, #320]
- 291 00b0 1A46     		mov	r2, r3
- 292 00b2 214B     		ldr	r3, .L13+12
- 293 00b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
- 294 00b6 D31A     		subs	r3, r2, r3
- 295 00b8 002B     		cmp	r3, #0
- 296 00ba 0BDA     		bge	.L10
-  92:../source/FSK_Demodulator.c **** 		{
-  93:../source/FSK_Demodulator.c **** 			aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr - prev_samples);
- 297              		.loc 1 93 0
- 298 00bc 1D4B     		ldr	r3, .L13+8
- 299 00be B3F94031 		ldrsh	r3, [r3, #320]
- 300 00c2 9AB2     		uxth	r2, r3
- 301 00c4 1C4B     		ldr	r3, .L13+12
- 302 00c6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
- 303 00c8 9BB2     		uxth	r3, r3
- 304 00ca D31A     		subs	r3, r2, r3
- 305 00cc 9BB2     		uxth	r3, r3
- 306 00ce 5033     		adds	r3, r3, #80
- 307 00d0 7B82     		strh	r3, [r7, #18]	@ movhi
- 308 00d2 08E0     		b	.L11
- 309              	.L10:
-  94:../source/FSK_Demodulator.c **** 		}
-  95:../source/FSK_Demodulator.c **** 		else
-  96:../source/FSK_Demodulator.c **** 		{
-  97:../source/FSK_Demodulator.c **** 			aux_index = PreFiltered_signal.curr - prev_samples;
- 310              		.loc 1 97 0
- 311 00d4 174B     		ldr	r3, .L13+8
- 312 00d6 B3F94031 		ldrsh	r3, [r3, #320]
- 313 00da 9AB2     		uxth	r2, r3
- 314 00dc 164B     		ldr	r3, .L13+12
- 315 00de 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
- 316 00e0 9BB2     		uxth	r3, r3
- 317 00e2 D31A     		subs	r3, r2, r3
- 318 00e4 7B82     		strh	r3, [r7, #18]	@ movhi
- 319              	.L11:
-  98:../source/FSK_Demodulator.c **** 		}
-  99:../source/FSK_Demodulator.c **** 		aux *= (FSK_signal.buffer)[aux_index];
- 320              		.loc 1 99 0 discriminator 2
- 321 00e6 7B8A     		ldrh	r3, [r7, #18]
- 322 00e8 104A     		ldr	r2, .L13
- 323 00ea 9B00     		lsls	r3, r3, #2
- 324 00ec 1344     		add	r3, r3, r2
- 325 00ee D3ED007A 		vldr.32	s15, [r3]
- 326 00f2 97ED037A 		vldr.32	s14, [r7, #12]
- 327 00f6 67EE277A 		vmul.f32	s15, s14, s15
- 328 00fa C7ED037A 		vstr.32	s15, [r7, #12]
- 100:../source/FSK_Demodulator.c **** 		(PreFiltered_signal.buffer)[PreFiltered_signal.curr] = aux;
- 329              		.loc 1 100 0 discriminator 2
- 330 00fe 0D4B     		ldr	r3, .L13+8
- 331 0100 B3F94031 		ldrsh	r3, [r3, #320]
- 332 0104 0B4A     		ldr	r2, .L13+8
- 333 0106 9B00     		lsls	r3, r3, #2
- 334 0108 1344     		add	r3, r3, r2
- 335 010a FA68     		ldr	r2, [r7, #12]	@ float
- 336 010c 1A60     		str	r2, [r3]	@ float
-  87:../source/FSK_Demodulator.c **** 	{
- 337              		.loc 1 87 0 discriminator 2
- 338 010e 7B69     		ldr	r3, [r7, #20]
- 339 0110 0133     		adds	r3, r3, #1
- 340 0112 7B61     		str	r3, [r7, #20]
- 341              	.L9:
-  87:../source/FSK_Demodulator.c **** 	{
- 342              		.loc 1 87 0 is_stmt 0 discriminator 1
- 343 0114 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
- 344 0116 7A69     		ldr	r2, [r7, #20]
- 345 0118 9A42     		cmp	r2, r3
- 346 011a ABDB     		blt	.L12
+  58:../source/FSK_Demodulator.c **** 
+  59:../source/FSK_Demodulator.c **** /**
+  60:../source/FSK_Demodulator.c ****  * @brief Applys FIR filter and stores the results
+  61:../source/FSK_Demodulator.c ****  * @param cant Number of values to calculate
+  62:../source/FSK_Demodulator.c **** */
+  63:../source/FSK_Demodulator.c **** float ApplyFIR(void);
+  64:../source/FSK_Demodulator.c **** 
+  65:../source/FSK_Demodulator.c **** /**
+  66:../source/FSK_Demodulator.c ****  * @brief Stores value of digital signal
+  67:../source/FSK_Demodulator.c ****  * @param digital_signal
+  68:../source/FSK_Demodulator.c ****  * @param cant number of samples from analog signal
+  69:../source/FSK_Demodulator.c **** */
+  70:../source/FSK_Demodulator.c **** int8_t ReconstructSignal(float comp_out);
+  71:../source/FSK_Demodulator.c **** 
+  72:../source/FSK_Demodulator.c **** /***********************************************************
+  73:../source/FSK_Demodulator.c ****  * 				FUNCTIONS WITH GLOBAL SCOPE
+  74:../source/FSK_Demodulator.c ****  ***********************************************************/
+  75:../source/FSK_Demodulator.c **** void DemodulatorInit(void)
+  76:../source/FSK_Demodulator.c **** {
+ 111              		.loc 1 76 0
+ 112              		.cfi_startproc
+ 113              		@ args = 0, pretend = 0, frame = 0
+ 114              		@ frame_needed = 1, uses_anonymous_args = 0
+ 115 0000 98B5     		push	{r3, r4, r7, lr}
+ 116              		.cfi_def_cfa_offset 16
+ 117              		.cfi_offset 3, -16
+ 118              		.cfi_offset 4, -12
+ 119              		.cfi_offset 7, -8
+ 120              		.cfi_offset 14, -4
+ 121 0002 00AF     		add	r7, sp, #0
+ 122              		.cfi_def_cfa_register 7
+  77:../source/FSK_Demodulator.c **** 	fs = F_SAMPLE;
+ 123              		.loc 1 77 0
+ 124 0004 164B     		ldr	r3, .L2+8
+ 125 0006 42F6E062 		movw	r2, #12000
+ 126 000a 1A60     		str	r2, [r3]
+  78:../source/FSK_Demodulator.c **** 	FSK_signal.curr = -1;
+ 127              		.loc 1 78 0
+ 128 000c 154B     		ldr	r3, .L2+12
+ 129 000e 4FF6FF72 		movw	r2, #65535
+ 130 0012 A3F8A020 		strh	r2, [r3, #160]	@ movhi
+  79:../source/FSK_Demodulator.c **** 	PreFiltered_signal.curr = -1;
+ 131              		.loc 1 79 0
+ 132 0016 144B     		ldr	r3, .L2+16
+ 133 0018 4FF6FF72 		movw	r2, #65535
+ 134 001c A3F8A020 		strh	r2, [r3, #160]	@ movhi
+  80:../source/FSK_Demodulator.c **** 
+  81:../source/FSK_Demodulator.c **** 	prev_samples = (uint8_t)( DELAY*fs);
+ 135              		.loc 1 81 0
+ 136 0020 0F4B     		ldr	r3, .L2+8
+ 137 0022 1B68     		ldr	r3, [r3]
+ 138 0024 1846     		mov	r0, r3
+ 139 0026 FFF7FEFF 		bl	__aeabi_ui2d
+ 140              	.LVL0:
+ 141 002a 0BA3     		adr	r3, .L2
+ 142 002c D3E90023 		ldrd	r2, [r3]
+ 143 0030 FFF7FEFF 		bl	__aeabi_dmul
+ 144              	.LVL1:
+ 145 0034 0346     		mov	r3, r0
+ 146 0036 0C46     		mov	r4, r1
+ 147 0038 1846     		mov	r0, r3
+ 148 003a 2146     		mov	r1, r4
+ 149 003c FFF7FEFF 		bl	__aeabi_d2uiz
+ 150              	.LVL2:
+ 151 0040 0346     		mov	r3, r0
+ 152 0042 DAB2     		uxtb	r2, r3
+ 153 0044 094B     		ldr	r3, .L2+20
+ 154 0046 1A70     		strb	r2, [r3]
+  82:../source/FSK_Demodulator.c **** 	last_sample_value = 1;
+ 155              		.loc 1 82 0
+ 156 0048 094B     		ldr	r3, .L2+24
+ 157 004a 4FF07E52 		mov	r2, #1065353216
+ 158 004e 1A60     		str	r2, [r3]	@ float
+  83:../source/FSK_Demodulator.c **** }
+ 159              		.loc 1 83 0
+ 160 0050 00BF     		nop
+ 161 0052 98BD     		pop	{r3, r4, r7, pc}
+ 162              	.L3:
+ 163 0054 AFF30080 		.align	3
+ 164              	.L2:
+ 165 0058 08A3A366 		.word	1722000136
+ 166 005c 59413D3F 		.word	1060979033
+ 167 0060 00000000 		.word	fs
+ 168 0064 00000000 		.word	FSK_signal
+ 169 0068 00000000 		.word	PreFiltered_signal
+ 170 006c 00000000 		.word	prev_samples
+ 171 0070 00000000 		.word	last_sample_value
+ 172              		.cfi_endproc
+ 173              	.LFE0:
+ 175              		.section	.text.DemodulateSignal,"ax",%progbits
+ 176              		.align	1
+ 177              		.global	DemodulateSignal
+ 178              		.syntax unified
+ 179              		.thumb
+ 180              		.thumb_func
+ 181              		.fpu fpv4-sp-d16
+ 183              	DemodulateSignal:
+ 184              	.LFB1:
+  84:../source/FSK_Demodulator.c **** 
+  85:../source/FSK_Demodulator.c **** int8_t DemodulateSignal(float recieved)
+  86:../source/FSK_Demodulator.c **** {
+ 185              		.loc 1 86 0
+ 186              		.cfi_startproc
+ 187              		@ args = 0, pretend = 0, frame = 24
+ 188              		@ frame_needed = 1, uses_anonymous_args = 0
+ 189 0000 80B5     		push	{r7, lr}
+ 190              		.cfi_def_cfa_offset 8
+ 191              		.cfi_offset 7, -8
+ 192              		.cfi_offset 14, -4
+ 193 0002 86B0     		sub	sp, sp, #24
+ 194              		.cfi_def_cfa_offset 32
+ 195 0004 00AF     		add	r7, sp, #0
+ 196              		.cfi_def_cfa_register 7
+ 197 0006 87ED010A 		vstr.32	s0, [r7, #4]
+  87:../source/FSK_Demodulator.c **** 	float aux = 0;
+ 198              		.loc 1 87 0
+ 199 000a 4FF00003 		mov	r3, #0
+ 200 000e 3B61     		str	r3, [r7, #16]	@ float
+  88:../source/FSK_Demodulator.c **** 	uint16_t aux_index = 0;
+ 201              		.loc 1 88 0
+ 202 0010 0023     		movs	r3, #0
+ 203 0012 FB82     		strh	r3, [r7, #22]	@ movhi
+  89:../source/FSK_Demodulator.c **** 	float comp_out = 0; //Comparator output
+ 204              		.loc 1 89 0
+ 205 0014 4FF00003 		mov	r3, #0
+ 206 0018 FB60     		str	r3, [r7, #12]	@ float
+  90:../source/FSK_Demodulator.c **** 
+  91:../source/FSK_Demodulator.c **** 	//Update FSK Buffer
+  92:../source/FSK_Demodulator.c **** 	FSK_signal.curr = (FSK_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
+ 207              		.loc 1 92 0
+ 208 001a 374B     		ldr	r3, .L8
+ 209 001c B3F9A030 		ldrsh	r3, [r3, #160]
+ 210 0020 5A1C     		adds	r2, r3, #1
+ 211 0022 364B     		ldr	r3, .L8+4
+ 212 0024 83FB0213 		smull	r1, r3, r3, r2
+ 213 0028 1911     		asrs	r1, r3, #4
+ 214 002a D317     		asrs	r3, r2, #31
+ 215 002c C91A     		subs	r1, r1, r3
+ 216 002e 0B46     		mov	r3, r1
+ 217 0030 9B00     		lsls	r3, r3, #2
+ 218 0032 0B44     		add	r3, r3, r1
+ 219 0034 DB00     		lsls	r3, r3, #3
+ 220 0036 D11A     		subs	r1, r2, r3
+ 221 0038 0AB2     		sxth	r2, r1
+ 222 003a 2F4B     		ldr	r3, .L8
+ 223 003c A3F8A020 		strh	r2, [r3, #160]	@ movhi
+  93:../source/FSK_Demodulator.c **** 	(FSK_signal.buffer)[FSK_signal.curr] = recieved;
+ 224              		.loc 1 93 0
+ 225 0040 2D4B     		ldr	r3, .L8
+ 226 0042 B3F9A030 		ldrsh	r3, [r3, #160]
+ 227 0046 2C4A     		ldr	r2, .L8
+ 228 0048 9B00     		lsls	r3, r3, #2
+ 229 004a 1344     		add	r3, r3, r2
+ 230 004c 7A68     		ldr	r2, [r7, #4]	@ float
+ 231 004e 1A60     		str	r2, [r3]	@ float
+  94:../source/FSK_Demodulator.c **** 
+  95:../source/FSK_Demodulator.c **** 	//Update PreFiltered Buffer
+  96:../source/FSK_Demodulator.c **** 	PreFiltered_signal.curr = (PreFiltered_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
+ 232              		.loc 1 96 0
+ 233 0050 2B4B     		ldr	r3, .L8+8
+ 234 0052 B3F9A030 		ldrsh	r3, [r3, #160]
+ 235 0056 5A1C     		adds	r2, r3, #1
+ 236 0058 284B     		ldr	r3, .L8+4
+ 237 005a 83FB0213 		smull	r1, r3, r3, r2
+ 238 005e 1911     		asrs	r1, r3, #4
+ 239 0060 D317     		asrs	r3, r2, #31
+ 240 0062 C91A     		subs	r1, r1, r3
+ 241 0064 0B46     		mov	r3, r1
+ 242 0066 9B00     		lsls	r3, r3, #2
+ 243 0068 0B44     		add	r3, r3, r1
+ 244 006a DB00     		lsls	r3, r3, #3
+ 245 006c D11A     		subs	r1, r2, r3
+ 246 006e 0AB2     		sxth	r2, r1
+ 247 0070 234B     		ldr	r3, .L8+8
+ 248 0072 A3F8A020 		strh	r2, [r3, #160]	@ movhi
+  97:../source/FSK_Demodulator.c **** 	aux =  recieved;
+ 249              		.loc 1 97 0
+ 250 0076 7B68     		ldr	r3, [r7, #4]	@ float
+ 251 0078 3B61     		str	r3, [r7, #16]	@ float
+  98:../source/FSK_Demodulator.c **** 	if( (PreFiltered_signal.curr - prev_samples) < 0 )
+ 252              		.loc 1 98 0
+ 253 007a 214B     		ldr	r3, .L8+8
+ 254 007c B3F9A030 		ldrsh	r3, [r3, #160]
+ 255 0080 1A46     		mov	r2, r3
+ 256 0082 204B     		ldr	r3, .L8+12
+ 257 0084 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 258 0086 D31A     		subs	r3, r2, r3
+ 259 0088 002B     		cmp	r3, #0
+ 260 008a 0BDA     		bge	.L5
+  99:../source/FSK_Demodulator.c **** 	{
+ 100:../source/FSK_Demodulator.c **** 		aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr - prev_samples);
+ 261              		.loc 1 100 0
+ 262 008c 1C4B     		ldr	r3, .L8+8
+ 263 008e B3F9A030 		ldrsh	r3, [r3, #160]
+ 264 0092 9AB2     		uxth	r2, r3
+ 265 0094 1B4B     		ldr	r3, .L8+12
+ 266 0096 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 267 0098 9BB2     		uxth	r3, r3
+ 268 009a D31A     		subs	r3, r2, r3
+ 269 009c 9BB2     		uxth	r3, r3
+ 270 009e 2833     		adds	r3, r3, #40
+ 271 00a0 FB82     		strh	r3, [r7, #22]	@ movhi
+ 272 00a2 08E0     		b	.L6
+ 273              	.L5:
  101:../source/FSK_Demodulator.c **** 	}
- 102:../source/FSK_Demodulator.c **** 	//Update result
- 103:../source/FSK_Demodulator.c **** 	ApplyFIR(buffer_size);
- 347              		.loc 1 103 0 is_stmt 1
- 348 011c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
- 349 011e 1846     		mov	r0, r3
- 350 0120 FFF7FEFF 		bl	ApplyFIR
- 104:../source/FSK_Demodulator.c **** 
- 105:../source/FSK_Demodulator.c **** 
- 106:../source/FSK_Demodulator.c **** }
- 351              		.loc 1 106 0
- 352 0124 00BF     		nop
- 353 0126 1837     		adds	r7, r7, #24
- 354              		.cfi_def_cfa_offset 8
- 355 0128 BD46     		mov	sp, r7
- 356              		.cfi_def_cfa_register 13
- 357              		@ sp needed
- 358 012a 80BD     		pop	{r7, pc}
- 359              	.L14:
- 360              		.align	2
- 361              	.L13:
- 362 012c 00000000 		.word	FSK_signal
- 363 0130 67666666 		.word	1717986919
- 364 0134 00000000 		.word	PreFiltered_signal
- 365 0138 00000000 		.word	prev_samples
- 366              		.cfi_endproc
- 367              	.LFE1:
- 369              		.section	.text.ApplyFIR,"ax",%progbits
- 370              		.align	1
- 371              		.global	ApplyFIR
- 372              		.syntax unified
- 373              		.thumb
- 374              		.thumb_func
- 375              		.fpu fpv4-sp-d16
- 377              	ApplyFIR:
- 378              	.LFB2:
- 107:../source/FSK_Demodulator.c **** 
- 108:../source/FSK_Demodulator.c **** /***********************************************************
- 109:../source/FSK_Demodulator.c ****  * 				FUNCTIONS WITH LOCAL SCOPE
- 110:../source/FSK_Demodulator.c ****  ***********************************************************/
- 111:../source/FSK_Demodulator.c **** void ApplyFIR(uint8_t cant)
- 112:../source/FSK_Demodulator.c **** {
- 379              		.loc 1 112 0
- 380              		.cfi_startproc
- 381              		@ args = 0, pretend = 0, frame = 24
- 382              		@ frame_needed = 1, uses_anonymous_args = 0
- 383              		@ link register save eliminated.
- 384 0000 80B4     		push	{r7}
- 385              		.cfi_def_cfa_offset 4
- 386              		.cfi_offset 7, -4
- 387 0002 87B0     		sub	sp, sp, #28
- 388              		.cfi_def_cfa_offset 32
- 389 0004 00AF     		add	r7, sp, #0
- 390              		.cfi_def_cfa_register 7
- 391 0006 0346     		mov	r3, r0
- 392 0008 FB71     		strb	r3, [r7, #7]
- 113:../source/FSK_Demodulator.c **** 	int i=0;
- 393              		.loc 1 113 0
- 394 000a 0023     		movs	r3, #0
- 395 000c 7B61     		str	r3, [r7, #20]
- 114:../source/FSK_Demodulator.c **** 	int j=0;
- 396              		.loc 1 114 0
- 397 000e 0023     		movs	r3, #0
- 398 0010 3B61     		str	r3, [r7, #16]
- 115:../source/FSK_Demodulator.c **** 	uint16_t aux_index = 0;
- 399              		.loc 1 115 0
- 400 0012 0023     		movs	r3, #0
- 401 0014 FB81     		strh	r3, [r7, #14]	@ movhi
- 116:../source/FSK_Demodulator.c **** 	float aux = 0;
- 402              		.loc 1 116 0
- 403 0016 4FF00003 		mov	r3, #0
- 404 001a BB60     		str	r3, [r7, #8]	@ float
- 117:../source/FSK_Demodulator.c **** 	for(i=0; i< cant; i++)
- 405              		.loc 1 117 0
- 406 001c 0023     		movs	r3, #0
- 407 001e 7B61     		str	r3, [r7, #20]
- 408 0020 97E0     		b	.L16
- 409              	.L28:
- 118:../source/FSK_Demodulator.c **** 	{
- 119:../source/FSK_Demodulator.c **** 		aux = 0;
- 410              		.loc 1 119 0
- 411 0022 4FF00003 		mov	r3, #0
- 412 0026 BB60     		str	r3, [r7, #8]	@ float
- 120:../source/FSK_Demodulator.c **** 		result_signal.curr = (result_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
- 413              		.loc 1 120 0
- 414 0028 4F4B     		ldr	r3, .L34
- 415 002a B3F94031 		ldrsh	r3, [r3, #320]
- 416 002e 5A1C     		adds	r2, r3, #1
- 417 0030 4E4B     		ldr	r3, .L34+4
- 418 0032 83FB0213 		smull	r1, r3, r3, r2
- 419 0036 5911     		asrs	r1, r3, #5
- 420 0038 D317     		asrs	r3, r2, #31
- 421 003a C91A     		subs	r1, r1, r3
- 422 003c 0B46     		mov	r3, r1
- 423 003e 9B00     		lsls	r3, r3, #2
- 424 0040 0B44     		add	r3, r3, r1
- 425 0042 1B01     		lsls	r3, r3, #4
- 426 0044 D11A     		subs	r1, r2, r3
- 427 0046 0AB2     		sxth	r2, r1
- 428 0048 474B     		ldr	r3, .L34
- 429 004a A3F84021 		strh	r2, [r3, #320]	@ movhi
- 121:../source/FSK_Demodulator.c **** 
- 122:../source/FSK_Demodulator.c **** 		for(j=0; j< FIR_ORDER+1; j++)
- 430              		.loc 1 122 0
- 431 004e 0023     		movs	r3, #0
- 432 0050 3B61     		str	r3, [r7, #16]
- 433 0052 31E0     		b	.L17
- 434              	.L20:
- 123:../source/FSK_Demodulator.c **** 		{
- 124:../source/FSK_Demodulator.c **** 			if( (result_signal.curr-j)<0 )
- 435              		.loc 1 124 0
- 436 0054 444B     		ldr	r3, .L34
- 437 0056 B3F94031 		ldrsh	r3, [r3, #320]
- 438 005a 1A46     		mov	r2, r3
- 439 005c 3B69     		ldr	r3, [r7, #16]
- 440 005e D31A     		subs	r3, r2, r3
- 441 0060 002B     		cmp	r3, #0
- 442 0062 0ADA     		bge	.L18
- 125:../source/FSK_Demodulator.c **** 			{
- 126:../source/FSK_Demodulator.c **** 				aux_index = CIRCULAR_BUFFER_SIZE + (result_signal.curr-j);
- 443              		.loc 1 126 0
- 444 0064 404B     		ldr	r3, .L34
- 445 0066 B3F94031 		ldrsh	r3, [r3, #320]
- 446 006a 9AB2     		uxth	r2, r3
- 447 006c 3B69     		ldr	r3, [r7, #16]
- 448 006e 9BB2     		uxth	r3, r3
- 449 0070 D31A     		subs	r3, r2, r3
- 450 0072 9BB2     		uxth	r3, r3
- 451 0074 5033     		adds	r3, r3, #80
- 452 0076 FB81     		strh	r3, [r7, #14]	@ movhi
- 453 0078 07E0     		b	.L19
- 454              	.L18:
- 127:../source/FSK_Demodulator.c **** 			}
- 128:../source/FSK_Demodulator.c **** 			else
- 129:../source/FSK_Demodulator.c **** 			{
- 130:../source/FSK_Demodulator.c **** 				aux_index = result_signal.curr-j;
- 455              		.loc 1 130 0
- 456 007a 3B4B     		ldr	r3, .L34
- 457 007c B3F94031 		ldrsh	r3, [r3, #320]
- 458 0080 9AB2     		uxth	r2, r3
- 459 0082 3B69     		ldr	r3, [r7, #16]
- 460 0084 9BB2     		uxth	r3, r3
- 461 0086 D31A     		subs	r3, r2, r3
- 462 0088 FB81     		strh	r3, [r7, #14]	@ movhi
- 463              	.L19:
- 131:../source/FSK_Demodulator.c **** 			}
- 132:../source/FSK_Demodulator.c **** 			aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
- 464              		.loc 1 132 0 discriminator 2
- 465 008a 394A     		ldr	r2, .L34+8
- 466 008c 3B69     		ldr	r3, [r7, #16]
- 467 008e 9B00     		lsls	r3, r3, #2
- 468 0090 1344     		add	r3, r3, r2
- 469 0092 93ED007A 		vldr.32	s14, [r3]
- 470 0096 FB89     		ldrh	r3, [r7, #14]
- 471 0098 364A     		ldr	r2, .L34+12
- 472 009a 9B00     		lsls	r3, r3, #2
- 473 009c 1344     		add	r3, r3, r2
- 474 009e D3ED007A 		vldr.32	s15, [r3]
- 475 00a2 67EE277A 		vmul.f32	s15, s14, s15
- 476 00a6 97ED027A 		vldr.32	s14, [r7, #8]
- 477 00aa 77EE277A 		vadd.f32	s15, s14, s15
- 478 00ae C7ED027A 		vstr.32	s15, [r7, #8]
- 122:../source/FSK_Demodulator.c **** 		{
- 479              		.loc 1 122 0 discriminator 2
- 480 00b2 3B69     		ldr	r3, [r7, #16]
- 481 00b4 0133     		adds	r3, r3, #1
- 482 00b6 3B61     		str	r3, [r7, #16]
- 483              	.L17:
- 122:../source/FSK_Demodulator.c **** 		{
- 484              		.loc 1 122 0 is_stmt 0 discriminator 1
- 485 00b8 3B69     		ldr	r3, [r7, #16]
- 486 00ba 122B     		cmp	r3, #18
- 487 00bc CADD     		ble	.L20
- 133:../source/FSK_Demodulator.c **** 		}
- 134:../source/FSK_Demodulator.c **** 		//ApplyComparator
- 135:../source/FSK_Demodulator.c **** 		if( (result_signal.buffer)[(result_signal.curr)-1] == 0)
- 488              		.loc 1 135 0 is_stmt 1
- 489 00be 2A4B     		ldr	r3, .L34
- 490 00c0 B3F94031 		ldrsh	r3, [r3, #320]
- 491 00c4 013B     		subs	r3, r3, #1
- 492 00c6 284A     		ldr	r2, .L34
- 493 00c8 9B00     		lsls	r3, r3, #2
- 494 00ca 1344     		add	r3, r3, r2
- 495 00cc D3ED007A 		vldr.32	s15, [r3]
- 496 00d0 F5EE407A 		vcmp.f32	s15, #0
- 497 00d4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
- 498 00d8 1CD1     		bne	.L21
- 136:../source/FSK_Demodulator.c **** 		{
- 137:../source/FSK_Demodulator.c **** 			if( aux < VLOW )
- 499              		.loc 1 137 0
- 500 00da D7ED027A 		vldr.32	s15, [r7, #8]
- 501 00de BDEE007A 		vmov.f32	s14, #-2.5e-1
- 502 00e2 F4EEC77A 		vcmpe.f32	s15, s14
- 503 00e6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
- 504 00ea 09D5     		bpl	.L32
- 138:../source/FSK_Demodulator.c **** 			{
- 139:../source/FSK_Demodulator.c **** 				(result_signal.buffer)[result_signal.curr] = 1;
- 505              		.loc 1 139 0
- 506 00ec 1E4B     		ldr	r3, .L34
- 507 00ee B3F94031 		ldrsh	r3, [r3, #320]
- 508 00f2 1D4A     		ldr	r2, .L34
- 509 00f4 9B00     		lsls	r3, r3, #2
- 510 00f6 1344     		add	r3, r3, r2
- 511 00f8 4FF07E52 		mov	r2, #1065353216
- 512 00fc 1A60     		str	r2, [r3]	@ float
- 513 00fe 25E0     		b	.L25
- 514              	.L32:
- 140:../source/FSK_Demodulator.c **** 			}
- 141:../source/FSK_Demodulator.c **** 			else
- 142:../source/FSK_Demodulator.c **** 			{
- 143:../source/FSK_Demodulator.c **** 				(result_signal.buffer)[result_signal.curr] = 0;
- 515              		.loc 1 143 0
- 516 0100 194B     		ldr	r3, .L34
- 517 0102 B3F94031 		ldrsh	r3, [r3, #320]
- 518 0106 184A     		ldr	r2, .L34
- 519 0108 9B00     		lsls	r3, r3, #2
- 520 010a 1344     		add	r3, r3, r2
- 521 010c 4FF00002 		mov	r2, #0
- 522 0110 1A60     		str	r2, [r3]	@ float
- 523 0112 1BE0     		b	.L25
- 524              	.L21:
- 144:../source/FSK_Demodulator.c **** 			}
- 145:../source/FSK_Demodulator.c **** 		}
- 146:../source/FSK_Demodulator.c **** 		else
- 147:../source/FSK_Demodulator.c **** 		{
- 148:../source/FSK_Demodulator.c **** 			if( aux > VHIGH )
- 525              		.loc 1 148 0
- 526 0114 D7ED027A 		vldr.32	s15, [r7, #8]
- 527 0118 B5EE007A 		vmov.f32	s14, #2.5e-1
- 528 011c F4EEC77A 		vcmpe.f32	s15, s14
- 529 0120 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
- 530 0124 09DD     		ble	.L33
- 149:../source/FSK_Demodulator.c **** 			{
- 150:../source/FSK_Demodulator.c **** 				(result_signal.buffer)[result_signal.curr] = 0;
- 531              		.loc 1 150 0
- 532 0126 104B     		ldr	r3, .L34
- 533 0128 B3F94031 		ldrsh	r3, [r3, #320]
- 534 012c 0E4A     		ldr	r2, .L34
- 535 012e 9B00     		lsls	r3, r3, #2
- 536 0130 1344     		add	r3, r3, r2
- 537 0132 4FF00002 		mov	r2, #0
- 538 0136 1A60     		str	r2, [r3]	@ float
- 539 0138 08E0     		b	.L25
- 540              	.L33:
- 151:../source/FSK_Demodulator.c **** 			}
- 152:../source/FSK_Demodulator.c **** 			else
- 153:../source/FSK_Demodulator.c **** 			{
- 154:../source/FSK_Demodulator.c **** 				(result_signal.buffer)[result_signal.curr] = 1;
- 541              		.loc 1 154 0
- 542 013a 0B4B     		ldr	r3, .L34
- 543 013c B3F94031 		ldrsh	r3, [r3, #320]
- 544 0140 094A     		ldr	r2, .L34
- 545 0142 9B00     		lsls	r3, r3, #2
- 546 0144 1344     		add	r3, r3, r2
- 547 0146 4FF07E52 		mov	r2, #1065353216
- 548 014a 1A60     		str	r2, [r3]	@ float
- 549              	.L25:
- 117:../source/FSK_Demodulator.c **** 	{
- 550              		.loc 1 117 0 discriminator 2
- 551 014c 7B69     		ldr	r3, [r7, #20]
- 552 014e 0133     		adds	r3, r3, #1
- 553 0150 7B61     		str	r3, [r7, #20]
- 554              	.L16:
- 117:../source/FSK_Demodulator.c **** 	{
- 555              		.loc 1 117 0 is_stmt 0 discriminator 1
- 556 0152 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
- 557 0154 7A69     		ldr	r2, [r7, #20]
- 558 0156 9A42     		cmp	r2, r3
- 559 0158 FFF663AF 		blt	.L28
- 155:../source/FSK_Demodulator.c **** 			}
+ 102:../source/FSK_Demodulator.c **** 	else
+ 103:../source/FSK_Demodulator.c **** 	{
+ 104:../source/FSK_Demodulator.c **** 		aux_index = PreFiltered_signal.curr - prev_samples;
+ 274              		.loc 1 104 0
+ 275 00a4 164B     		ldr	r3, .L8+8
+ 276 00a6 B3F9A030 		ldrsh	r3, [r3, #160]
+ 277 00aa 9AB2     		uxth	r2, r3
+ 278 00ac 154B     		ldr	r3, .L8+12
+ 279 00ae 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 280 00b0 9BB2     		uxth	r3, r3
+ 281 00b2 D31A     		subs	r3, r2, r3
+ 282 00b4 FB82     		strh	r3, [r7, #22]	@ movhi
+ 283              	.L6:
+ 105:../source/FSK_Demodulator.c **** 	}
+ 106:../source/FSK_Demodulator.c **** 	aux *= (FSK_signal.buffer)[aux_index];
+ 284              		.loc 1 106 0
+ 285 00b6 FB8A     		ldrh	r3, [r7, #22]
+ 286 00b8 0F4A     		ldr	r2, .L8
+ 287 00ba 9B00     		lsls	r3, r3, #2
+ 288 00bc 1344     		add	r3, r3, r2
+ 289 00be D3ED007A 		vldr.32	s15, [r3]
+ 290 00c2 97ED047A 		vldr.32	s14, [r7, #16]
+ 291 00c6 67EE277A 		vmul.f32	s15, s14, s15
+ 292 00ca C7ED047A 		vstr.32	s15, [r7, #16]
+ 107:../source/FSK_Demodulator.c **** 	(PreFiltered_signal.buffer)[PreFiltered_signal.curr] = aux;
+ 293              		.loc 1 107 0
+ 294 00ce 0C4B     		ldr	r3, .L8+8
+ 295 00d0 B3F9A030 		ldrsh	r3, [r3, #160]
+ 296 00d4 0A4A     		ldr	r2, .L8+8
+ 297 00d6 9B00     		lsls	r3, r3, #2
+ 298 00d8 1344     		add	r3, r3, r2
+ 299 00da 3A69     		ldr	r2, [r7, #16]	@ float
+ 300 00dc 1A60     		str	r2, [r3]	@ float
+ 108:../source/FSK_Demodulator.c **** 
+ 109:../source/FSK_Demodulator.c **** 	//Update result
+ 110:../source/FSK_Demodulator.c **** 	comp_out = ApplyFIR();
+ 301              		.loc 1 110 0
+ 302 00de FFF7FEFF 		bl	ApplyFIR
+ 303 00e2 87ED030A 		vstr.32	s0, [r7, #12]
+ 111:../source/FSK_Demodulator.c **** 	//Gets bitstream values.
+ 112:../source/FSK_Demodulator.c **** 	return ReconstructSignal(comp_out);
+ 304              		.loc 1 112 0
+ 305 00e6 97ED030A 		vldr.32	s0, [r7, #12]
+ 306 00ea FFF7FEFF 		bl	ReconstructSignal
+ 307 00ee 0346     		mov	r3, r0
+ 113:../source/FSK_Demodulator.c **** }
+ 308              		.loc 1 113 0
+ 309 00f0 1846     		mov	r0, r3
+ 310 00f2 1837     		adds	r7, r7, #24
+ 311              		.cfi_def_cfa_offset 8
+ 312 00f4 BD46     		mov	sp, r7
+ 313              		.cfi_def_cfa_register 13
+ 314              		@ sp needed
+ 315 00f6 80BD     		pop	{r7, pc}
+ 316              	.L9:
+ 317              		.align	2
+ 318              	.L8:
+ 319 00f8 00000000 		.word	FSK_signal
+ 320 00fc 67666666 		.word	1717986919
+ 321 0100 00000000 		.word	PreFiltered_signal
+ 322 0104 00000000 		.word	prev_samples
+ 323              		.cfi_endproc
+ 324              	.LFE1:
+ 326              		.section	.text.ApplyFIR,"ax",%progbits
+ 327              		.align	1
+ 328              		.global	ApplyFIR
+ 329              		.syntax unified
+ 330              		.thumb
+ 331              		.thumb_func
+ 332              		.fpu fpv4-sp-d16
+ 334              	ApplyFIR:
+ 335              	.LFB2:
+ 114:../source/FSK_Demodulator.c **** 
+ 115:../source/FSK_Demodulator.c **** /***********************************************************
+ 116:../source/FSK_Demodulator.c ****  * 				FUNCTIONS WITH LOCAL SCOPE
+ 117:../source/FSK_Demodulator.c ****  ***********************************************************/
+ 118:../source/FSK_Demodulator.c **** float ApplyFIR(void)
+ 119:../source/FSK_Demodulator.c **** {
+ 336              		.loc 1 119 0
+ 337              		.cfi_startproc
+ 338              		@ args = 0, pretend = 0, frame = 16
+ 339              		@ frame_needed = 1, uses_anonymous_args = 0
+ 340              		@ link register save eliminated.
+ 341 0000 80B4     		push	{r7}
+ 342              		.cfi_def_cfa_offset 4
+ 343              		.cfi_offset 7, -4
+ 344 0002 85B0     		sub	sp, sp, #20
+ 345              		.cfi_def_cfa_offset 24
+ 346 0004 00AF     		add	r7, sp, #0
+ 347              		.cfi_def_cfa_register 7
+ 120:../source/FSK_Demodulator.c **** 	int j=0;
+ 348              		.loc 1 120 0
+ 349 0006 0023     		movs	r3, #0
+ 350 0008 FB60     		str	r3, [r7, #12]
+ 121:../source/FSK_Demodulator.c **** 	uint16_t aux_index = 0;
+ 351              		.loc 1 121 0
+ 352 000a 0023     		movs	r3, #0
+ 353 000c 7B81     		strh	r3, [r7, #10]	@ movhi
+ 122:../source/FSK_Demodulator.c **** 	float aux = 0;
+ 354              		.loc 1 122 0
+ 355 000e 4FF00003 		mov	r3, #0
+ 356 0012 7B60     		str	r3, [r7, #4]	@ float
+ 123:../source/FSK_Demodulator.c **** 
+ 124:../source/FSK_Demodulator.c **** 
+ 125:../source/FSK_Demodulator.c **** 	for(j=0; j< FIR_ORDER+1; j++)
+ 357              		.loc 1 125 0
+ 358 0014 0023     		movs	r3, #0
+ 359 0016 FB60     		str	r3, [r7, #12]
+ 360 0018 31E0     		b	.L11
+ 361              	.L14:
+ 126:../source/FSK_Demodulator.c **** 	{
+ 127:../source/FSK_Demodulator.c **** 		if( (PreFiltered_signal.curr-j)<0 )
+ 362              		.loc 1 127 0
+ 363 001a 354B     		ldr	r3, .L25
+ 364 001c B3F9A030 		ldrsh	r3, [r3, #160]
+ 365 0020 1A46     		mov	r2, r3
+ 366 0022 FB68     		ldr	r3, [r7, #12]
+ 367 0024 D31A     		subs	r3, r2, r3
+ 368 0026 002B     		cmp	r3, #0
+ 369 0028 0ADA     		bge	.L12
+ 128:../source/FSK_Demodulator.c **** 		{
+ 129:../source/FSK_Demodulator.c **** 			aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr-j);
+ 370              		.loc 1 129 0
+ 371 002a 314B     		ldr	r3, .L25
+ 372 002c B3F9A030 		ldrsh	r3, [r3, #160]
+ 373 0030 9AB2     		uxth	r2, r3
+ 374 0032 FB68     		ldr	r3, [r7, #12]
+ 375 0034 9BB2     		uxth	r3, r3
+ 376 0036 D31A     		subs	r3, r2, r3
+ 377 0038 9BB2     		uxth	r3, r3
+ 378 003a 2833     		adds	r3, r3, #40
+ 379 003c 7B81     		strh	r3, [r7, #10]	@ movhi
+ 380 003e 07E0     		b	.L13
+ 381              	.L12:
+ 130:../source/FSK_Demodulator.c **** 		}
+ 131:../source/FSK_Demodulator.c **** 		else
+ 132:../source/FSK_Demodulator.c **** 		{
+ 133:../source/FSK_Demodulator.c **** 			aux_index = PreFiltered_signal.curr-j;
+ 382              		.loc 1 133 0
+ 383 0040 2B4B     		ldr	r3, .L25
+ 384 0042 B3F9A030 		ldrsh	r3, [r3, #160]
+ 385 0046 9AB2     		uxth	r2, r3
+ 386 0048 FB68     		ldr	r3, [r7, #12]
+ 387 004a 9BB2     		uxth	r3, r3
+ 388 004c D31A     		subs	r3, r2, r3
+ 389 004e 7B81     		strh	r3, [r7, #10]	@ movhi
+ 390              	.L13:
+ 134:../source/FSK_Demodulator.c **** 		}
+ 135:../source/FSK_Demodulator.c **** 		aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
+ 391              		.loc 1 135 0 discriminator 2
+ 392 0050 284A     		ldr	r2, .L25+4
+ 393 0052 FB68     		ldr	r3, [r7, #12]
+ 394 0054 9B00     		lsls	r3, r3, #2
+ 395 0056 1344     		add	r3, r3, r2
+ 396 0058 93ED007A 		vldr.32	s14, [r3]
+ 397 005c 7B89     		ldrh	r3, [r7, #10]
+ 398 005e 244A     		ldr	r2, .L25
+ 399 0060 9B00     		lsls	r3, r3, #2
+ 400 0062 1344     		add	r3, r3, r2
+ 401 0064 D3ED007A 		vldr.32	s15, [r3]
+ 402 0068 67EE277A 		vmul.f32	s15, s14, s15
+ 403 006c 97ED017A 		vldr.32	s14, [r7, #4]
+ 404 0070 77EE277A 		vadd.f32	s15, s14, s15
+ 405 0074 C7ED017A 		vstr.32	s15, [r7, #4]
+ 125:../source/FSK_Demodulator.c **** 	{
+ 406              		.loc 1 125 0 discriminator 2
+ 407 0078 FB68     		ldr	r3, [r7, #12]
+ 408 007a 0133     		adds	r3, r3, #1
+ 409 007c FB60     		str	r3, [r7, #12]
+ 410              	.L11:
+ 125:../source/FSK_Demodulator.c **** 	{
+ 411              		.loc 1 125 0 is_stmt 0 discriminator 1
+ 412 007e FB68     		ldr	r3, [r7, #12]
+ 413 0080 122B     		cmp	r3, #18
+ 414 0082 CADD     		ble	.L14
+ 136:../source/FSK_Demodulator.c **** 	}
+ 137:../source/FSK_Demodulator.c **** 	//ApplyComparator
+ 138:../source/FSK_Demodulator.c **** 	if( last_fir_output == 0)
+ 415              		.loc 1 138 0 is_stmt 1
+ 416 0084 1C4B     		ldr	r3, .L25+8
+ 417 0086 D3ED007A 		vldr.32	s15, [r3]
+ 418 008a F5EE407A 		vcmp.f32	s15, #0
+ 419 008e F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 420 0092 12D1     		bne	.L15
+ 139:../source/FSK_Demodulator.c **** 	{
+ 140:../source/FSK_Demodulator.c **** 		if( aux < VLOW )
+ 421              		.loc 1 140 0
+ 422 0094 D7ED017A 		vldr.32	s15, [r7, #4]
+ 423 0098 BDEE007A 		vmov.f32	s14, #-2.5e-1
+ 424 009c F4EEC77A 		vcmpe.f32	s15, s14
+ 425 00a0 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 426 00a4 06D5     		bpl	.L23
+ 141:../source/FSK_Demodulator.c **** 		{
+ 142:../source/FSK_Demodulator.c **** 			last_fir_output = 1;
+ 427              		.loc 1 142 0
+ 428 00a6 144B     		ldr	r3, .L25+8
+ 429 00a8 4FF07E52 		mov	r2, #1065353216
+ 430 00ac 1A60     		str	r2, [r3]	@ float
+ 143:../source/FSK_Demodulator.c **** 			return 1;
+ 431              		.loc 1 143 0
+ 432 00ae 4FF07E53 		mov	r3, #1065353216
+ 433 00b2 14E0     		b	.L18
+ 434              	.L23:
+ 144:../source/FSK_Demodulator.c **** 		}
+ 145:../source/FSK_Demodulator.c **** 		else
+ 146:../source/FSK_Demodulator.c **** 		{
+ 147:../source/FSK_Demodulator.c **** 			return 0;
+ 435              		.loc 1 147 0
+ 436 00b4 4FF00003 		mov	r3, #0
+ 437 00b8 11E0     		b	.L18
+ 438              	.L15:
+ 148:../source/FSK_Demodulator.c **** 		}
+ 149:../source/FSK_Demodulator.c **** 	}
+ 150:../source/FSK_Demodulator.c **** 	else
+ 151:../source/FSK_Demodulator.c **** 	{
+ 152:../source/FSK_Demodulator.c **** 		if( aux > VHIGH )
+ 439              		.loc 1 152 0
+ 440 00ba D7ED017A 		vldr.32	s15, [r7, #4]
+ 441 00be B5EE007A 		vmov.f32	s14, #2.5e-1
+ 442 00c2 F4EEC77A 		vcmpe.f32	s15, s14
+ 443 00c6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 444 00ca 06DD     		ble	.L24
+ 153:../source/FSK_Demodulator.c **** 		{
+ 154:../source/FSK_Demodulator.c **** 			last_fir_output = 0;
+ 445              		.loc 1 154 0
+ 446 00cc 0A4B     		ldr	r3, .L25+8
+ 447 00ce 4FF00002 		mov	r2, #0
+ 448 00d2 1A60     		str	r2, [r3]	@ float
+ 155:../source/FSK_Demodulator.c **** 			return 0;
+ 449              		.loc 1 155 0
+ 450 00d4 4FF00003 		mov	r3, #0
+ 451 00d8 01E0     		b	.L18
+ 452              	.L24:
  156:../source/FSK_Demodulator.c **** 		}
- 157:../source/FSK_Demodulator.c **** 	}
- 158:../source/FSK_Demodulator.c **** 	return;
- 560              		.loc 1 158 0 is_stmt 1
- 561 015c 00BF     		nop
- 159:../source/FSK_Demodulator.c **** }
- 562              		.loc 1 159 0
- 563 015e 1C37     		adds	r7, r7, #28
- 564              		.cfi_def_cfa_offset 4
- 565 0160 BD46     		mov	sp, r7
- 566              		.cfi_def_cfa_register 13
- 567              		@ sp needed
- 568 0162 5DF8047B 		ldr	r7, [sp], #4
- 569              		.cfi_restore 7
- 570              		.cfi_def_cfa_offset 0
- 571 0166 7047     		bx	lr
- 572              	.L35:
- 573              		.align	2
- 574              	.L34:
- 575 0168 00000000 		.word	result_signal
- 576 016c 67666666 		.word	1717986919
- 577 0170 00000000 		.word	fir_coeffs
- 578 0174 00000000 		.word	PreFiltered_signal
- 579              		.cfi_endproc
- 580              	.LFE2:
- 582              		.text
- 583              	.Letext0:
- 584              		.file 2 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\sys\\libconfig-arm.h"
- 585              		.file 3 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\stdint.h"
+ 157:../source/FSK_Demodulator.c **** 		else
+ 158:../source/FSK_Demodulator.c **** 		{
+ 159:../source/FSK_Demodulator.c **** 			return 1;
+ 453              		.loc 1 159 0
+ 454 00da 4FF07E53 		mov	r3, #1065353216
+ 455              	.L18:
+ 456 00de 07EE903A 		vmov	s15, r3
+ 160:../source/FSK_Demodulator.c **** 		}
+ 161:../source/FSK_Demodulator.c **** 	}
+ 162:../source/FSK_Demodulator.c **** 
+ 163:../source/FSK_Demodulator.c **** 	return;
+ 164:../source/FSK_Demodulator.c **** }
+ 457              		.loc 1 164 0
+ 458 00e2 B0EE670A 		vmov.f32	s0, s15
+ 459 00e6 1437     		adds	r7, r7, #20
+ 460              		.cfi_def_cfa_offset 4
+ 461 00e8 BD46     		mov	sp, r7
+ 462              		.cfi_def_cfa_register 13
+ 463              		@ sp needed
+ 464 00ea 5DF8047B 		ldr	r7, [sp], #4
+ 465              		.cfi_restore 7
+ 466              		.cfi_def_cfa_offset 0
+ 467 00ee 7047     		bx	lr
+ 468              	.L26:
+ 469              		.align	2
+ 470              	.L25:
+ 471 00f0 00000000 		.word	PreFiltered_signal
+ 472 00f4 00000000 		.word	fir_coeffs
+ 473 00f8 00000000 		.word	last_fir_output
+ 474              		.cfi_endproc
+ 475              	.LFE2:
+ 477              		.section	.text.ReconstructSignal,"ax",%progbits
+ 478              		.align	1
+ 479              		.global	ReconstructSignal
+ 480              		.syntax unified
+ 481              		.thumb
+ 482              		.thumb_func
+ 483              		.fpu fpv4-sp-d16
+ 485              	ReconstructSignal:
+ 486              	.LFB3:
+ 165:../source/FSK_Demodulator.c **** 
+ 166:../source/FSK_Demodulator.c **** int8_t ReconstructSignal(float comp_out)
+ 167:../source/FSK_Demodulator.c **** {
+ 487              		.loc 1 167 0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 8
+ 490              		@ frame_needed = 1, uses_anonymous_args = 0
+ 491              		@ link register save eliminated.
+ 492 0000 80B4     		push	{r7}
+ 493              		.cfi_def_cfa_offset 4
+ 494              		.cfi_offset 7, -4
+ 495 0002 83B0     		sub	sp, sp, #12
+ 496              		.cfi_def_cfa_offset 16
+ 497 0004 00AF     		add	r7, sp, #0
+ 498              		.cfi_def_cfa_register 7
+ 499 0006 87ED010A 		vstr.32	s0, [r7, #4]
+ 168:../source/FSK_Demodulator.c **** 	if(idle)
+ 500              		.loc 1 168 0
+ 501 000a 3F4B     		ldr	r3, .L38
+ 502 000c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 503 000e 002B     		cmp	r3, #0
+ 504 0010 21D0     		beq	.L28
+ 169:../source/FSK_Demodulator.c **** 	{
+ 170:../source/FSK_Demodulator.c **** 		if( comp_out)
+ 505              		.loc 1 170 0
+ 506 0012 D7ED017A 		vldr.32	s15, [r7, #4]
+ 507 0016 F5EE407A 		vcmp.f32	s15, #0
+ 508 001a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 509 001e 0ED0     		beq	.L29
+ 171:../source/FSK_Demodulator.c **** 		{
+ 172:../source/FSK_Demodulator.c **** 			if(++sample_counter == AVG_SAMPLES)
+ 510              		.loc 1 172 0
+ 511 0020 3A4B     		ldr	r3, .L38+4
+ 512 0022 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 513 0024 0133     		adds	r3, r3, #1
+ 514 0026 DAB2     		uxtb	r2, r3
+ 515 0028 384B     		ldr	r3, .L38+4
+ 516 002a 1A70     		strb	r2, [r3]
+ 517 002c 374B     		ldr	r3, .L38+4
+ 518 002e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 519 0030 0A2B     		cmp	r3, #10
+ 520 0032 62D1     		bne	.L30
+ 173:../source/FSK_Demodulator.c **** 			{
+ 174:../source/FSK_Demodulator.c **** 				sample_counter = 0;
+ 521              		.loc 1 174 0
+ 522 0034 354B     		ldr	r3, .L38+4
+ 523 0036 0022     		movs	r2, #0
+ 524 0038 1A70     		strb	r2, [r3]
+ 175:../source/FSK_Demodulator.c **** 				return 1;
+ 525              		.loc 1 175 0
+ 526 003a 0123     		movs	r3, #1
+ 527 003c 5DE0     		b	.L27
+ 528              	.L29:
+ 176:../source/FSK_Demodulator.c **** 			}
+ 177:../source/FSK_Demodulator.c **** 		}
+ 178:../source/FSK_Demodulator.c **** 		else
+ 179:../source/FSK_Demodulator.c **** 		{
+ 180:../source/FSK_Demodulator.c **** 			idle = false;
+ 529              		.loc 1 180 0
+ 530 003e 324B     		ldr	r3, .L38
+ 531 0040 0022     		movs	r2, #0
+ 532 0042 1A70     		strb	r2, [r3]
+ 181:../source/FSK_Demodulator.c **** 			idle_counter = false;
+ 533              		.loc 1 181 0
+ 534 0044 324B     		ldr	r3, .L38+8
+ 535 0046 0022     		movs	r2, #0
+ 536 0048 1A70     		strb	r2, [r3]
+ 182:../source/FSK_Demodulator.c **** 			sample_counter = 1;
+ 537              		.loc 1 182 0
+ 538 004a 304B     		ldr	r3, .L38+4
+ 539 004c 0122     		movs	r2, #1
+ 540 004e 1A70     		strb	r2, [r3]
+ 183:../source/FSK_Demodulator.c **** 			return -1;
+ 541              		.loc 1 183 0
+ 542 0050 4FF0FF33 		mov	r3, #-1
+ 543 0054 51E0     		b	.L27
+ 544              	.L28:
+ 184:../source/FSK_Demodulator.c **** 		}
+ 185:../source/FSK_Demodulator.c **** 	}
+ 186:../source/FSK_Demodulator.c **** 	else
+ 187:../source/FSK_Demodulator.c **** 	{
+ 188:../source/FSK_Demodulator.c **** 		average_aux += comp_out;
+ 545              		.loc 1 188 0
+ 546 0056 2F4B     		ldr	r3, .L38+12
+ 547 0058 93ED007A 		vldr.32	s14, [r3]
+ 548 005c D7ED017A 		vldr.32	s15, [r7, #4]
+ 549 0060 77EE277A 		vadd.f32	s15, s14, s15
+ 550 0064 2B4B     		ldr	r3, .L38+12
+ 551 0066 C3ED007A 		vstr.32	s15, [r3]
+ 189:../source/FSK_Demodulator.c **** 		if( (++sample_counter) == AVG_SAMPLES)
+ 552              		.loc 1 189 0
+ 553 006a 284B     		ldr	r3, .L38+4
+ 554 006c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 555 006e 0133     		adds	r3, r3, #1
+ 556 0070 DAB2     		uxtb	r2, r3
+ 557 0072 264B     		ldr	r3, .L38+4
+ 558 0074 1A70     		strb	r2, [r3]
+ 559 0076 254B     		ldr	r3, .L38+4
+ 560 0078 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 561 007a 0A2B     		cmp	r3, #10
+ 562 007c 3AD1     		bne	.L32
+ 190:../source/FSK_Demodulator.c **** 		{
+ 191:../source/FSK_Demodulator.c **** 			sample_counter = 0;
+ 563              		.loc 1 191 0
+ 564 007e 234B     		ldr	r3, .L38+4
+ 565 0080 0022     		movs	r2, #0
+ 566 0082 1A70     		strb	r2, [r3]
+ 192:../source/FSK_Demodulator.c **** 			average_aux /= AVG_SAMPLES;
+ 567              		.loc 1 192 0
+ 568 0084 234B     		ldr	r3, .L38+12
+ 569 0086 93ED007A 		vldr.32	s14, [r3]
+ 570 008a F2EE046A 		vmov.f32	s13, #1.0e+1
+ 571 008e C7EE267A 		vdiv.f32	s15, s14, s13
+ 572 0092 204B     		ldr	r3, .L38+12
+ 573 0094 C3ED007A 		vstr.32	s15, [r3]
+ 193:../source/FSK_Demodulator.c **** 			if( average_aux >= MID )
+ 574              		.loc 1 193 0
+ 575 0098 1E4B     		ldr	r3, .L38+12
+ 576 009a D3ED007A 		vldr.32	s15, [r3]
+ 577 009e B6EE007A 		vmov.f32	s14, #5.0e-1
+ 578 00a2 F4EEC77A 		vcmpe.f32	s15, s14
+ 579 00a6 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 580 00aa 16DB     		blt	.L37
+ 194:../source/FSK_Demodulator.c **** 			{
+ 195:../source/FSK_Demodulator.c **** 				last_sample_value = 1;
+ 581              		.loc 1 195 0
+ 582 00ac 1A4B     		ldr	r3, .L38+16
+ 583 00ae 4FF07E52 		mov	r2, #1065353216
+ 584 00b2 1A60     		str	r2, [r3]	@ float
+ 196:../source/FSK_Demodulator.c **** 				if( (++idle_counter) == IDLE_LIMIT )
+ 585              		.loc 1 196 0
+ 586 00b4 164B     		ldr	r3, .L38+8
+ 587 00b6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 588 00b8 0133     		adds	r3, r3, #1
+ 589 00ba DAB2     		uxtb	r2, r3
+ 590 00bc 144B     		ldr	r3, .L38+8
+ 591 00be 1A70     		strb	r2, [r3]
+ 592 00c0 134B     		ldr	r3, .L38+8
+ 593 00c2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 594 00c4 082B     		cmp	r3, #8
+ 595 00c6 02D1     		bne	.L35
+ 197:../source/FSK_Demodulator.c **** 					idle = true;
+ 596              		.loc 1 197 0
+ 597 00c8 0F4B     		ldr	r3, .L38
+ 598 00ca 0122     		movs	r2, #1
+ 599 00cc 1A70     		strb	r2, [r3]
+ 600              	.L35:
+ 198:../source/FSK_Demodulator.c **** 				average_aux = 0;
+ 601              		.loc 1 198 0
+ 602 00ce 114B     		ldr	r3, .L38+12
+ 603 00d0 4FF00002 		mov	r2, #0
+ 604 00d4 1A60     		str	r2, [r3]	@ float
+ 199:../source/FSK_Demodulator.c **** 				return 1;
+ 605              		.loc 1 199 0
+ 606 00d6 0123     		movs	r3, #1
+ 607 00d8 0FE0     		b	.L27
+ 608              	.L37:
+ 200:../source/FSK_Demodulator.c **** 			}
+ 201:../source/FSK_Demodulator.c **** 			else
+ 202:../source/FSK_Demodulator.c **** 			{
+ 203:../source/FSK_Demodulator.c **** 				last_sample_value = 0;
+ 609              		.loc 1 203 0
+ 610 00da 0F4B     		ldr	r3, .L38+16
+ 611 00dc 4FF00002 		mov	r2, #0
+ 612 00e0 1A60     		str	r2, [r3]	@ float
+ 204:../source/FSK_Demodulator.c **** 				idle_counter = 0;
+ 613              		.loc 1 204 0
+ 614 00e2 0B4B     		ldr	r3, .L38+8
+ 615 00e4 0022     		movs	r2, #0
+ 616 00e6 1A70     		strb	r2, [r3]
+ 205:../source/FSK_Demodulator.c **** 				average_aux = 0;
+ 617              		.loc 1 205 0
+ 618 00e8 0A4B     		ldr	r3, .L38+12
+ 619 00ea 4FF00002 		mov	r2, #0
+ 620 00ee 1A60     		str	r2, [r3]	@ float
+ 206:../source/FSK_Demodulator.c **** 				return 0;
+ 621              		.loc 1 206 0
+ 622 00f0 0023     		movs	r3, #0
+ 623 00f2 02E0     		b	.L27
+ 624              	.L32:
+ 207:../source/FSK_Demodulator.c **** 			}
+ 208:../source/FSK_Demodulator.c **** 		}
+ 209:../source/FSK_Demodulator.c **** 		else
+ 210:../source/FSK_Demodulator.c **** 		{
+ 211:../source/FSK_Demodulator.c **** 			return -1;
+ 625              		.loc 1 211 0
+ 626 00f4 4FF0FF33 		mov	r3, #-1
+ 627 00f8 FFE7     		b	.L27
+ 628              	.L30:
+ 629              	.L27:
+ 212:../source/FSK_Demodulator.c **** 		}
+ 213:../source/FSK_Demodulator.c **** 
+ 214:../source/FSK_Demodulator.c **** 	}
+ 215:../source/FSK_Demodulator.c **** 
+ 216:../source/FSK_Demodulator.c **** 
+ 217:../source/FSK_Demodulator.c **** }
+ 630              		.loc 1 217 0
+ 631 00fa 1846     		mov	r0, r3
+ 632 00fc 0C37     		adds	r7, r7, #12
+ 633              		.cfi_def_cfa_offset 4
+ 634 00fe BD46     		mov	sp, r7
+ 635              		.cfi_def_cfa_register 13
+ 636              		@ sp needed
+ 637 0100 5DF8047B 		ldr	r7, [sp], #4
+ 638              		.cfi_restore 7
+ 639              		.cfi_def_cfa_offset 0
+ 640 0104 7047     		bx	lr
+ 641              	.L39:
+ 642 0106 00BF     		.align	2
+ 643              	.L38:
+ 644 0108 00000000 		.word	idle
+ 645 010c 00000000 		.word	sample_counter
+ 646 0110 00000000 		.word	idle_counter
+ 647 0114 00000000 		.word	average_aux
+ 648 0118 00000000 		.word	last_sample_value
+ 649              		.cfi_endproc
+ 650              	.LFE3:
+ 652              		.text
+ 653              	.Letext0:
+ 654              		.file 2 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\sys\\libconfig-arm.h"
+ 655              		.file 3 "c:\\nxp\\mcuxpressoide_10.2.0_759\\ide\\tools\\redlib\\include\\stdint.h"
 DEFINED SYMBOLS
                             *ABS*:00000000 FSK_Demodulator.c
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:18     .bss.FSK_signal:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:21     .bss.FSK_signal:00000000 FSK_signal
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:24     .bss.PreFiltered_signal:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:27     .bss.PreFiltered_signal:00000000 PreFiltered_signal
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:30     .bss.result_signal:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:33     .bss.result_signal:00000000 result_signal
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:36     .bss.fs:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:39     .bss.fs:00000000 fs
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:44     .bss.prev_samples:00000000 prev_samples
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:45     .bss.prev_samples:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:47     .data.fir_coeffs:00000000 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:50     .data.fir_coeffs:00000000 fir_coeffs
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:74     .text.DemodulatorInit:00000000 $t
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:81     .text.DemodulatorInit:00000000 DemodulatorInit
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:169    .text.DemodulatorInit:00000080 $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:180    .text.DemodulateSignal:00000000 $t
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:187    .text.DemodulateSignal:00000000 DemodulateSignal
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:377    .text.ApplyFIR:00000000 ApplyFIR
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:362    .text.DemodulateSignal:0000012c $d
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:370    .text.ApplyFIR:00000000 $t
-C:\Users\HP\AppData\Local\Temp\ccbOARwA.s:575    .text.ApplyFIR:00000168 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:18     .bss.FSK_signal:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:21     .bss.FSK_signal:00000000 FSK_signal
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:24     .bss.PreFiltered_signal:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:27     .bss.PreFiltered_signal:00000000 PreFiltered_signal
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:30     .data.last_fir_output:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:33     .data.last_fir_output:00000000 last_fir_output
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:36     .bss.last_sample_value:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:39     .bss.last_sample_value:00000000 last_sample_value
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:42     .bss.average_aux:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:45     .bss.average_aux:00000000 average_aux
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:50     .bss.sample_counter:00000000 sample_counter
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:51     .bss.sample_counter:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:55     .bss.idle_counter:00000000 idle_counter
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:56     .bss.idle_counter:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:60     .data.idle:00000000 idle
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:63     .bss.fs:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:66     .bss.fs:00000000 fs
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:71     .bss.prev_samples:00000000 prev_samples
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:72     .bss.prev_samples:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:74     .data.fir_coeffs:00000000 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:77     .data.fir_coeffs:00000000 fir_coeffs
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:101    .text.DemodulatorInit:00000000 $t
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:108    .text.DemodulatorInit:00000000 DemodulatorInit
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:165    .text.DemodulatorInit:00000058 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:176    .text.DemodulateSignal:00000000 $t
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:183    .text.DemodulateSignal:00000000 DemodulateSignal
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:334    .text.ApplyFIR:00000000 ApplyFIR
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:485    .text.ReconstructSignal:00000000 ReconstructSignal
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:319    .text.DemodulateSignal:000000f8 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:327    .text.ApplyFIR:00000000 $t
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:471    .text.ApplyFIR:000000f0 $d
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:478    .text.ReconstructSignal:00000000 $t
+C:\Users\HP\AppData\Local\Temp\cccB82lg.s:644    .text.ReconstructSignal:00000108 $d
                            .group:00000000 wm4.0.33db8b643112917ec54934b4f2c2f387
                            .group:00000000 wm4.redlib_version.h.16.f905717e4b3a91dcbdbb631865150df4
                            .group:00000000 wm4.libconfigarm.h.18.1ad1d24f96d0dc8c4cf52dc19b0aa2c7
                            .group:00000000 wm4.stdint.h.30.079ac5d9930c76ab215c1ab68adcbe08
+                           .group:00000000 wm4.stdbool.h.15.fddf1cb2402fd739d8e2516677869231
 
 UNDEFINED SYMBOLS
 __aeabi_ui2d
