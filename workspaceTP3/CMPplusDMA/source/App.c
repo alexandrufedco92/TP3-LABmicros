@@ -38,12 +38,15 @@ void senoidalCallback(void);
 
 uint16_t sourceBuffer[10] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756};
 uint16_t destiny;
-//uint16_t destinationBuffer[10];
+
+uint16_t destinationBuffer[10] = {0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};
+uint16_t origin = 0x0001;
+
 dma_transfer_conf_t conf;
 
 void dummy(void){
 	int dummy = 0;
-	dummy++;
+	origin = origin+1;
 }
 #define DMA_EXAMPLE 2
 
@@ -60,15 +63,27 @@ void App_Init (void)
 	pit_conf.timerVal[DMA_EXAMPLE] = 1000;
 	pit_conf.timerEnable[DMA_EXAMPLE] = true;
 
-	//memory to peripheral ejemplo!!
+//	//memory to peripheral ejemplo!!
+//	configureDMAMUX(DMA_EXAMPLE, 60, true);
+//	conf.source_address = (uint32_t)sourceBuffer;
+//	conf.dest_address = (uint32_t)&destiny;
+//	conf.offset = 0x02;
+//	conf.transf_size = BITS_16;
+//	conf.bytes_per_request = 0x02;
+//	conf.total_bytes = 0x0A;
+//	conf.mode = MEM_2_PERIPHERAL;
+//	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
+
+	//peripheral to memory ejemplo!!
 	configureDMAMUX(DMA_EXAMPLE, 60, true);
-	conf.source_address = (uint32_t)sourceBuffer;
-	conf.dest_address = (uint32_t)&destiny;
+	conf.source_address = (uint32_t)&origin;
+	conf.dest_address = (uint32_t)destinationBuffer;
 	conf.offset = 0x02;
 	conf.transf_size = BITS_16;
 	conf.bytes_per_request = 0x02;
-	conf.total_bytes = 0x0A;
-	DMAPrepareTransfer(DMA_EXAMPLE, &conf, MEM_2_PERIPHERAL);
+	conf.total_bytes = 0x04;
+	conf.mode = PERIPHERAL_2_MEM;
+	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
 
 	PITinit(&pit_conf);
 }

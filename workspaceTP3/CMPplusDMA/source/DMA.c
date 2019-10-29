@@ -53,7 +53,7 @@ bool isDMAnTransferDone(uint8_t id){
 }
 
 
-void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config, uint8_t mode){
+void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
 	finished[id] = false;
 	DMA0->TCD[id].SADDR = config->source_address;
 	DMA0->TCD[id].DADDR = config->dest_address;
@@ -67,26 +67,24 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config, uint8_t mode){
 	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(citer);
 	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(citer);
 
-	DMA0->TCD[id].SOFF = config->offset;
-	DMA0->TCD[id].DOFF = config->offset;
-	if(mode == PERIPHERAL_2_MEM)
+	if(config->mode == PERIPHERAL_2_MEM)		//peripheral to memory
 	{
-		DMA0->TCD[id].SLAST = 0x00;
-		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;		//memory to peripheral
 		DMA0->TCD[id].SOFF = 0x00;
 		DMA0->TCD[id].DOFF = config->offset;
+		DMA0->TCD[id].SLAST = 0x00;
+		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
 	}
-	if(mode == MEM_2_PERIPHERAL)
+	if(config->mode == MEM_2_PERIPHERAL)		//memory to peripheral
 	{
 		DMA0->TCD[id].SLAST = -citer*nbytes;
-		DMA0->TCD[id].DLAST_SGA = 0x00;		//memory to peripheral
+		DMA0->TCD[id].DLAST_SGA = 0x00;
 		DMA0->TCD[id].SOFF = config->offset;
 		DMA0->TCD[id].DOFF = 0x00;
 	}
 	else		//memory to memory
 	{
 		DMA0->TCD[id].SLAST = -citer*nbytes;
-		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;		//memory to memory
+		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
 		DMA0->TCD[id].SOFF = config->offset;
 		DMA0->TCD[id].DOFF = config->offset;
 	}
