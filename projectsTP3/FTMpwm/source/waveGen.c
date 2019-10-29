@@ -11,7 +11,7 @@
 #include "FTM.h"
 #include <stdbool.h>
 #include <math.h>
-#include "timer.h"
+#include "PIT.h"
 
 
 #define IS_VALID_ID_WAVEGEN(x)  ((x >= 0) && (x < NUMBER_OF_WAVESGEN))

@@ -2,21 +2,13 @@ VERSION 1:
 
 	DAC:
 		1) Permitir trigger con PIT.
-		2) Hacer un módulo que genere senoidales a una frecuencia dada
 
 
 
 VERSION 2:
 
 	FTM - PWM:
-		1) Arreglar updatePWMperiod().
 		2) Permitir hardware trigger para el PWM (ver que onda el PWM con DMA).
-		3) Hacer módulo que genere PWM para obtener senoidales con filtro RC.
-
-	FTM - INPUT CAPTURE:
-		1) Relacionar input capture con DMA.
-		2) Hacer módulo que detecte frecuencias de señales cuadradas, 
-			unificando el mismo con el módulo de senoidales de la versión 1.
 
 
 SOBRE DDS: https://www.analog.com/media/en/training-seminars/tutorials/MT-085.pdf

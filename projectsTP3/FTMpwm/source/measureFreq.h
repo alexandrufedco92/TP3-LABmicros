@@ -2,17 +2,20 @@
  * measureFreq.h
  *
  *  Created on: 25 oct. 2019
- *      Author: malen
+ *      Author: G5
  */
 
 #ifndef MEASUREFREQ_H_
 #define MEASUREFREQ_H_
 
-typedef struct{
-	int freq; //Hz
-	_Bool freqChanged;
-}measureFreq_t;
 
-void initFreqMeasure(measureFreq_t * measureDataBase);
+
+void initFreqMeasure(void);
+
+int getFreqMeasure(void);
+
+_Bool isNewMeasReady(void);
+
+_Bool freqHasChanged(void);
 
 #endif /* MEASUREFREQ_H_ */
