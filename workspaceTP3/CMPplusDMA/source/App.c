@@ -15,6 +15,7 @@
 #include "CMP.h"
 #include "DMA.h"
 #include "DMAMUX.h"
+#include "PIT.h"
 #include "timer.h"
 #include <math.h>
 
@@ -37,35 +38,48 @@ void senoidalCallback(void);
 
 uint16_t sourceBuffer[10] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756};
 uint8_t destinationBuffer[10];
+dma_transfer_conf_t conf;
+
+void dummy(void){
+	int dummy = 0;
+	dummy++;
+}
+#define DMA_EXAMPLE 2
+
+
 
 void App_Init (void)
 {
 	initCMP(CMP_0);
 	initDMA();
-	configureDMAMUX(0, 51, false);
-	dma_transfer_conf_t conf;
+
+	config_t pit_conf;
+	pit_conf.chainMode[DMA_EXAMPLE] = false;
+	pit_conf.interruptEnable[DMA_EXAMPLE] = true;
+	pit_conf.pitCallbacks[DMA_EXAMPLE] = &dummy;
+	pit_conf.timerVal[DMA_EXAMPLE] = 1000;
+	pit_conf.timerEnable[DMA_EXAMPLE] = true;
+
+	configureDMAMUX(DMA_EXAMPLE, 60, true);
 	conf.source_address = (uint32_t)sourceBuffer;
 	conf.dest_address = (uint32_t)destinationBuffer;
 	conf.source_offset = 0x02;
 	conf.dest_offset = 0x01;
 	conf.source_transf_size = 0; //1 byte
 	conf.dest_transf_size = 0; //1 byte
-	conf.minor_loop_bytes = 0x01;
-	conf.major_loop_count = 0x05;
+	conf.minor_loop_bytes = 0x05;
+	conf.major_loop_count = 0x01;
 
-	DMAPrepareTransfer(0, &conf);
-	isDMAnTransferDone(0);
-//	DACconfig_t DACconfig;
-//	initResourcesController2pc();
-//	InitializeTimers();
-//	DACinit(DAC0, &DACconfig);
-//	writeDACvalue(DAC0, 2.0);
-//	SetTimer(SENOIDAL, 1, senoidalCallback);
+	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
+	PITinit(&pit_conf);
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
 void App_Run (void)
 {
+	bool dummy1 = false;
+	if(isDMAnTransferDone(2))
+		 dummy1 = true;
 	/* Main program to generate a sinusoidal signal with de DAC, controlling the frequency
 	 * by an input voltage to the ADC:
 	 * The program waits a timer's interrupt that increments a global float variable t and
@@ -79,21 +93,7 @@ void App_Run (void)
 	 */
 }
 
-void senoidalCallback(void)
-{
-	static float t = 0.0;
 
-	if(t >= 0.010)
-	{
-		t = 0.000;
-	}
-	else
-	{
-		t += 0.001;
-	}
-	float valueAux = 1.0000 + sin(2*M_PI*t*100); //100Hz
-	writeDACvalue(DAC0, valueAux);
-}
 
 /*******************************************************************************
  *******************************************************************************

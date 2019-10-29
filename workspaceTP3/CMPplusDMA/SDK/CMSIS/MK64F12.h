@@ -3663,7 +3663,7 @@ typedef struct {
 #define DAC_C1_DACBFWM_SHIFT                     (3U)
 #define DAC_C1_DACBFWM(x)                        (((uint8_t)(((uint8_t)(x)) << DAC_C1_DACBFWM_SHIFT)) & DAC_C1_DACBFWM_MASK)
 #define DAC_C1_DMAEN_MASK                        (0x80U)
-#define DAC_C1_DMAEN_SHIFT                       (7U)
+#define DAC_C1_EN_SHIFT                       (7U)
 #define DAC_C1_DMAEN(x)                          (((uint8_t)(((uint8_t)(x)) << DAC_C1_DMAEN_SHIFT)) & DAC_C1_DMAEN_MASK)
 
 /*! @name C2 - DAC Control Register 2 */
