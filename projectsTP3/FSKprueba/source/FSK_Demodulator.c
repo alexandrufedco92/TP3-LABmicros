@@ -6,18 +6,23 @@
  */
 
 #include "FSK_Demodulator.h"
-#include <stdbool.h>
 /***********************************************************
  *					 DEFINES AND MACROS
  ***********************************************************/
 #define FL 1200	//Frequency of a logical '1'
 #define FH 2200	//Frequency of a logical '0'
 #define DELAY 0.0004464 //Delay optimo en s
+#define F_SAMPLE 12000 //Sample frecuency of 12KHz
 #define VLOW -0.25
 #define VHIGH 0.25
 #define FIR_ORDER 18
+//Reconstruction parameters
+#define AVG_SAMPLES 10 //Number of samples to average to decide '1' or '0'.
+#define MID 0.5				//Treshold for deciding between '0' and '1'.
+#define IDLE_LIMIT 8		//Nummber of '1' symbols in a row that start idle state.
+
 //Size of Buffers
-#define CIRCULAR_BUFFER_SIZE 80
+#define CIRCULAR_BUFFER_SIZE 40
 
 typedef struct{
 	float buffer[CIRCULAR_BUFFER_SIZE];
@@ -28,8 +33,12 @@ typedef struct{
  ***********************************************************/
 static circular_buffer_t FSK_signal;
 static circular_buffer_t PreFiltered_signal;
-static circular_buffer_t result_signal;
-
+static float last_fir_output = 1;
+static float last_sample_value;		//Last digital value recieved
+static float average_aux = 0;		//Average of Comparatpr samples.
+static uint8_t sample_counter = 0;	//Counts number of samples averaged.
+static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
+static bool idle = true;		//Flag that indicates if in idle state
 
 static uint32_t fs; //Sample frequency of the FSK signal
 static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
@@ -51,137 +60,158 @@ static float fir_coeffs[] = {0.0099524156275609069, 0.025829664997474223, 0.0052
  * @brief Applys FIR filter and stores the results
  * @param cant Number of values to calculate
 */
-void ApplyFIR(uint8_t cant);
+float ApplyFIR(void);
 
 /**
  * @brief Stores value of digital signal
  * @param digital_signal
  * @param cant number of samples from analog signal
 */
-void ReconstructSignal(bool* digital_signal, uint8_t cant);
+int8_t ReconstructSignal(float comp_out);
 
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  ***********************************************************/
-void DemodulatorInit(uint32_t fs_)
+void DemodulatorInit(void)
 {
-	int i =0;
-	fs = fs_;
+	fs = F_SAMPLE;
 	FSK_signal.curr = -1;
 	PreFiltered_signal.curr = -1;
-	result_signal.curr = -1;
 
 	prev_samples = (uint8_t)( DELAY*fs);
-	for(i=0; i< CIRCULAR_BUFFER_SIZE; i++)
-	{
-		result_signal.buffer[i] = 1; //By default the initial state is all '1'.
-	}
+	last_sample_value = 1;
 }
 
-void DemodulateSignal(float* recieved,uint8_t buffer_size)
+int8_t DemodulateSignal(float recieved)
 {
 	float aux = 0;
-	int i =0;
 	uint16_t aux_index = 0;
+	float comp_out = 0; //Comparator output
 
 	//Update FSK Buffer
-	for(i=0; i<buffer_size; i++)
-	{
-		FSK_signal.curr = (FSK_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
-		(FSK_signal.buffer)[FSK_signal.curr] = recieved[i];
-	}
+	FSK_signal.curr = (FSK_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
+	(FSK_signal.buffer)[FSK_signal.curr] = recieved;
 
 	//Update PreFiltered Buffer
-	for(i=0; i<buffer_size; i++)
+	PreFiltered_signal.curr = (PreFiltered_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
+	aux =  recieved;
+	if( (PreFiltered_signal.curr - prev_samples) < 0 )
 	{
-		PreFiltered_signal.curr = (PreFiltered_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
-		aux =  (FSK_signal.buffer)[PreFiltered_signal.curr];
-		if( (PreFiltered_signal.curr - prev_samples) < 0 )
-		{
-			aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr - prev_samples);
-		}
-		else
-		{
-			aux_index = PreFiltered_signal.curr - prev_samples;
-		}
-		aux *= (FSK_signal.buffer)[aux_index];
-		(PreFiltered_signal.buffer)[PreFiltered_signal.curr] = aux;
+		aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr - prev_samples);
 	}
+	else
+	{
+		aux_index = PreFiltered_signal.curr - prev_samples;
+	}
+	aux *= (FSK_signal.buffer)[aux_index];
+	(PreFiltered_signal.buffer)[PreFiltered_signal.curr] = aux;
+
 	//Update result
-	ApplyFIR(buffer_size);
-
-
-}
-
-void GetData(float* data_buffer,uint8_t num_samples)
-{
-	int i =0;
-	int aux_index = 0;
-	for(i=1; i<= num_samples; i++)
-	{
-		aux_index = result_signal.curr-num_samples+i;
-		if( aux_index < 0 )
-		{
-			aux_index += CIRCULAR_BUFFER_SIZE;
-		}
-		data_buffer[i] = result_signal.buffer[aux_index];
-	}
+	comp_out = ApplyFIR();
+	//Gets bitstream values.
+	return ReconstructSignal(comp_out);
 }
 
 /***********************************************************
  * 				FUNCTIONS WITH LOCAL SCOPE
  ***********************************************************/
-void ApplyFIR(uint8_t cant)
+float ApplyFIR(void)
 {
-	int i=0;
 	int j=0;
 	uint16_t aux_index = 0;
 	float aux = 0;
-	for(i=0; i< cant; i++)
-	{
-		aux = 0;
-		result_signal.curr = (result_signal.curr+1) % CIRCULAR_BUFFER_SIZE;
 
-		for(j=0; j< FIR_ORDER+1; j++)
+
+	for(j=0; j< FIR_ORDER+1; j++)
+	{
+		if( (PreFiltered_signal.curr-j)<0 )
 		{
-			if( (result_signal.curr-j)<0 )
-			{
-				aux_index = CIRCULAR_BUFFER_SIZE + (result_signal.curr-j);
-			}
-			else
-			{
-				aux_index = result_signal.curr-j;
-			}
-			aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
+			aux_index = CIRCULAR_BUFFER_SIZE + (PreFiltered_signal.curr-j);
 		}
-		//ApplyComparator
-		if( (result_signal.buffer)[(result_signal.curr)-1] == 0)
+		else
 		{
-			if( aux < VLOW )
+			aux_index = PreFiltered_signal.curr-j;
+		}
+		aux += ( fir_coeffs[j] ) * ( (PreFiltered_signal.buffer)[aux_index] );
+	}
+	//ApplyComparator
+	if( last_fir_output == 0)
+	{
+		if( aux < VLOW )
+		{
+			last_fir_output = 1;
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		if( aux > VHIGH )
+		{
+			last_fir_output = 0;
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	return;
+}
+
+int8_t ReconstructSignal(float comp_out)
+{
+	if(idle)
+	{
+		if( comp_out)
+		{
+			if(++sample_counter == AVG_SAMPLES)
 			{
-				(result_signal.buffer)[result_signal.curr] = 1;
-			}
-			else
-			{
-				(result_signal.buffer)[result_signal.curr] = 0;
+				sample_counter = 0;
+				return 1;
 			}
 		}
 		else
 		{
-			if( aux > VHIGH )
+			idle = false;
+			idle_counter = false;
+			sample_counter = 1;
+			return -1;
+		}
+	}
+	else
+	{
+		average_aux += comp_out;
+		if( (++sample_counter) == AVG_SAMPLES)
+		{
+			sample_counter = 0;
+			average_aux /= AVG_SAMPLES;
+			if( average_aux >= MID )
 			{
-				(result_signal.buffer)[result_signal.curr] = 0;
+				last_sample_value = 1;
+				if( (++idle_counter) == IDLE_LIMIT )
+					idle = true;
+				average_aux = 0;
+				return 1;
 			}
 			else
 			{
-				(result_signal.buffer)[result_signal.curr] = 1;
+				last_sample_value = 0;
+				idle_counter = 0;
+				average_aux = 0;
+				return 0;
 			}
 		}
-	}
-	return;
-}
+		else
+		{
+			return -1;
+		}
 
-void ReconstructSignal(bool* digital_signal, uint8_t cant);
-{
+	}
+
 
 }
