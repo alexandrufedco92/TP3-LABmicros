@@ -60,23 +60,16 @@ void App_Init (void)
 	pit_conf.timerVal[DMA_EXAMPLE] = 1000;
 	pit_conf.timerEnable[DMA_EXAMPLE] = true;
 
+	//memory to peripheral ejemplo!!
 	configureDMAMUX(DMA_EXAMPLE, 60, true);
 	conf.source_address = (uint32_t)sourceBuffer;
 	conf.dest_address = (uint32_t)&destiny;
-	conf.source_offset = 0x02;
-	conf.dest_offset = 0;
-	conf.source_transf_size = 1; //2 byte
-	conf.dest_transf_size = 1; //2 byte
-	conf.minor_loop_bytes = 0x02;
-	conf.major_loop_count = 0x05;
-//	conf.source_offset = 0x02;
-//	conf.dest_offset = 0x01;
-//	conf.source_transf_size = 0; //1 byte
-//	conf.dest_transf_size = 0; //1 byte
-//	conf.minor_loop_bytes = 0x05;
-//	conf.major_loop_count = 0x01;
-
+	conf.offset = 0x02;
+	conf.transf_size = BITS_16;
+	conf.bytes_per_request = 0x02;
+	conf.total_bytes = 0x0A;
 	DMAPrepareTransfer(DMA_EXAMPLE, &conf, MEM_2_PERIPHERAL);
+
 	PITinit(&pit_conf);
 }
 /* Función que se llama constantemente en un ciclo infinito */

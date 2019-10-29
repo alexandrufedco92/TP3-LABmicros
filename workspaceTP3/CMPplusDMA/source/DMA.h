@@ -26,14 +26,14 @@
 typedef struct{
     uint32_t source_address;					//Source address
     uint32_t dest_address;                  //destination address
-    uint8_t source_transf_size;  			//source transfer size
-    uint8_t dest_transf_size; 				//destination transfer size
-    int16_t source_offset;
-    int16_t dest_offset;
-    uint32_t minor_loop_bytes;				//bytes a transferir en cada minor loop
-    uint32_t major_loop_count;              //contador de major loops
+    uint8_t transf_size;  			//transfer size
+    int16_t offset;
+//    int16_t dest_offset;
+    uint32_t bytes_per_request;				//bytes a transferir en cada minor loop
+    uint32_t total_bytes;              //cantidad total de bytes a transferir
 }dma_transfer_conf_t;
 
+enum dma_bytes_to_transfer{BITS_8 = 0x00, BITS_16 = 0x01, BITS_32 = 0x02};
 enum dma_modes{MEM_2_MEM, MEM_2_PERIPHERAL, PERIPHERAL_2_MEM};
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE

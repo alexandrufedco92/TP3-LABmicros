@@ -58,31 +58,37 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config, uint8_t mode){
 	DMA0->TCD[id].SADDR = config->source_address;
 	DMA0->TCD[id].DADDR = config->dest_address;
 
-	DMA0->TCD[id].SOFF = config->source_offset;
-	DMA0->TCD[id].DOFF = config->dest_offset;
+	DMA0->TCD[id].ATTR = DMA_ATTR_SSIZE(config->transf_size) | DMA_ATTR_DSIZE(config->transf_size);
 
-	DMA0->TCD[id].ATTR = DMA_ATTR_SSIZE(config->source_transf_size) | DMA_ATTR_DSIZE(config->dest_transf_size);
-
-	uint32_t nbytes = config->minor_loop_bytes;
+	uint32_t nbytes = config->bytes_per_request;
 	DMA0->TCD[id].NBYTES_MLNO = nbytes;
 
-	uint32_t citer = config->major_loop_count;
-	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(config->major_loop_count);
-	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(config->major_loop_count);
+	uint32_t citer = config->total_bytes/config->bytes_per_request;
+	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(citer);
+	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(citer);
 
+	DMA0->TCD[id].SOFF = config->offset;
+	DMA0->TCD[id].DOFF = config->offset;
 	if(mode == PERIPHERAL_2_MEM)
 	{
 		DMA0->TCD[id].SLAST = 0x00;
 		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;		//memory to peripheral
+		DMA0->TCD[id].SOFF = 0x00;
+		DMA0->TCD[id].DOFF = config->offset;
 	}
 	if(mode == MEM_2_PERIPHERAL)
 	{
 		DMA0->TCD[id].SLAST = -citer*nbytes;
 		DMA0->TCD[id].DLAST_SGA = 0x00;		//memory to peripheral
+		DMA0->TCD[id].SOFF = config->offset;
+		DMA0->TCD[id].DOFF = 0x00;
 	}
 	else		//memory to memory
 	{
-		//todo
+		DMA0->TCD[id].SLAST = -citer*nbytes;
+		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;		//memory to memory
+		DMA0->TCD[id].SOFF = config->offset;
+		DMA0->TCD[id].DOFF = config->offset;
 	}
 
 
