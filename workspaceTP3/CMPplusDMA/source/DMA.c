@@ -9,10 +9,12 @@
 #include "DMA.h"
 #include "DMAMUX.h"
 
-DMA_Type* dma_ptrs[] = DMA_BASE_PTRS;
-IRQn_Type arrayDMAirqs[] = DMA_CHN_IRQS;
+//DMA_Type* dma_ptrs[] = DMA_BASE_PTRS;
+//IRQn_Type arrayDMAirqs[] = DMA_CHN_IRQS;
 
-static void initDMA(void);
+bool finished[DMA_CHANNEL_COUNT];
+
+
 
 
 void clockGating(){
@@ -39,14 +41,20 @@ void initDMA(void){
 	*/
 	clockGating();
 	initDMAMUX();	//clock gating dmamux
-	NVIC_EnableIRQ(arrayDMAirqs[channel]);
+	NVIC_EnableIRQ(DMA0_IRQn);
+	NVIC_EnableIRQ(DMA1_IRQn);
+	NVIC_EnableIRQ(DMA2_IRQn);
+	NVIC_EnableIRQ(DMA3_IRQn);
 //	NVIC_EnableIRQ(DMA_Error_IRQn);
 }
 
+bool isDMAnTransferDone(uint8_t id){
+	return finished[id];
+}
 
 
-
-void DMAPrepareTransfer(dma_mux_channels id, dma_transfer_conf_t* config){
+void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
+	finished[id] = false;
 	DMA0->TCD[id].SADDR = config->source_address;
 	DMA0->TCD[id].DADDR = config->dest_address;
 
@@ -57,8 +65,8 @@ void DMAPrepareTransfer(dma_mux_channels id, dma_transfer_conf_t* config){
 
 	DMA0->TCD[id].NBYTES_MLNO = config->minor_loop_bytes;
 
-	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER((sizeof(config->source_address)/sizeof(config->source_address[0])));
-	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER((sizeof(config->source_address)/sizeof(config->source_address[0])));
+	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(config->major_loop_count);
+	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(config->major_loop_count);
 
 	DMA0->TCD[id].SLAST = -sizeof(config->source_address);
 	DMA0->TCD[id].DLAST_SGA = 0x00;		//memory to peripheral
@@ -79,34 +87,33 @@ void DMAPrepareTransfer(dma_mux_channels id, dma_transfer_conf_t* config){
 	case 3:
 		DMA0->ERQ = DMA_ERQ_ERQ3_MASK;
 		break;
-	case 4:
-		DMA0->ERQ = DMA_ERQ_ERQ4_MASK;
-		break;
 	}
 
 }
 
-void DMA0_IRQHandler(){
+void DMAIrqHandler(void){
 	DMA0->CINT |= 0;
+}
+
+void DMA0_IRQHandler(){
+	DMAIrqHandler();
+	finished[0] = true;
 }
 
 void DMA1_IRQHandler(){
-	DMA0->CINT |= 0;
+	DMAIrqHandler();
+	finished[1] = true;
 }
 
 void DMA2_IRQHandler(){
-	DMA0->CINT |= 0;
+	DMAIrqHandler();
+	finished[2] = true;
 }
 
 void DMA3_IRQHandler(){
-	DMA0->CINT |= 0;
+	DMAIrqHandler();
+	finished[3] = true;
 }
-
-void DMA4_IRQHandler(){
-	DMA0->CINT |= 0;
-}
-
-
 
 
 

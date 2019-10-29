@@ -46,7 +46,7 @@ typedef enum {DMA_CHANNEL_0, DMA_CHANNEL_1, DMA_CHANNEL_2, DMA_CHANNEL_3, DMA_CH
 */
 void initDMAMUX();
 
-void configureDMAMUX(dma_mux_channels channel, dma_request_source_t source, bool periodic_trigger);
+void configureDMAMUX(dma_mux_channels channel, /*dma_request_source_t*/ uint16_t source, bool periodic_trigger);
 
 
 #endif /* DMAMUX_H_ */
