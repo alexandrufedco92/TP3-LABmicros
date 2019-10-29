@@ -26,7 +26,7 @@ waveGen_t wavesArray[NUMBER_OF_WAVESGEN];
 int senLUT[N_SAMPLES];
 int pwmSenLUT[N_SAMPLES];
 
-void senoidalInit(void);
+void senoidalInit(WAVEGENmode wave);
 void sinWaveGen(WAVEGENid id, WAVEGENfreq freq);
 void DACcallback(DACev);
 void softwareTriggerDAC(void);
@@ -78,7 +78,7 @@ void stopWaveGen(WAVEGENid id)
 }
 
 
-void senoidalInit(void)
+void senoidalInit(WAVEGENmode wave)
 {
 	float value = 0.00, senArg = 0.00, dutyPercent = 50.0;
 	int i = 0;
@@ -89,8 +89,11 @@ void senoidalInit(void)
 		value = 1.65 + (1.65*sin(2*M_PI*senArg));
 		senLUT[i] =  shapeValue2DACdata(value);
 
-		dutyPercent = (value*100.0)/VIN_SELECTED;
-		pwmSenLUT[i] = shapeDuty2cnv(FTM0_INDEX, dutyPercent);
+		if(wave == PWM_WAVEGEN)
+		{
+			dutyPercent = (value*100.0)/VIN_SELECTED;
+			pwmSenLUT[i] = shapeDuty2cnv(FTM0_INDEX, dutyPercent);
+		}
 	}
 }
 
@@ -101,10 +104,22 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	DACconfig.mode = DAC_BUFFER_MODE;
 	DACconfig.triggerMode = DAC_TRIGGER_SW;
 	DACconfig.p2callback = DACcallback;
+	DACconfig.irqMode = DAC_IRQ_ENABLE;
+	if(N_SAMPLES <= DAC_BUFFER_SIZE)  //buffer refreshment is not necessary
+	{
+		DACconfig.irqMode = DAC_IRQ_DISABLE;
+	}
 
 	DACinit(DAC0_ID, &DACconfig);
-	InitializeTimers();
-	SetTimer(SENOIDAL, (int)(1000.0/((float)(freq*N_SAMPLES))), softwareTriggerDAC);
+
+	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
+	config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
+							{true,false,false,false}, /* interruptEnable. */
+							{true,false,false,false}, /* timerEnable. */
+							{false,false,false,false}, /* chainMode. */
+							{softwareTriggerDAC,NULL,NULL,NULL} }; /* pitCallbacks. */
+
+	PITinit(&config);
 }
 
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
@@ -124,10 +139,16 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 	FTMinit(&FTMpwmConfig);
 	disableFTMinterrupts(FTMpwmConfig.nModule);
-	senoidalInit();
+
 	//enableFTMinterrupts(FTMpwmConfig.nModule);
-	InitializeTimers();
-	SetTimer(SENOIDAL_PWM, (int)(1000.0/((float)(freq*N_SAMPLES))), softwareTriggerFTM);
+	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
+	config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
+								{true,false,false,false}, /* interruptEnable. */
+								{true,false,false,false}, /* timerEnable. */
+								{false,false,false,false}, /* chainMode. */
+								{softwareTriggerFTM,NULL,NULL,NULL} }; /* pitCallbacks. */
+
+	PITinit(&config);
 
 
 }
@@ -164,8 +185,7 @@ void softwareTriggerDAC(void)
 	updateSoftwareTrigger(DAC0_ID);
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		DisableTimer(SENOIDAL);
-		SetTimer(SENOIDAL, (int)(1000.0/((float)(wavesArray[WAVE0_WAVEGEN].freq*N_SAMPLES))), softwareTriggerDAC);
+		PITmodifyTimer(0, (int)(1000.0*(1000.0/((float)(wavesArray[WAVE0_WAVEGEN].freq*N_SAMPLES)))));
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
@@ -181,8 +201,7 @@ void softwareTriggerFTM(void)
 	}
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		DisableTimer(SENOIDAL_PWM);
-		SetTimer(SENOIDAL_PWM, (int)(1000.0/((float)(wavesArray[WAVE0_WAVEGEN].freq*N_SAMPLES))), softwareTriggerDAC);
+		PITmodifyTimer(0, (int)(1000.0*(1000.0/((float)(wavesArray[WAVE0_WAVEGEN].freq*N_SAMPLES)))));
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }

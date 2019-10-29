@@ -69,7 +69,6 @@ void DACinit(DACids id, DACconfig_t * config)
 				p2DAC->C0 &= ~DAC_C0_DACTRGSEL_MASK;
 			}
 
-			p2DAC->C0 |= DAC_C0_DACBWIEN(1) | DAC_C0_DACBTIEN_MASK;   //buffer water mark interrupt enable
 
 			p2DAC->C1 &= ~DAC_C1_DACBFMD_MASK; //selecting the buffer work mode
 			p2DAC->C1 |= DAC_C1_DACBFMD(DAC_BF_WORK_MODE_SELECTED);
@@ -81,9 +80,12 @@ void DACinit(DACids id, DACconfig_t * config)
 
 			p2DAC->C2 &= ~DAC_C2_DACBFUP_MASK; //selecting DAC buffer size
 			p2DAC->C2 |= DAC_C2_DACBFUP(DAC_BUFFER_SIZE - 1);
-			NVIC_EnableIRQ(DAC0_IRQn);
 
-
+			if(config->irqMode == DAC_IRQ_ENABLE)
+			{
+				p2DAC->C0 |= DAC_C0_DACBWIEN(1) | DAC_C0_DACBTIEN_MASK;   //buffer water mark interrupt enable
+				NVIC_EnableIRQ(DAC0_IRQn);
+			}
 		}
 		//...
 	}

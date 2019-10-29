@@ -8,9 +8,12 @@ C_SRCS += \
 ../source/App.c \
 ../source/DAC.c \
 ../source/FTM.c \
+../source/PIT.c \
 ../source/SysTick.c \
+../source/bitStreamQueue.c \
 ../source/comController2pc.c \
 ../source/gpio.c \
+../source/measureFreq.c \
 ../source/timer.c \
 ../source/uart.c \
 ../source/waveGen.c 
@@ -20,9 +23,12 @@ OBJS += \
 ./source/App.o \
 ./source/DAC.o \
 ./source/FTM.o \
+./source/PIT.o \
 ./source/SysTick.o \
+./source/bitStreamQueue.o \
 ./source/comController2pc.o \
 ./source/gpio.o \
+./source/measureFreq.o \
 ./source/timer.o \
 ./source/uart.o \
 ./source/waveGen.o 
@@ -32,9 +38,12 @@ C_DEPS += \
 ./source/App.d \
 ./source/DAC.d \
 ./source/FTM.d \
+./source/PIT.d \
 ./source/SysTick.d \
+./source/bitStreamQueue.d \
 ./source/comController2pc.d \
 ./source/gpio.d \
+./source/measureFreq.d \
 ./source/timer.d \
 ./source/uart.d \
 ./source/waveGen.d 

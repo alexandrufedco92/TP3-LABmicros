@@ -46,7 +46,6 @@ int debugFlag = debugV2;
 
 
 //INPUT CAPTURE
-int dif = 0;
 int freq = 0;
 //UART
 
@@ -69,7 +68,7 @@ void App_Init (void)
 	if(debugFlag == debugV1)
 	{
 		WaveGenConfig_t waveConf;
-		waveConf.freq = 50;
+		waveConf.freq = 1200;
 		waveConf.id = WAVE0_WAVEGEN;
 		waveConf.mode = SAMPLES_WAVEGEN;
 		waveConf.waveName = SIN_WAVEGEN;
@@ -80,35 +79,8 @@ void App_Init (void)
 	{
 		initFreqMeasure();
 
-		FTMconfig_t FTMtimerConfig;
-		FTMtimerConfig.mode = FTM_OUTPUT_COMPARE;
-		FTMtimerConfig.nModule = FTM0_INDEX;
-		FTMtimerConfig.nChannel = FTM_CH0;
-		FTMtimerConfig.countMode = UP_COUNTER;
-		FTMtimerConfig.prescaler = FTM_PSCX32;
-		FTMtimerConfig.CnV = 0;
-		FTMtimerConfig.nTicks = 0xFFFF;
-		FTMtimerConfig.numOverflows = 0;
-		FTMtimerConfig.p2callback = FTMtimerCallback;
-
-		FTMconfig_t FTMconfigIC;
-		FTMconfigIC.mode = FTM_INPUT_CAPTURE;
-		FTMconfigIC.nModule = FTM2_INDEX;
-		FTMconfigIC.nChannel = FTM_CH0;
-		FTMconfigIC.edge = UP_EDGE;
-		FTMconfigIC.nTicks = 0xFFFF;
-		FTMconfigIC.numOverflows = 0;
-		FTMconfigIC.prescaler = FTM_PSCX32;
-		FTMconfigIC.p2callback = FTMicCallback;
-
-		FTMinit(&FTMtimerConfig);
-		//disableFTMinterrupts(FTM0_INDEX);
-		FTMinit(&FTMconfigIC);
-		//enableFTMinterrupts(FTM0_INDEX);
-
-		gpioMode (PORTNUM2PIN(PB, 9), OUTPUT);
 		WaveGenConfig_t waveConf;
-		waveConf.freq = 50;
+		waveConf.freq = 1200;
 		waveConf.id = WAVE0_WAVEGEN;
 		waveConf.mode = PWM_WAVEGEN;
 		waveConf.waveName = SIN_WAVEGEN;

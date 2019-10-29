@@ -67,18 +67,18 @@ void measFreqCallback(FTMchannels ch)
 		else if(i == 2)
 		{
 			secondMeasure = getCnV(FTM2_INDEX, FTM_CH0);
-			if(secondMeasure < fisrtMeasure)  //overflow
+			if(secondMeasure < firstMeasure)  //overflow
 			{
 				firstMeasure = firstMeasure - getMOD_FTM(FTM2_INDEX, FTM_CH0);
 			}
 			dif = secondMeasure - firstMeasure;
-			firstMeasure = secondMesaure;
+			firstMeasure = secondMeasure;
 			i = 1;
 
 			if(DIF_CHANGE_DETECT(dif, difAux))
 			{
 				measureDataBase.freqChanged = true;
-				measureDataBase.freq = (int)((tickScale/(float)dif)* 1000.0);
+				measureDataBase.freq = (int)((ticksScale/(float)dif)* 1000.0);
 			}
 			else
 			{

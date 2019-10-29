@@ -21,6 +21,7 @@ typedef enum {DAC_NORMAL_MODE, DAC_BUFFER_MODE}DACmode;
 typedef enum {DAC_DMA_DISABLE, DAC_DMA_ENABLE}DACdmaMode;
 typedef enum {DAC_TRIGGER_HW, DAC_TRIGGER_SW}DACtriggerMode;
 typedef enum {DAC_WM_RP_EV, DAC_RESET_RP_EV}DACev;
+typedef enum {DAC_IRQ_ENABLE, DAC_IRQ_DISABLE}DACirqMode;
 
 typedef void (*DAC_callback_t)(DACev);
 
@@ -31,6 +32,7 @@ typedef struct
 	DACmode mode;
 	DACdmaMode dmaMode;
 	DACtriggerMode triggerMode;
+	DACirqMode irqMode;
 	DAC_callback_t p2callback;
 
 }DACconfig_t;
