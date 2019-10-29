@@ -53,7 +53,7 @@ bool isDMAnTransferDone(uint8_t id){
 }
 
 
-void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
+void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config, uint8_t mode){
 	finished[id] = false;
 	DMA0->TCD[id].SADDR = config->source_address;
 	DMA0->TCD[id].DADDR = config->dest_address;
@@ -63,13 +63,28 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
 
 	DMA0->TCD[id].ATTR = DMA_ATTR_SSIZE(config->source_transf_size) | DMA_ATTR_DSIZE(config->dest_transf_size);
 
-	DMA0->TCD[id].NBYTES_MLNO = config->minor_loop_bytes;
+	uint32_t nbytes = config->minor_loop_bytes;
+	DMA0->TCD[id].NBYTES_MLNO = nbytes;
 
+	uint32_t citer = config->major_loop_count;
 	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(config->major_loop_count);
 	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(config->major_loop_count);
 
-	DMA0->TCD[id].SLAST = -sizeof(config->source_address);
-	DMA0->TCD[id].DLAST_SGA = 0x00;		//memory to peripheral
+	if(mode == PERIPHERAL_2_MEM)
+	{
+		DMA0->TCD[id].SLAST = 0x00;
+		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;		//memory to peripheral
+	}
+	if(mode == MEM_2_PERIPHERAL)
+	{
+		DMA0->TCD[id].SLAST = -citer*nbytes;
+		DMA0->TCD[id].DLAST_SGA = 0x00;		//memory to peripheral
+	}
+	else		//memory to memory
+	{
+		//todo
+	}
+
 
 	DMA0->TCD[id].CSR = DMA_CSR_INTMAJOR_MASK;		//enable major interrupt
 

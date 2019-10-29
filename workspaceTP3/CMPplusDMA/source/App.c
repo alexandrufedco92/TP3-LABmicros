@@ -37,7 +37,8 @@ void senoidalCallback(void);
 /* Función que se llama 1 vez, al comienzo del programa */
 
 uint16_t sourceBuffer[10] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756};
-uint8_t destinationBuffer[10];
+uint16_t destiny;
+//uint16_t destinationBuffer[10];
 dma_transfer_conf_t conf;
 
 void dummy(void){
@@ -45,7 +46,6 @@ void dummy(void){
 	dummy++;
 }
 #define DMA_EXAMPLE 2
-
 
 
 void App_Init (void)
@@ -62,15 +62,21 @@ void App_Init (void)
 
 	configureDMAMUX(DMA_EXAMPLE, 60, true);
 	conf.source_address = (uint32_t)sourceBuffer;
-	conf.dest_address = (uint32_t)destinationBuffer;
+	conf.dest_address = (uint32_t)&destiny;
 	conf.source_offset = 0x02;
-	conf.dest_offset = 0x01;
-	conf.source_transf_size = 0; //1 byte
-	conf.dest_transf_size = 0; //1 byte
-	conf.minor_loop_bytes = 0x05;
-	conf.major_loop_count = 0x01;
+	conf.dest_offset = 0;
+	conf.source_transf_size = 1; //2 byte
+	conf.dest_transf_size = 1; //2 byte
+	conf.minor_loop_bytes = 0x02;
+	conf.major_loop_count = 0x05;
+//	conf.source_offset = 0x02;
+//	conf.dest_offset = 0x01;
+//	conf.source_transf_size = 0; //1 byte
+//	conf.dest_transf_size = 0; //1 byte
+//	conf.minor_loop_bytes = 0x05;
+//	conf.major_loop_count = 0x01;
 
-	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
+	DMAPrepareTransfer(DMA_EXAMPLE, &conf, MEM_2_PERIPHERAL);
 	PITinit(&pit_conf);
 }
 /* Función que se llama constantemente en un ciclo infinito */

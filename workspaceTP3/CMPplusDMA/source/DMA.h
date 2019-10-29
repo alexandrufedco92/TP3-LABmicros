@@ -33,6 +33,8 @@ typedef struct{
     uint32_t minor_loop_bytes;				//bytes a transferir en cada minor loop
     uint32_t major_loop_count;              //contador de major loops
 }dma_transfer_conf_t;
+
+enum dma_modes{MEM_2_MEM, MEM_2_PERIPHERAL, PERIPHERAL_2_MEM};
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -52,7 +54,7 @@ void initDMA(void);
  * @param
  * @return
 */
-void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config);
+void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config, uint8_t mode);
 
 /**
  * @brief
