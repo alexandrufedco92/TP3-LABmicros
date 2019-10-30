@@ -35,7 +35,7 @@ void senoidalCallback(void);
 
 /* Función que se llama 1 vez, al comienzo del programa */
 
-uint16_t sourceBuffer[16] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756};
+uint16_t sourceBuffer[16] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756, 0x1234,0x6789,0x1122,0x2233,0x5588,0x2345};
 uint16_t destiny;
 
 uint16_t destinationBuffer[10] = {0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};
@@ -44,7 +44,8 @@ uint16_t origin = 0x0001;
 dma_transfer_conf_t conf;
 
 void dummy(void){
-	int dummy;
+	int dummy = 0;
+	dummy++;
 }
 #define DMA_WAVEGEN_CH 0
 #define DMA_FTM1_CH0 28
@@ -67,8 +68,8 @@ void App_Init (void)
 	conf.dest_address = (uint32_t)&destiny;
 	conf.offset = 0x02;
 	conf.transf_size = BITS_16;
-	conf.bytes_per_request = 0x02;
-	conf.total_bytes = 0x20;
+	conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
+	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
 	conf.mode = MEM_2_PERIPHERAL;
 	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);
 

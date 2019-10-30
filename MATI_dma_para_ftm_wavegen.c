@@ -13,6 +13,6 @@ conf.dest_address = (uint32_t)&registro;
 conf.offset = 0x02;
 conf.transf_size = BITS_16;
 conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
-conf.total_bytes = bytes_per_request*16;	//el total será 2bytes*16
+conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
 conf.mode = MEM_2_PERIPHERAL;
 DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);
