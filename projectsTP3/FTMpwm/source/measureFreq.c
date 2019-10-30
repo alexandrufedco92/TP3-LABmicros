@@ -74,8 +74,9 @@ void measFreqCallback(FTMchannels ch)
 			dif = secondMeasure - firstMeasure;
 			firstMeasure = secondMeasure;
 			i = 1;
-
-			if(DIF_CHANGE_DETECT(dif, difAux))
+			measureDataBase.freqChanged = true;/////
+			measureDataBase.freq = (int)((ticksScale/(float)dif)* 1000.0);////////
+			/*if(DIF_CHANGE_DETECT(dif, difAux))
 			{
 				measureDataBase.freqChanged = true;
 				measureDataBase.freq = (int)((ticksScale/(float)dif)* 1000.0);
@@ -83,7 +84,7 @@ void measFreqCallback(FTMchannels ch)
 			else
 			{
 				measureDataBase.freqChanged = false;
-			}
+			}*/
 			i = 0;
 			difAux = dif;
 			if(measureDataBase.newMeasReady)

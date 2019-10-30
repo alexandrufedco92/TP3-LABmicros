@@ -89,7 +89,7 @@ void FTMinit(FTMconfig_t * p2config)
 		}
 		else if(p2config->mode == FTM_INPUT_CAPTURE)
 		{
-			SIM->SOPT4 |= SIM_SOPT4_FTM2CH0SRC(1);
+
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 			p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
 			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
@@ -121,6 +121,11 @@ void FTMinit(FTMconfig_t * p2config)
 			else if(p2config->dmaMode == FTM_DMA_ENABLE)
 			{
 				p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
+			}
+			if(p2config->trigger == FTM_HW_TRIGGER)
+			{
+				//config para hardware trigger
+				SIM->SOPT4 |= SIM_SOPT4_FTM2CH0SRC(1);
 			}
 
 
