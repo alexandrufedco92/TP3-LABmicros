@@ -368,6 +368,10 @@ void enablePinFTM(FTMmodules id, FTMchannels ch)  //This function has to be enha
 	{
 		setPCRmux(PORTB, 18, 3);
 	}
+	else if((id == FTM1_INDEX) && (ch == FTM_CH0))
+	{
+		setPCRmux(PORTA, 12, 3);
+	}
 }
 
 uint8_t getPrescalerFactor(FTM_Type * p2FTM)
