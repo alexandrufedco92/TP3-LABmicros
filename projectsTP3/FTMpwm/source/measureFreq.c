@@ -100,7 +100,7 @@ void measFreqCallback(FTMchannels ch)
 	}
 	else //overflow
 	{
-		//gpioToggle(PORTNUM2PIN(PB, 9));
+
 	}
 
 

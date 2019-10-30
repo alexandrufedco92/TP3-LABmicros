@@ -55,6 +55,19 @@ char key = MARK_KEY;
 
 void App_Init (void)
 {
+	/*
+	uart_cfg_t config;
+	config.baudRate = 9600;
+	config.nBits = 8;
+	config.parity = NO_PARITY_UART;
+	config.rxWaterMark = 5;
+	config.txWaterMark = 2;
+	config.mode = NON_BLOCKING_SIMPLE;
+
+	uartInit (U0, config);
+
+	fskInit(debugV1);
+	 */
 	uart_cfg_t config;
 	config.baudRate = 9600;
 	config.nBits = 8;
@@ -96,6 +109,18 @@ void App_Init (void)
 
 void App_Run (void)
 {
+	/*
+	 demodFSK();
+	 if(something2send())
+	 {
+	 	 uartWriteMsg(U0, porNextBitstream(), 1);
+	 }
+
+	 if(something2readUART())
+	 {
+	 	 modulateFSK(getLectureUART());
+	 }
+	 */
 	if(debugFlag == debugV2)
 	{
 		//RX

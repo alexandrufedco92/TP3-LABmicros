@@ -18,6 +18,7 @@
 
 typedef struct{
 	WAVEGENfreq freq;
+	int periodSignal;
 	_Bool freqChangeRequest;
 }waveGen_t;
 
@@ -69,6 +70,7 @@ void updateWaveFreq(WAVEGENid id, WAVEGENfreq newFreq)
 	{
 		wavesArray[id].freqChangeRequest = true;
 		wavesArray[id].freq = newFreq;
+		wavesArray[id].periodSignal = (int)(1000.0*(1000.0/((float)(newFreq*N_SAMPLES))));
 	}
 
 }
@@ -135,9 +137,9 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
 	FTMpwmConfig.countMode = UP_COUNTER;
-	FTMpwmConfig.prescaler = FTM_PSCX1;
+	FTMpwmConfig.prescaler = FTM_PSCX4;
 	FTMpwmConfig.CnV = 0;
-	FTMpwmConfig.nTicks = 200;
+	FTMpwmConfig.nTicks = 50;
 	FTMpwmConfig.numOverflows = 0;
 	FTMpwmConfig.p2callback = FTMpwmCallback;
 	FTMpwmConfig.dmaMode = FTM_DMA_DISABLE;
@@ -192,7 +194,7 @@ void softwareTriggerDAC(void)
 	updateSoftwareTrigger(DAC0_ID);
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(0, (int)(1000.0*(1000.0/((float)(wavesArray[WAVE0_WAVEGEN].freq*N_SAMPLES)))));
+		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
@@ -208,7 +210,7 @@ void softwareTriggerFTM(void)
 	}
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(0, (int)(1000.0*(1000.0/((float)(wavesArray[WAVE0_WAVEGEN].freq*N_SAMPLES)))));
+		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
