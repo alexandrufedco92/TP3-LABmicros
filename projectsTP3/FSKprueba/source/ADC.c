@@ -11,6 +11,11 @@
 #include "ADC.h"
 #include "MK64F12.h"
 
+/**********************************************************
+ *					 DEFINES AND MACROS
+ **********************************************************/
+#define PIT1 5 //Alternate trigger for PIT 1
+
 /*********************************************************
  * 					STATIC VARIABLES
  *********************************************************/
@@ -37,12 +42,16 @@ bool ADC_Init( const ADC_Config_t* config )
 			ADC = ADC0;
 			SIM->SCGC6 |= SIM_SCGC6_ADC0_MASK;	//Clock gating para el ADC0
 			NVIC_EnableIRQ(ADC0_IRQn);			//Enable ADC0 interrupts
+			SIM->SOPT7 = (SIM->SOPT7 & ~SIM_SOPT7_ADC0ALTTRGEN_MASK)| SIM_SOPT7_ADC0ALTTRGEN(1); //Sets alternate trigger for ADC0
+			SIM->SOPT7 = (SIM->SOPT7 & ~SIM_SOPT7_ADC0TRGSEL_MASK)| SIM_SOPT7_ADC0TRGSEL(PIT1);//Select PIT1 as alt trigger.
 		}
 		else
 		{
 			ADC = ADC1;
-			SIM->SCGC3 |= SIM_SCGC3_ADC1_MASK;	//Clock gating para el ADC1
+			SIM->SCGC3 |= SIM_SCGC3_ADC1_MASK;	//Clock gating for ADC1
 			NVIC_EnableIRQ(ADC1_IRQn);			//Enable ADC1 interrupts
+			SIM->SOPT7 = (SIM->SOPT7 & ~SIM_SOPT7_ADC1ALTTRGEN_MASK )| SIM_SOPT7_ADC1ALTTRGEN(1); //Sets alternate trigger for ADC1
+			SIM->SOPT7 = (SIM->SOPT7 & ~SIM_SOPT7_ADC1TRGSEL_MASK )| SIM_SOPT7_ADC1TRGSEL(PIT1);//Select PIT1 as alt trigger.
 		}
 		func = config->intterupt_func;
 		//Calibrate();						//Calibration
@@ -63,6 +72,7 @@ bool ADC_Init( const ADC_Config_t* config )
 		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_AVGS_MASK)) | ADC_SC3_AVGS( config->samples_to_average ); //Average select.
 		//Update SC1 registers
 		valid = SetChannelADC(config->channel_sel, config->diffential_mode, config->enable_interrupts);
+
 		if( !valid )
 		{
 			return false;
@@ -135,7 +145,6 @@ void ADC0_IRQHandler(void)
 void ADC1_IRQHandler(void)
 {
 	func();
-	//Clear interrupt flag
 }
 
 /*

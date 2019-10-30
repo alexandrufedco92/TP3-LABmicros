@@ -8,9 +8,9 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include startup/subdir.mk
 -include source/subdir.mk
--include CMSIS/subdir.mk
+-include SDK/startup/subdir.mk
+-include SDK/CMSIS/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -31,7 +31,7 @@ all: FSK.axf
 FSK.axf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	arm-none-eabi-gcc -nostdlib -Xlinker -Map="FSK.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "ADC_Debug.ld" -o "FSK.axf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -nostdlib -Xlinker -Map="FSK.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "FTMpwm_Debug.ld" -o "FSK.axf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

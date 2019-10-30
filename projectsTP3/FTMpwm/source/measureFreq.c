@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 #define SENSI_DIF 5 //ticks
-#define DIF_CHANGE_DETECT(x, y) ((x >= y - SENSI_DIF) && (x <= y + SENSI_DIF))
+#define DIF_CHANGE_DETECT(x, y) ((x < y - SENSI_DIF) && (x > y + SENSI_DIF))
 #define TICK_FREQ 0.01
 
 typedef struct{
@@ -46,7 +46,7 @@ void initFreqMeasure(void)
 	configInputCapture.trigger = FTM_SW_TRIGGER;
 	configInputCapture.p2callback = measFreqCallback;
 
-	ticksScale = 50000/32;
+	ticksScale = 50000.0/32.0;
 	FTMinit(&configInputCapture);
 
 }
@@ -74,7 +74,6 @@ void measFreqCallback(FTMchannels ch)
 			dif = secondMeasure - firstMeasure;
 			firstMeasure = secondMeasure;
 			i = 1;
-
 			if(DIF_CHANGE_DETECT(dif, difAux))
 			{
 				measureDataBase.freqChanged = true;
@@ -100,7 +99,7 @@ void measFreqCallback(FTMchannels ch)
 	}
 	else //overflow
 	{
-		//gpioToggle(PORTNUM2PIN(PB, 9));
+
 	}
 
 

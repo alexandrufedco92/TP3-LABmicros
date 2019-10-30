@@ -31,18 +31,36 @@
 static void fun(void){
 	static int i = 0;
 	i++;
+	if(i == 5){
+		PITmodifyTimer(0, 1000);
+	}
+	if(i == 10){
+		pit_config_t configP1 = { 	1500, 	/* Value of timer. In micro seconds if not in chain mode. In cycles if in chain mode. */
+									1, 		/* Number of PIT timer. */
+									false,  /* True if timer in Chain Mode. */
+									NULL 	/* Callback for interrupt. NULL if interrupt is disabled. */
+								};
+		PITstartTimer(configP1);
+	}
+	if(i == 15){
+		PITenableTimerInterrupt(1, fun);
+	}
+	if(i == 20){
+		PITstopTimer(1);
+	}
 }
 
 void App_Init (void)
 {
-	config_t config = {	{500000,0,0,0}, /* timerVal. */
-						{true,false,false,false}, /* interruptEnable. */
-						{true,false,false,false}, /* timerEnable. */
-						{false,false,false,false}, /* chainMode. */
-						{fun,NULL,NULL,NULL} }; /* pitCallbacks. */
-
 	bitStreamQueueInit();
-	PITinit(&config);
+	PITinit();
+	PITinit();
+	pit_config_t configP0 = { 	500, 	/* Value of timer. In micro seconds if not in chain mode. In cycles if in chain mode. */
+								0, 		/* Number of PIT timer. */
+								false,  /* True if timer in Chain Mode. */
+								fun 	/* Callback for interrupt. NULL if interrupt is disabled. */
+							};
+	PITstartTimer(configP0);
 
 }
 /* Función que se llama constantemente en un ciclo infinito */

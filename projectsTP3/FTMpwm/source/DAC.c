@@ -81,6 +81,7 @@ void DACinit(DACids id, DACconfig_t * config)
 			p2DAC->C2 &= ~DAC_C2_DACBFUP_MASK; //selecting DAC buffer size
 			p2DAC->C2 |= DAC_C2_DACBFUP(DAC_BUFFER_SIZE - 1);
 
+
 			if(config->irqMode == DAC_IRQ_ENABLE)
 			{
 				p2DAC->C0 |= DAC_C0_DACBWIEN(1) | DAC_C0_DACBTIEN_MASK;   //buffer water mark interrupt enable

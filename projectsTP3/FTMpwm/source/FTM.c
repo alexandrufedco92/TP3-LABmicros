@@ -47,13 +47,14 @@ void FTM2_IRQHandler(void);
  * */
 void FTMinit(FTMconfig_t * p2config)
 {
+	gpioMode(PORTNUM2PIN(PD, 1), OUTPUT);
 	FTM_Type * p2FTM;
 	//1)
 	FTMclockGating();
 	if(FTM_IS_VALID_MODULE(p2config->nModule))
 	{
 		p2FTM = arrayP2FTM[p2config->nModule];
-		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK); //deshabilito para permitir configurar
+		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK); //disable this to allow the configuration
 		enablePinFTM(p2config->nModule, p2config->nChannel);
 		//2)
 		p2FTM->MODE |= FTM_MODE_FTMEN(1);
@@ -67,6 +68,11 @@ void FTMinit(FTMconfig_t * p2config)
 		if(p2config->mode == FTM_TIMER)
 		{
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
+			SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
+			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
+			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
+
+
 		}
 		else if(p2config->mode == FTM_OUTPUT_COMPARE)
 		{
@@ -76,12 +82,14 @@ void FTMinit(FTMconfig_t * p2config)
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
 			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
-			p2FTM->CONTROLS[FTM_CH0].CnSC |= FTM_CnSC_CHIE(1);
+			p2FTM->SC |=FTM_SC_TOIE(1);
+			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
+			NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
 
 		}
 		else if(p2config->mode == FTM_INPUT_CAPTURE)
 		{
-			SIM->SOPT4 |= SIM_SOPT4_FTM2CH0SRC(1);
+
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
 			p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
 			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
@@ -99,43 +107,72 @@ void FTMinit(FTMconfig_t * p2config)
 			{
 				(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= FTM_CnSC_ELSB(1) | FTM_CnSC_ELSA(0);
 			}
+
+
+			//p2FTM->SC |=FTM_SC_TOIE(1);
 			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
-		}
-		else if(p2config->mode == FTM_EPWM)
-		{
+
+
 			if(p2config->dmaMode == FTM_DMA_DISABLE)
 			{
-				setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
-				p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
-				(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
-				(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
-				p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
-
-				(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= (FTM_CnSC_MSB_MASK) | FTM_CnSC_ELSB_MASK;
-				p2FTM->CONTROLS[p2config->nChannel].CnV = ((p2FTM->MOD & FTM_MOD_MOD_MASK)/2);
-				updatePWMduty(p2config->nModule, p2config->nChannel, 20);
-				updatePWMperiod(p2config->nModule, p2config->nChannel, 100);
-
-				//SYNCHRONIZATION
-				p2FTM->MODE |= FTM_MODE_PWMSYNC(1);
-				p2FTM->SYNCONF |= FTM_SYNCONF_SYNCMODE(1);
-				p2FTM->SYNCONF |= FTM_SYNCONF_CNTINC(1);
-				p2FTM->SYNCONF |= FTM_SYNCONF_SWWRBUF(1);
-				p2FTM->SYNCONF |= FTM_SYNCONF_SWRSTCNT(1);
-
-				p2FTM->COMBINE |= FTM_COMBINE_SYNCEN0(1);
-
-				p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
-
-							/////
-				p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
+				p2FTM->CONTROLS[p2config->nChannel].CnSC &= ~FTM_CnSC_DMA_MASK;
+				NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
 			}
 			else if(p2config->dmaMode == FTM_DMA_ENABLE)
 			{
-
+				p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
+			}
+			if(p2config->trigger == FTM_HW_TRIGGER)
+			{
+				//config para hardware trigger
+				SIM->SOPT4 |= SIM_SOPT4_FTM2CH0SRC(1);
 			}
 
 
+		}
+		else if(p2config->mode == FTM_EPWM)
+		{
+			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
+			p2FTM->SC &= ~FTM_SC_CPWMS_MASK;
+			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_ELSA_MASK) & (~FTM_CnSC_ELSB_MASK);
+			(p2FTM->CONTROLS[p2config->nChannel]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
+			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
+			p2FTM->CONTROLS[p2config->nChannel].CnSC &= ~FTM_CnSC_DMA_MASK;
+
+			(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= (FTM_CnSC_MSB_MASK) | FTM_CnSC_ELSB_MASK;
+			p2FTM->CONTROLS[p2config->nChannel].CnV = ((p2FTM->MOD & FTM_MOD_MOD_MASK)/2);
+			if(p2config->dmaMode == FTM_DMA_DISABLE)
+			{
+				p2FTM->CONTROLS[p2config->nChannel].CnSC &= ~FTM_CnSC_DMA_MASK;
+			}
+			else if(p2config->dmaMode == FTM_DMA_ENABLE)
+			{
+				p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
+				p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
+			}
+
+
+			//SYNCHRONIZATION
+			p2FTM->MODE |= FTM_MODE_PWMSYNC(1);
+			p2FTM->SYNCONF |= FTM_SYNCONF_SYNCMODE(1);
+			p2FTM->SYNCONF |= FTM_SYNCONF_CNTINC(1);
+			if(p2config->trigger == FTM_SW_TRIGGER)
+			{
+				p2FTM->SYNCONF |= FTM_SYNCONF_SWWRBUF(1);
+				//p2FTM->SYNCONF |= FTM_SYNCONF_SWRSTCNT(1);
+			}
+			else if(p2config->trigger == FTM_HW_TRIGGER)
+			{
+				p2FTM->MODE &= ~FTM_MODE_PWMSYNC_MASK;
+				p2FTM->SYNCONF |= FTM_SYNCONF_HWWRBUF(1);
+				//p2FTM->SYNCONF |= FTM_SYNCONF_HWRSTCNT(1);
+				p2FTM->SYNC |= FTM_SYNC_TRIG0(1);
+			}
+
+
+			p2FTM->COMBINE |= FTM_COMBINE_SYNCEN0(1);
+
+			p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		}
 		//3)
 		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK);
@@ -170,8 +207,7 @@ void setFTMtimer(FTMmodules nModule, FTM_TIMERcountModes countMode, uint16_t nTi
 			p2FTM->MOD &= FTM_MOD_MOD_MASK;
 		}
 		arrayFTMcallbacks[nModule] = p2callback;
-		p2FTM->SC |=FTM_SC_TOIE(1);
-		NVIC_EnableIRQ(arrayFTMirqs[nModule]);
+
 	}
 
 }
@@ -260,12 +296,7 @@ void updatePWMperiod(FTMmodules id, FTMchannels ch, int newPeriodTime)
 
 void updateCnV(FTMmodules id, FTMchannels ch, int newCnV)
 {
-	FTM_Type * p2FTM;
-	if(FTM_IS_VALID_MODULE(id) && FTM_IS_VALID_CHANNEL(ch))
-	{
-		p2FTM = arrayP2FTM[id];
-		p2FTM->CONTROLS[ch].CnV = newCnV;
-	}
+	arrayP2FTM[id]->CONTROLS[ch].CnV = newCnV;
 }
 
 int getCnV(FTMmodules id, FTMchannels ch)
@@ -301,6 +332,20 @@ int getCNTIN_FTM(FTMmodules id, FTMchannels ch)
 		ret = p2FTM->CNTIN;
 	}
 	return ret;
+}
+
+void getFTMswTriggerREG(FTMmodules id, uint32_t * p2regSWtrigger, uint32_t * mask2SWtrigger)
+{
+	FTM_Type* p2FTM = arrayP2FTM[id];
+	p2regSWtrigger = &(p2FTM->SYNC);
+	*mask2SWtrigger = p2FTM->SYNC | FTM_SYNC_SWSYNC_MASK;
+}
+
+int shapeFTMDifCaptured2Freq(FTMmodules id, int dif)
+{
+	FTM_Type* p2FTM = arrayP2FTM[id];
+	int ticksScale = 50000.0/((float)getPrescalerFactor(p2FTM));
+	return (int)((ticksScale/(float)dif)* 1000.0);
 }
 
 void enableFTMinterrupts(FTMmodules id)
@@ -388,8 +433,10 @@ void FTMx_IRQHandler(FTMmodules nModule)
 	}
 	else if(arrayP2FTM[nModule]->SC & FTM_SC_TOF_MASK) //if the count is finished
 	{
+		gpioWrite(PORTNUM2PIN(PD,1),true);
 		arrayFTMcallbacks[nModule](FTM_NO_CHANNEL); //It calls the callback of the indicated module.
 		arrayP2FTM[nModule]->SC &= ~FTM_SC_TOF_MASK;   //reset the flag that indicates interrupt
+		gpioWrite(PORTNUM2PIN(PD,1),false);
 	}
 }
 void FTM0_IRQHandler(void)
