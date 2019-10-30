@@ -175,6 +175,10 @@ int8_t ReconstructSignal(float comp_out)
 				sample_counter = 0;
 				return 1;
 			}
+			else
+			{
+				return -1;
+			}
 		}
 		else
 		{

@@ -154,7 +154,6 @@ void App_Run (void)
 	}
 	else if(debugFlag == debugV1)
 	{
-		/*
 		float sample = 0;
 		float digital_symbol = 0;
 		//RX
@@ -174,7 +173,7 @@ void App_Run (void)
 		}
 
 		//TX (por ahora se debuggea actualizando con interrupciones)
-		*/
+
 	}
 
 
@@ -218,7 +217,7 @@ void FMcallback(void)
 float  ShapeAnalogSample( ADC_Data_t analog_sample)
 {
 	float sample = 2*analog_sample;
-	return ( analog_sample/( (float)UINT16_MAX )-1 );
+	return ( sample/( (float)UINT16_MAX )-1 );
 }
 
 /*******************************************************************************

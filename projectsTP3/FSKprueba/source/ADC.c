@@ -109,6 +109,7 @@ bool SetChannelADC(ADC_Channel_t channel, bool differential_mode, bool interrupt
 	else
 	{
 		ADC->SC1[0] = ( (ADC->SC1[0]) & (~ADC_SC1_ADCH_MASK)) | ADC_SC1_ADCH( channel ); //Select ADC input
+		return true;
 	}
 }
 
