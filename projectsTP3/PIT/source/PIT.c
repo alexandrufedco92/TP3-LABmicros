@@ -29,6 +29,7 @@
 static bool timerEnabled[MAX_TIMERS_CANT];
 static bool timerInChainMode[MAX_TIMERS_CANT];
 static pitFun_t pitFuns[MAX_TIMERS_CANT];
+static bool pitInitDone = false;
 
 /*******************************************************************************
  * LOCAL FUNCTION DECLARATIONS
@@ -46,6 +47,22 @@ static void PITenableClock(PIT_Type * base);
  * @param enable True enables module and False disables module.
  */
 static void PITenable(PIT_Type * base, bool enable, bool freezeMode);
+
+/**
+ * @brief Disables timer.
+ * @param timerNbr Timer number (0-3).
+ * @param timerDisable True to disable timer.
+ * @param interruptDisable True to disable interrupt.
+ * @return Disable succeed.
+ */
+static bool PITtimerDisable(uint8_t timerNbr, bool timerDisable, bool interruptDisable);
+
+/**
+ * @brief Initialize individual timer interruption.
+ * @param timerNbr Timer number (0-3).
+ * @return Initialization succeed.
+ */
+static bool PITtimerInterrupt(uint8_t timerNbr);
 
 /**
  * @brief Initialize individual timer.
@@ -89,12 +106,9 @@ void PIT3_IRQHandler(void);
  * GLOBAL FUNCTION DEFINITIONS
  ******************************************************************************/
 
-void PITinit(config_t * config){
-	/* Saves timer info. Can be modify later if requirements are not met. */
-	for(uint8_t i = 0; i < MAX_TIMERS_CANT;i++){
-		timerEnabled[i] = config->timerEnable[i];
-		timerInChainMode[i] = config->chainMode[i];
-		pitFuns[i] = config->pitCallbacks[i];
+void PITinit(void){
+	if(pitInitDone){
+		return;
 	}
 
 	/* Enable clock gating. */
@@ -103,54 +117,95 @@ void PITinit(config_t * config){
 	/* Enable Module. */
 	PITenable(PIT, true, true);
 
-	/* Set Timers that are not in chain mode. */
-	for(uint8_t i = 0; i < MAX_TIMERS_CANT;i++){
-		/* Sets timer if desired. */
-		if((timerEnabled[i] == true) && (timerInChainMode[i] == false)){
-			if(PITtimerSet(i, config->timerVal[i], false)){
-				/* Timer set successfully. */
-			}
-			else{
-				timerEnabled[i] = false;
-			}
-		}
-	}
-
-	if(timerInChainMode[0]){ /* First timer can't be in chain mode. */
-		timerEnabled[0] = false;
-		timerInChainMode[0] = false;
-	}
-
-	/* Enable Chain Mode. */
-	for(uint8_t i = 1; i < MAX_TIMERS_CANT;i++){
-		if((timerInChainMode[i] == true) && (timerEnabled[i] == true) && (timerEnabled[i-1] == true)){
-			PITtimerSet(i, config->timerVal[i], true);
-		}
-		else if(timerInChainMode[i] == true){
-			timerEnabled[i] = false;
-			timerInChainMode[i] = false;
-		}
-	}
-
-	/* Enable Timers. */
-	for(uint8_t i = 0; i < MAX_TIMERS_CANT;i++){
-		/* Enables timer if desired. */
-		if(timerEnabled[i] == true){
-			PITtimerInit(i, config->interruptEnable[i]);
-		}
-	}
-
 	/* Enable Interrupts. */
 	NVIC_EnableIRQ(PIT0_IRQn);
 	NVIC_EnableIRQ(PIT1_IRQn);
 	NVIC_EnableIRQ(PIT2_IRQn);
 	NVIC_EnableIRQ(PIT3_IRQn);
+
+	for(int i = 0; i<MAX_TIMERS_CANT; i++){
+		timerEnabled[i] = false;
+		timerInChainMode[i] = false;
+		pitFuns[i] = NULL;
+	}
+
+	pitInitDone = true;
 }
 
 void PITmodifyTimer(uint8_t timerNbr, uint32_t value){
 	if(timerEnabled[timerNbr] == true){
 		PITtimerSet(timerNbr, value,timerInChainMode[timerNbr]);
 	}
+}
+
+bool PITstartTimer(pit_config_t config){
+	/* Set Timer if not in chain mode. */
+	if(config.chainMode == false){
+		if(PITtimerSet(config.timerNbr, config.timerVal, false)){
+			/* Timer set successfully. */
+			timerEnabled[config.timerNbr] = true;
+			timerInChainMode[config.timerNbr] = false;
+		}
+		else{
+			timerEnabled[config.timerNbr] = false;
+		}
+
+	}
+
+	if(config.chainMode && (config.timerNbr == 0)){ /* First timer can't be in chain mode. */
+		timerEnabled[0] = false;
+		timerInChainMode[0] = false;
+	}
+	else if(config.chainMode && timerEnabled[config.timerNbr-1]){ /* Enable Chain Mode. */
+		PITtimerSet(config.timerNbr, config.timerVal, true);
+	}
+	else if(config.chainMode){
+		timerEnabled[config.timerNbr] = false;
+		timerInChainMode[config.timerNbr] = false;
+	}
+
+	/* Enable Timer. */
+	if(timerEnabled[config.timerNbr]){
+		bool interruptEnable = false;
+		if(config.pitCallback != NULL){
+			interruptEnable = true;
+			pitFuns[config.timerNbr] = config.pitCallback;
+		}
+		PITtimerInit(config.timerNbr, interruptEnable);
+	}
+	return timerEnabled[config.timerNbr];
+}
+
+bool PITstopTimer(uint8_t timerNbr){
+	bool successStatus = false;
+	successStatus = PITtimerDisable(timerNbr, true, true);
+	if(successStatus){
+		timerEnabled[timerNbr] = false;
+		pitFuns[timerNbr] = NULL;
+	}
+	return successStatus;
+}
+
+bool PITenableTimerInterrupt(uint8_t timerNbr, pitFun_t pitCallback){
+	bool successStatus = false;
+	if(timerEnabled[timerNbr]){ /* Only enable interrupt if timer is enabled. */
+		successStatus = PITtimerInterrupt(timerNbr);
+	}
+	if(successStatus){
+		pitFuns[timerNbr] = pitCallback;
+	}
+
+	return successStatus;
+}
+
+bool PITdisableTimerInterrupt(uint8_t timerNbr){
+	bool successStatus = false;
+	successStatus = PITtimerDisable(timerNbr, false, true);
+	if(successStatus){
+		pitFuns[timerNbr] = NULL;
+	}
+
+	return successStatus;
 }
 
 /*******************************************************************************
@@ -177,7 +232,7 @@ static void PITenable(PIT_Type * base, bool enable, bool freezeMode){
 	}
 }
 
-bool PITtimerInit(uint8_t timerNbr, bool interruptEnable){
+static bool PITtimerInit(uint8_t timerNbr, bool interruptEnable){
 	if(timerNbr>3){ /* Timer Number must be valid. */
 		return false;
 	}
@@ -190,7 +245,31 @@ bool PITtimerInit(uint8_t timerNbr, bool interruptEnable){
 	return true;
 }
 
-bool PITtimerSet(uint8_t timerNbr, uint32_t tValue, bool chainMode){
+static bool PITtimerDisable(uint8_t timerNbr, bool timerDisable, bool interruptDisable){
+	if(timerNbr>3){ /* Timer Number must be valid. */
+		return false;
+	}
+	if(interruptDisable){
+		/* Disable Timer interrupts. */
+		PIT->CHANNEL[timerNbr].TCTRL &= ~PIT_TCTRL_TIE_MASK;
+	}
+	if(timerDisable){
+		/* Stop Timer. */
+		PIT->CHANNEL[timerNbr].TCTRL &= ~PIT_TCTRL_TEN_MASK;
+	}
+	return true;
+}
+
+static bool PITtimerInterrupt(uint8_t timerNbr){
+	if(timerNbr>3){ /* Timer Number must be valid. */
+		return false;
+	}
+	/* Enable Timer interrupts. */
+	PIT->CHANNEL[timerNbr].TCTRL |= PIT_TCTRL_TIE_MASK;
+	return true;
+}
+
+static bool PITtimerSet(uint8_t timerNbr, uint32_t tValue, bool chainMode){
 	/* Timer Number must be valid and value between limits. */
 	if(timerNbr>3){
 		return false;
