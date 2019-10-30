@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "DMAMUX.h"
 
 
 /*******************************************************************************
@@ -36,10 +37,6 @@ typedef struct{
     uint32_t total_bytes;              //cantidad total de bytes a transferir
     dma_mode_t mode;
 }dma_transfer_conf_t;
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE

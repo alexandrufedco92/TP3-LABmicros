@@ -11,6 +11,7 @@ C_SRCS += \
 ../source/DMA.c \
 ../source/DMAMUX.c \
 ../source/FTM.c \
+../source/PDB.c \
 ../source/PIT.c \
 ../source/SysTick.c \
 ../source/comController2pc.c \
@@ -26,6 +27,7 @@ OBJS += \
 ./source/DMA.o \
 ./source/DMAMUX.o \
 ./source/FTM.o \
+./source/PDB.o \
 ./source/PIT.o \
 ./source/SysTick.o \
 ./source/comController2pc.o \
@@ -41,6 +43,7 @@ C_DEPS += \
 ./source/DMA.d \
 ./source/DMAMUX.d \
 ./source/FTM.d \
+./source/PDB.d \
 ./source/PIT.d \
 ./source/SysTick.d \
 ./source/comController2pc.d \
