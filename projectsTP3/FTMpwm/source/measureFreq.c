@@ -46,7 +46,7 @@ void initFreqMeasure(void)
 	configInputCapture.trigger = FTM_SW_TRIGGER;
 	configInputCapture.p2callback = measFreqCallback;
 
-	ticksScale = 50000/32;
+	ticksScale = 50000.0/32.0;
 	FTMinit(&configInputCapture);
 
 }

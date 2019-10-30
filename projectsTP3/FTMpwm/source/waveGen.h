@@ -9,7 +9,7 @@
 #define WAVEGEN_H_
 
 #define MAX_N_SAMPLES 1000 //Let's N_SAMPLES be under MAX_N_SAMPLES for correct functionality
-#define N_SAMPLES 16
+#define N_SAMPLES 32
 
 //MAX(WAVEGENfreq) = 1/(N_SAMPLES*min(Ttrigger).
 //minTtrigger = 1ms --> MAX(WAVEGENfreq) = 1000/N_SAMPLES.

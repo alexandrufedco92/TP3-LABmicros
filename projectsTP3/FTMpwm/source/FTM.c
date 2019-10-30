@@ -47,6 +47,7 @@ void FTM2_IRQHandler(void);
  * */
 void FTMinit(FTMconfig_t * p2config)
 {
+	gpioMode(PORTNUM2PIN(PD, 1), OUTPUT);
 	FTM_Type * p2FTM;
 	//1)
 	FTMclockGating();
@@ -113,8 +114,6 @@ void FTMinit(FTMconfig_t * p2config)
 
 				(p2FTM->CONTROLS[p2config->nChannel]).CnSC |= (FTM_CnSC_MSB_MASK) | FTM_CnSC_ELSB_MASK;
 				p2FTM->CONTROLS[p2config->nChannel].CnV = ((p2FTM->MOD & FTM_MOD_MOD_MASK)/2);
-				updatePWMduty(p2config->nModule, p2config->nChannel, 20);
-				updatePWMperiod(p2config->nModule, p2config->nChannel, 100);
 
 				//SYNCHRONIZATION
 				p2FTM->MODE |= FTM_MODE_PWMSYNC(1);
@@ -388,8 +387,10 @@ void FTMx_IRQHandler(FTMmodules nModule)
 	}
 	else if(arrayP2FTM[nModule]->SC & FTM_SC_TOF_MASK) //if the count is finished
 	{
+		gpioWrite(PORTNUM2PIN(PD,1),true);
 		arrayFTMcallbacks[nModule](FTM_NO_CHANNEL); //It calls the callback of the indicated module.
 		arrayP2FTM[nModule]->SC &= ~FTM_SC_TOF_MASK;   //reset the flag that indicates interrupt
+		gpioWrite(PORTNUM2PIN(PD,1),false);
 	}
 }
 void FTM0_IRQHandler(void)

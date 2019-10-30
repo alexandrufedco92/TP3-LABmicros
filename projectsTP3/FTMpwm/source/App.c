@@ -73,7 +73,7 @@ void App_Init (void)
 		waveConf.mode = SAMPLES_WAVEGEN;
 		waveConf.waveName = SIN_WAVEGEN;
 		initWaveGen(&waveConf);
-		SetTimer(MODULATION, 10, FMcallback);
+
 	}
 	else if(debugFlag == debugV2)
 	{
@@ -87,8 +87,8 @@ void App_Init (void)
 		initWaveGen(&waveConf);
 	}
 
-
-
+	InitializeTimers();
+	SetTimer(MODULATION, 10, FMcallback);
 
 
 }
@@ -102,16 +102,17 @@ void App_Run (void)
 		if(isNewMeasReady())
 		{
 			freq = getFreqMeasure();
+			if(IS_MARK_FREQ(freq))
+			{
+				key = MARK_KEY;
+			}
+			else if(IS_SPACE_FREQ(freq))
+			{
+				key = SPACE_KEY;
+			}
+			uartWriteMsg(U0, &key, 1);
 		}
-		if(IS_MARK_FREQ(freq))
-		{
-			key = MARK_KEY;
-		}
-		else if(IS_SPACE_FREQ(freq))
-		{
-			key = SPACE_KEY;
-		}
-		uartWriteMsg(U0, &key, 1);
+
 
 		//TX  (por ahora se debuggea actualizando con interrupciones)
 

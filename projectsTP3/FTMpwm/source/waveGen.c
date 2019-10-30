@@ -42,16 +42,22 @@ void initWaveGen(WaveGenConfig_t * p2config)
 	{
 		if((p2config->waveName == SIN_WAVEGEN))
 		{
-			//senoidalInit();  //Actually, this function only has to be called if it wasn't called yet.
 			wavesArray[p2config->id].freq = p2config->freq;
 			if((p2config->mode == SAMPLES_WAVEGEN))
 			{
+				senoidalInit(SAMPLES_WAVEGEN);
 				sinWaveGen(p2config->id, p2config->freq);
+				for (int i = 0; i < DAC_BUFFER_SIZE; i++)
+				{
+					writeDACdata(DAC0_ID, i, senLUT[i]);
+				}
 			}
 			else if((p2config->mode == PWM_WAVEGEN))
 			{
 				pwmSinWaveGen(p2config->id, p2config->freq);
+				senoidalInit(PWM_WAVEGEN);
 			}
+
 		}
 	}
 
@@ -129,16 +135,17 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
 	FTMpwmConfig.countMode = UP_COUNTER;
-	FTMpwmConfig.prescaler = FTM_PSCX32;
+	FTMpwmConfig.prescaler = FTM_PSCX1;
 	FTMpwmConfig.CnV = 0;
-	FTMpwmConfig.nTicks = 0xFFFF;
+	FTMpwmConfig.nTicks = 200;
 	FTMpwmConfig.numOverflows = 0;
 	FTMpwmConfig.p2callback = FTMpwmCallback;
 	FTMpwmConfig.dmaMode = FTM_DMA_DISABLE;
 	FTMpwmConfig.trigger = FTM_SW_TRIGGER;
 
 	FTMinit(&FTMpwmConfig);
-	disableFTMinterrupts(FTMpwmConfig.nModule);
+
+	//disableFTMinterrupts(FTMpwmConfig.nModule);
 
 	//enableFTMinterrupts(FTMpwmConfig.nModule);
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
