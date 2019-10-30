@@ -36,6 +36,7 @@ typedef struct{
 static queue_t queue;
 static bool signal_frame[FRAME_SIZE];
 static bool frame_ready;
+static int frame_index =0;
 
 static void recursiveStore(int index, char value);
 
@@ -105,21 +106,18 @@ bool popBit(void){
 	return finalValue;
 }
 
-bool PushBit(float bit)
+bool PushBit(bool bit)
 {
-	static int i =0;
 	if(frame_ready)
 	{
 		return false; //Frame is full cannot add more bits
 	}
 	else
 	{
-		if( bit )
-			signal_frame[i++] = true;
-		else
-			signal_frame[i++] = false;
+		signal_frame[frame_index] = bit;
+		frame_index++;
 
-		if( i == FRAME_SIZE)
+		if( frame_index == FRAME_SIZE)
 			frame_ready = true; //Frame is completed
 		return true;
 	}
@@ -139,6 +137,7 @@ bool GetFrame(bool* buffer)
 		{
 			buffer[i] = signal_frame[i];
 		}
+		frame_index = 0;
 		return true;
 	}
 	else

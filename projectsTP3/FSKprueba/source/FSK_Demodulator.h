@@ -27,7 +27,9 @@ void DemodulatorInit(void);
  * @param result Buffer in which to paste the digital signal values.
  * @return logical symbol of signal or -1 if more samples are needed to finish.
 */
-int8_t DemodulateSignal(float recieved);
+bool DemodulateSignal(float recieved);
+
+bool IsDemodulationFinished(void);
 
 
 #endif /* FSK_DEMODULATOR_H_ */

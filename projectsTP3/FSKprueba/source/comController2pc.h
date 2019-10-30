@@ -33,7 +33,20 @@ void initResourcesController2pc(void);
 //		If the slave doesn't react with an "acknowledge" after a period of time (MAX_TIME_REACTION)
 //		or it reacts by reporting an error, the package will be sent again
 //		and the process can be repeated a limited number of times (MAX_ERRORS_ALLOWED)
-void sendMessage2pc(char idBoard, char * p2coord, char coordName, int cant);
+void sendMessage2pc(char * p2coord, int cant);
+
+/****************************************************************************************************
+ * @brief Recieves the messagge sent by the PC.
+ * @param recieved Bufffer in which to paste recieved frame.
+ * @param cant number of bytes to paste on 'recieved'.
+ ****************************************************************************************************/
+void recieveMessageFromPC(char* recieved, int cant);
+
+/*****************************************************************************************************
+ * @brief Checks if there was any information recieved from the PC.
+ * @return returns true if there is a pending message, false otherwise.
+ ******************************************************************************************************/
+bool isMsg(void);
 
 
 

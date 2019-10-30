@@ -121,13 +121,14 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	DACinit(DAC0_ID, &DACconfig);
 
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),10000,0,0}, /* timerVal. */
-							{true,false,false,false}, /* interruptEnable. */
-							{true,true,false,false}, /* timerEnable. */
-							{false,false,false,false}, /* chainMode. */
-							{softwareTriggerDAC,NULL,NULL,NULL} }; /* pitCallbacks. */
+	pit_config_t pit_config;
+	pit_config.timerVal = (int)(periodMs*1000.0);
+	pit_config.timerNbr = 0;
+	pit_config.chainMode = false;
+	pit_config.pitCallback = softwareTriggerDAC;
+	PITinit();
+	PITstartTimer(&pit_config);
 
-	PITinit(&config);
 }
 
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
@@ -150,14 +151,16 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	//disableFTMinterrupts(FTMpwmConfig.nModule);
 
 	//enableFTMinterrupts(FTMpwmConfig.nModule);
-	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
-								{true,false,false,false}, /* interruptEnable. */
-								{true,false,false,false}, /* timerEnable. */
-								{false,false,false,false}, /* chainMode. */
-								{softwareTriggerFTM,NULL,NULL,NULL} }; /* pitCallbacks. */
 
-	PITinit(&config);
+	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
+	//config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
+	//							{true,false,false,false}, /* interruptEnable. */
+	//							{true,false,false,false}, /* timerEnable. */
+	//							{false,false,false,false}, /* chainMode. */
+	//							{softwareTriggerFTM,NULL,NULL,NULL} }; /* pitCallbacks. */
+//
+	//PITinit(&config);
+
 
 
 }
