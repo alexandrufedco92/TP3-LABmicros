@@ -10,6 +10,7 @@
  **********************************************************/
 #include "ADC.h"
 #include "MK64F12.h"
+#include "PIT.h"
 
 /**********************************************************
  *					 DEFINES AND MACROS
@@ -28,6 +29,7 @@ static callback func;
  ********************************************************/
 
 bool SetChannelADC(ADC_Channel_t ch, bool diff, bool in_en);
+void InitializeHardwareTrigger(void);
 
 /*********************************************************
  * 					HEADER FUNCTIONS
@@ -72,7 +74,11 @@ bool ADC_Init( const ADC_Config_t* config )
 		ADC->SC3 = (ADC->SC3 & (~ADC_SC3_AVGS_MASK)) | ADC_SC3_AVGS( config->samples_to_average ); //Average select.
 		//Update SC1 registers
 		valid = SetChannelADC(config->channel_sel, config->diffential_mode, config->enable_interrupts);
-
+		//Initializes Hardware trigger
+		if( config->trigger == HARDWARE_TRIGGER)
+		{
+			InitializeHardwareTrigger();
+		}
 		if( !valid )
 		{
 			return false;
@@ -137,6 +143,17 @@ ADC_Data_t GetConversionResult(void)
 /************************************************************
  * 					LOCAL FUNCTIONS
  ************************************************************/
+void InitializeHardwareTrigger(void)
+{
+	//Pit initializaion for ADC sampling
+	pit_config_t pit_config;
+	pit_config.timerVal = T_SAMPLE_PERIOD;
+	pit_config.timerNbr = 1;
+	pit_config.chainMode = false;
+	pit_config.pitCallback = NULL;
+	PITinit();
+	PITstartTimer(&pit_config);
+}
 
 void ADC0_IRQHandler(void)
 {

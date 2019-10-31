@@ -7,7 +7,9 @@
 
 #include "FSK_Demodulator.h"
 #include "PIT.h"
-#include "gpio.h"	//Solo para Debuggear.
+#include "ADC.h"
+#include "bitStreamQueue.h"
+
 /***********************************************************
  *					 DEFINES AND MACROS
  ***********************************************************/
@@ -38,7 +40,7 @@ static circular_buffer_t FSK_signal;
 static circular_buffer_t PreFiltered_signal;
 static float last_fir_output = 1;
 static float last_sample_value;		//Last digital value recieved
-static float average_aux = 0;		//Average of Comparatpr samples.
+static float average_aux = 0;		//Average of Comparator samples.
 static uint8_t sample_counter = 0;	//Counts number of samples averaged.
 static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
 static bool idle = true;		//Flag that indicates if in idle state
@@ -71,7 +73,7 @@ float ApplyFIR(void);
  * @param digital_signal
  * @param cant number of samples from analog signal
 */
-bool ReconstructSignal(float comp_out);
+void ReconstructSignal(float comp_out);
 
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
@@ -79,27 +81,22 @@ bool ReconstructSignal(float comp_out);
 void DemodulatorInit(void)
 {
 #ifdef DSP_VERSION //DSP_VERSION
+	InitializeHardware();
 	fs = F_SAMPLE;
 	FSK_signal.curr = -1;
 	PreFiltered_signal.curr = -1;
 
 	prev_samples = (uint8_t)( DELAY*fs);
 	last_sample_value = 1;
-	//Pit initializaion for ADC sampling
-	pit_config_t pit_config;
-	pit_config.timerVal = T_SAMPLE_PERIOD;
-	pit_config.timerNbr = 1;
-	pit_config.chainMode = false;
-	pit_config.pitCallback = NULL;
-	PITinit();
-	PITstartTimer(&pit_config);
+
 #else	//PWM_VERSION
 #endif
 
 }
 
-bool DemodulateSignal(float recieved)
+void DemodulateSignal(float recieved)
 {
+#ifdef DSP_VERSION
 	float aux = 0;
 	uint16_t aux_index = 0;
 	float comp_out = 0; //Comparator output
@@ -125,12 +122,28 @@ bool DemodulateSignal(float recieved)
 	//Update result
 	comp_out = ApplyFIR();
 	//Gets bitstream values.
-	return ReconstructSignal(comp_out);
+	ReconstructSignal(comp_out);
+#else
+#endif
+
 }
 
 bool IsDemodulationFinished(void)
 {
+#ifdef DSP_VERSION
 	return symbol_detected;
+
+#else //PWM_VERSION
+#endif
+}
+
+bool NeedDemodulation(void)
+{
+	#ifdef DSP_VERSION
+		return IsConversionFinished();
+	#else	//PWM_VERSION
+		//Complete
+	#endif
 }
 
 /***********************************************************
@@ -184,9 +197,8 @@ float ApplyFIR(void)
 	return;
 }
 
-bool ReconstructSignal(float comp_out)
+void ReconstructSignal(float comp_out)
 {
-	bool result = false;
 	if(idle)
 	{
 		if( comp_out)
@@ -223,7 +235,7 @@ bool ReconstructSignal(float comp_out)
 					idle = true;
 				average_aux = 0;
 				symbol_detected = true;
-				result = true;
+				PushBit(true); //Adds a '1' to the frame.
 			}
 			else
 			{
@@ -231,7 +243,7 @@ bool ReconstructSignal(float comp_out)
 				idle_counter = 0;
 				average_aux = 0;
 				symbol_detected = true;
-				result = false;
+				PushBit(false); //Adds a '0' to the frame.
 			}
 		}
 		else
@@ -241,7 +253,24 @@ bool ReconstructSignal(float comp_out)
 
 	}
 
-	return result;
+}
 
+void InitializeHardware(void)
+{
+	//Set ADC configuration
+	ADC_Config_t adc_config;
+	adc_config.channel_sel = AD0;
+	adc_config.clock_divide = DIVIDE_BY_1;
+	adc_config.clock_type = BUS_CLOCK;
+	adc_config.diffential_mode = false;
+	adc_config.enable_cont_conversions = false;
+	adc_config.enable_hardware_avg = false;
+	adc_config.enable_interrupts = false;
+	adc_config.id = FIRST_ADC;
+	adc_config.low_power = true;
+	adc_config.resolution = SIXTEEN_BITS;
+	adc_config.trigger = HARDWARE_TRIGGER;
+	adc_config.voltage_reference = DEFAULT;
+	ADC_Init( &adc_config);
 
 }

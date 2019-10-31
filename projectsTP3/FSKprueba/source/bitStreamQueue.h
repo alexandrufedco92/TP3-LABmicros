@@ -38,6 +38,14 @@ void bitStreamQueueInit(void);
 bool pushChar(char value);
 
 /**
+ * @brief Pushes char into Queue if there is space.
+ * @param string Data string to push.
+ * @param cant Length of string.
+ * @return True if push was succesfull.
+ */
+bool pushString(char * string, uint8_t cant);
+
+/**
  * @brief Checks if queue is empty.
  * @return True if Queue is empty, false if there is still space.
  */
@@ -49,10 +57,10 @@ bool isQueueEmpty(void);
  */
 bool popBit(void);
 
-bool PushBit(bool);
+bool PushBit(char digital_symbol);
 
-bool IsFrameReady(void);
+bool IsFrameReady();
 
-bool GetFrame(bool* buffer);
+char* GetFrame(void);
 
 #endif /* BITSTREAMQUEUE_H_ */

@@ -7,8 +7,9 @@
 
 #ifndef FSK_MODULATOR_H_
 #define FSK_MODULATOR_H_
-#define DAC_VERSION			//Uses modulator with DAC if defined, if commented the modulator
-							//is implemented via alternate method without DAC.
+#define DAC_VERSION			/*	Uses modulator with DAC if defined, if commented the modulator
+								is implemented via alternate method without DAC. */
+
 /******************************************************************
  * 						INCLUDED HEADERS
  ******************************************************************/
@@ -17,7 +18,9 @@
  * 						HEADER FUNCTIONS
  *******************************************************************/
 
+/**
+ * @brief Initialize Modulator.
+ */
 void ModulatorInit(void);
-void ModulateFSK(bool);
 
 #endif /* FSK_MODULATOR_H_ */

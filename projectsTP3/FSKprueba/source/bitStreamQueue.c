@@ -34,7 +34,7 @@ typedef struct{
 }queue_t;
 
 static queue_t queue;
-static bool signal_frame[FRAME_SIZE];
+static char signal_frame[FRAME_SIZE];
 static bool frame_ready;
 static int frame_index =0;
 
@@ -106,7 +106,7 @@ bool popBit(void){
 	return finalValue;
 }
 
-bool PushBit(bool bit)
+bool PushBit(char bit)
 {
 	if(frame_ready)
 	{
@@ -128,18 +128,18 @@ bool IsFrameReady(void)
 	return frame_ready;
 }
 
-bool GetFrame(bool* buffer)
+char* GetFrame(void)
 {
-	int i=0;
-	if( frame_ready )
-	{
-		for(i=0; i<FRAME_SIZE; i++)
-		{
-			buffer[i] = signal_frame[i];
+	return signal_frame;
+}
+
+bool pushString(char * string, uint8_t cant){
+	bool success = false;
+	for(uint_8 i = 0;i<cant;i++){
+		success = pushChar(string[i]);
+		if(!success){ /* Failed to push. */
+			return false;
 		}
-		frame_index = 0;
-		return true;
 	}
-	else
-		return false;
+	return true;
 }
