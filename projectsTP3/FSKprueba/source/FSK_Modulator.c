@@ -11,23 +11,19 @@
 #include "FSK_Modulator.h"
 #include "waveGen.h"
 #include "measureFreq.h"
-
 /*************************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  *************************************************************/
-void ModulatorInit(modem_version_t version)
+void ModulatorInit(void)
 {
-	if( version == DSP_VERSION)
-	{
+	#ifdef DAC_VERSION
 		WaveGenConfig_t waveConf;
 		waveConf.freq = 1200;
 		waveConf.id = WAVE0_WAVEGEN;
 		waveConf.mode = SAMPLES_WAVEGEN;
 		waveConf.waveName = SIN_WAVEGEN;
 		initWaveGen(&waveConf);
-	}
-	else
-	{
+	#else	//PWM Version
 		initFreqMeasure();
 		WaveGenConfig_t waveConf;
 		waveConf.freq = 1200;
@@ -35,6 +31,7 @@ void ModulatorInit(modem_version_t version)
 		waveConf.mode = PWM_WAVEGEN;
 		waveConf.waveName = SIN_WAVEGEN;
 		initWaveGen(&waveConf);
-	}
+	#endif
+
 }
 

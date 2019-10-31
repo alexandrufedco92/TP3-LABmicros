@@ -12,6 +12,11 @@
 #include "comController2pc.h"
 #include "FSK_Modulator.h"
 #include "FSK_Demodulator.h"
+#include "ADC.h"
+/*************************************************************
+ * 					DEFINES AND MACROS
+ *************************************************************/
+#define FRAME_SIZE 11
 
 /***********************************************************
  * 				LOCAL FUNCTION DECLARATIONS
@@ -21,51 +26,40 @@ void ModulatorInit(void);
 /************************************************************
  * 					STATIC VARIABLES
  ************************************************************/
-modem_version_t selected_version;
 
 /************************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  ************************************************************/
 
-void ModemInit( modem_version_t version)
+void ModemInit( void)
 {
-	selected_version = version;
-	initResourcesController2pc(); //Initializes Communication with PC.
-	ModulatorInit(version);
-	DemodulatorInit(version);
-
-	if(verion == DSP_VERSION)
-	{
-
-		//Set ADC configuration
-		ADC_Config_t adc_config;
-		adc_config.channel_sel = AD0;
-		adc_config.clock_divide = DIVIDE_BY_1;
-		adc_config.clock_type = BUS_CLOCK;
-		adc_config.diffential_mode = false;
-		adc_config.enable_cont_conversions = false;
-		adc_config.enable_hardware_avg = false;
-		adc_config.enable_interrupts = false;
-		adc_config.id = FIRST_ADC;
-		adc_config.low_power = true;
-		adc_config.resolution = SIXTEEN_BITS;
-		adc_config.trigger = HARDWARE_TRIGGER;
-		adc_config.voltage_reference = DEFAULT;
-		ADC_Init( &adc_config);
-		//FSK Demodulator init
-		DemodulatorInit();
-
-
-	}
-
-
-
-
+	initResourcesController2pc(); 	//Initializes Communication with PC.
+	ModulatorInit();				//Initializes FSK modulator
+	DemodulatorInit();				//Initializes FSK demodulator
 }
 
 void ModemRun(void)
 {
+	float sample = 0;
+	bool digital_symbol = true;
+	char recieved[FRAME_SIZE];
 
+	//FSK demodulation
+	if( NeedDemodulation() ) //Checks for sample
+	{
+		sample = GetConversionResult(); //ACA directamente pongo  el shape
+		digital_symbol = DemodulateSignal( sample ); //Demodulates sample
+		if( IsDemodulationFinished() )
+		{
+			sendMessage2pc( GetFrameMsg(), FRAME_SIZE); //Send Frame to next station.
+		}
+	}
+	//FSK modulation
+	if( isMsg() )
+	{
+		recieveMessageFromPC(recieved, FRAME_SIZE);
+		ModulateFSK( ); //Chequear que parametro mandar aca
+	}
 }
 
 /******************************************************************

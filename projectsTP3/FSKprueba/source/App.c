@@ -139,7 +139,7 @@ void App_Run (void)
 		 {
 		 	 modulateFSK(getLectureUART());
 		 }
-		 /*
+
 	if(debugFlag == debugV2)
 	{
 		//RX

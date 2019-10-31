@@ -78,6 +78,7 @@ bool ReconstructSignal(float comp_out);
  ***********************************************************/
 void DemodulatorInit(void)
 {
+#ifdef DSP_VERSION //DSP_VERSION
 	fs = F_SAMPLE;
 	FSK_signal.curr = -1;
 	PreFiltered_signal.curr = -1;
@@ -92,6 +93,8 @@ void DemodulatorInit(void)
 	pit_config.pitCallback = NULL;
 	PITinit();
 	PITstartTimer(&pit_config);
+#else	//PWM_VERSION
+#endif
 
 }
 
