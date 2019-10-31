@@ -136,6 +136,28 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMconfig_t FTMpwmConfig, FTMpwmTriggerConfig;
 	dma_transfer_conf_t conf;
 
+	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
+	config_t config = {	{(int)(periodMs*1000.0),(int)(periodMs*1000.0) ,0,0}, /* timerVal. */
+								{false,true,false,false}, /* interruptEnable. */
+								{true,true,false,false}, /* timerEnable. */
+								{false,false,false,false}, /* chainMode. */
+								{NULL,softwareTriggerFTM,NULL,NULL} }; /* pitCallbacks. */
+
+	PITinit(&config);
+
+
+	/*initDMA();
+	configureDMAMUX(0, 58, true);
+	conf.source_address = (uint32_t)pwmSenLUT;
+	conf.dest_address = (uint32_t)getCnVadress(FTM0_INDEX, FTM_CH0);
+	conf.offset = 0x02;
+	conf.transf_size = BITS_16;
+	conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
+	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
+	conf.mode = MEM_2_PERIPHERAL;
+
+	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);*/
+
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
@@ -146,9 +168,9 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmConfig.numOverflows = 0;
 	FTMpwmConfig.p2callback = FTMpwmCallback;
 	FTMpwmConfig.dmaMode = FTM_DMA_DISABLE;
-	FTMpwmConfig.trigger = FTM_HW_TRIGGER;
+	FTMpwmConfig.trigger = FTM_SW_TRIGGER;
 
-	FTMpwmTriggerConfig.mode = FTM_TIMER;
+	/*FTMpwmTriggerConfig.mode = FTM_TIMER;
 	FTMpwmTriggerConfig.nModule = FTM1_INDEX;
 	FTMpwmTriggerConfig.nChannel = FTM_CH0;
 	FTMpwmTriggerConfig.countMode = UP_COUNTER;
@@ -160,19 +182,10 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmTriggerConfig.dmaMode = FTM_DMA_ENABLE;
 	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;
 
-	FTMinit(&FTMpwmTriggerConfig);
+	FTMinit(&FTMpwmTriggerConfig);*/
 	FTMinit(&FTMpwmConfig);
 
-	configureDMAMUX(DMA_WAVEGEN_CH, DMA_FTM1_CH0, false);
-	conf.source_address = (uint32_t)pwmSenLUT;
-	conf.dest_address = (uint32_t)getCnVadress(FTM0_INDEX, FTM_CH0);
-	conf.offset = 0x02;
-	conf.transf_size = BITS_16;
-	conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
-	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
-	conf.mode = MEM_2_PERIPHERAL;
 
-	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);
 
 
 
@@ -224,7 +237,7 @@ void softwareTriggerDAC(void)
 	updateSoftwareTrigger(DAC0_ID);
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
+		PITmodifyTimer(1, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
@@ -240,7 +253,7 @@ void softwareTriggerFTM(void)
 	}
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
+		PITmodifyTimer(1, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }

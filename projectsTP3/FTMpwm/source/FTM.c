@@ -68,9 +68,11 @@ void FTMinit(FTMconfig_t * p2config)
 		if(p2config->mode == FTM_TIMER)
 		{
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
+			p2FTM->EXTTRIG |= FTM_EXTTRIG_CH0TRIG(1);
 			SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
 			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
-			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
+			NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
+			//p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
 
 
 		}
@@ -158,18 +160,22 @@ void FTMinit(FTMconfig_t * p2config)
 			p2FTM->SYNCONF |= FTM_SYNCONF_CNTINC(1);
 			if(p2config->trigger == FTM_SW_TRIGGER)
 			{
+				p2FTM->MODE &= ~FTM_MODE_PWMSYNC_MASK;
+				p2FTM->FMS &= ~FTM_FMS_WPEN_MASK;
+				p2FTM->MODE |= FTM_MODE_INIT(1) | FTM_MODE_WPDIS(1) | FTM_MODE_FTMEN(1);
 				p2FTM->SYNCONF |= FTM_SYNCONF_SWWRBUF(1);
 				p2FTM->SYNCONF |= FTM_SYNCONF_SWOM_MASK; //enable mask function
 				p2FTM->SYNC |= (FTM_SYNC_SWSYNC_MASK|FTM_SYNC_CNTMIN_MASK);
-				//p2FTM->SYNCONF |= FTM_SYNCONF_SWRSTCNT(1);
+				p2FTM->SYNCONF &= ~FTM_SYNCONF_SWRSTCNT_MASK;
 			}
 			else if(p2config->trigger == FTM_HW_TRIGGER)
 			{
 				p2FTM->MODE &= ~FTM_MODE_PWMSYNC_MASK;
 				p2FTM->SYNCONF |= FTM_SYNCONF_HWWRBUF(1);
-				//p2FTM->SYNCONF |= FTM_SYNCONF_HWRSTCNT(1);
+				p2FTM->SYNCONF |= FTM_SYNCONF_HWRSTCNT(1);
 				p2FTM->SYNC |= FTM_SYNC_TRIG0(1);
 			}
+
 
 
 			p2FTM->COMBINE |= FTM_COMBINE_SYNCEN0(1);
@@ -420,8 +426,7 @@ void softwareFTMtrigger(FTMmodules id)
 	if(FTM_IS_VALID_MODULE(id))
 	{
 		p2FTM = arrayP2FTM[id];
-		//p2FTM->CONTROLS[ch].CnV = newCnV;
-		p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
+		//p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		p2FTM->SYNC |= FTM_SYNC_SWSYNC(1);
 	}
 
