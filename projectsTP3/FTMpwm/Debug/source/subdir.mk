@@ -6,8 +6,12 @@
 C_SRCS += \
 ../source/ADC.c \
 ../source/App.c \
+../source/CMP.c \
 ../source/DAC.c \
+../source/DMA.c \
+../source/DMAMUX.c \
 ../source/FTM.c \
+../source/PDB.c \
 ../source/PIT.c \
 ../source/SysTick.c \
 ../source/bitStreamQueue.c \
@@ -21,8 +25,12 @@ C_SRCS += \
 OBJS += \
 ./source/ADC.o \
 ./source/App.o \
+./source/CMP.o \
 ./source/DAC.o \
+./source/DMA.o \
+./source/DMAMUX.o \
 ./source/FTM.o \
+./source/PDB.o \
 ./source/PIT.o \
 ./source/SysTick.o \
 ./source/bitStreamQueue.o \
@@ -36,8 +44,12 @@ OBJS += \
 C_DEPS += \
 ./source/ADC.d \
 ./source/App.d \
+./source/CMP.d \
 ./source/DAC.d \
+./source/DMA.d \
+./source/DMAMUX.d \
 ./source/FTM.d \
+./source/PDB.d \
 ./source/PIT.d \
 ./source/SysTick.d \
 ./source/bitStreamQueue.d \

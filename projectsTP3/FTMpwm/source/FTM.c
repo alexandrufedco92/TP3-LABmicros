@@ -159,6 +159,8 @@ void FTMinit(FTMconfig_t * p2config)
 			if(p2config->trigger == FTM_SW_TRIGGER)
 			{
 				p2FTM->SYNCONF |= FTM_SYNCONF_SWWRBUF(1);
+				p2FTM->SYNCONF |= FTM_SYNCONF_SWOM_MASK; //enable mask function
+				p2FTM->SYNC |= (FTM_SYNC_SWSYNC_MASK|FTM_SYNC_CNTMIN_MASK);
 				//p2FTM->SYNCONF |= FTM_SYNCONF_SWRSTCNT(1);
 			}
 			else if(p2config->trigger == FTM_HW_TRIGGER)
@@ -172,7 +174,7 @@ void FTMinit(FTMconfig_t * p2config)
 
 			p2FTM->COMBINE |= FTM_COMBINE_SYNCEN0(1);
 
-			p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
+			//p2FTM->PWMLOAD |= FTM_PWMLOAD_LDOK(1) | FTM_PWMLOAD_CH0SEL(1);
 		}
 		//3)
 		p2FTM->SC &= ~((uint32_t)FTM_SC_CLKS_MASK);
@@ -339,6 +341,12 @@ void getFTMswTriggerREG(FTMmodules id, uint32_t * p2regSWtrigger, uint32_t * mas
 	FTM_Type* p2FTM = arrayP2FTM[id];
 	p2regSWtrigger = &(p2FTM->SYNC);
 	*mask2SWtrigger = p2FTM->SYNC | FTM_SYNC_SWSYNC_MASK;
+}
+
+uint32_t * getCnVadress(FTMmodules id, FTMchannels ch)
+{
+	FTM_Type* p2FTM = arrayP2FTM[id];
+	return &(p2FTM->CONTROLS[ch].CnV);
 }
 
 int shapeFTMDifCaptured2Freq(FTMmodules id, int dif)

@@ -1,0 +1,12 @@
+
+SOBRE FTM (sección de ejemplos de configuración software and hardware trigger para sincronizar pwm):
+https://www.nxp.com/docs/en/application-note/AN5142.pdf?&fsrch=1&sr=1&pageNum=1
+
+ELECCION DE FRECUENCIA DE PWM:
+https://www.allaboutcircuits.com/technical-articles/low-pass-filter-a-pwm-signal-into-an-analog-voltage/
+
+SOBRE DMA, DAC y PWM:
+https://www.nxp.com/docs/en/application-note/AN4369.pdf
+
+SOBRE DMA con DAC y DAC buffer:
+https://hackaday.io/project/12543-solid-state-flow-sensing-using-eis/log/41575-dac-with-dma-and-buffer-on-a-teensy-32

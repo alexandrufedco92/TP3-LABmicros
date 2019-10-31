@@ -17,7 +17,7 @@ bool finished[DMA_CHANNEL_COUNT];
 
 
 
-void clockGating(){
+void clockGatingDMA(){
 	SIM->SCGC7 |= SIM_SCGC7_DMA_MASK;
 }
 
@@ -39,7 +39,7 @@ void initDMA(void){
 	 * 		g. the Control and Status register (DMA_TCDn_CSR) must be setup
 	 *
 	*/
-	clockGating();
+	clockGatingDMA();
 	initDMAMUX();	//clock gating dmamux
 	NVIC_EnableIRQ(DMA0_IRQn);
 	NVIC_EnableIRQ(DMA1_IRQn);

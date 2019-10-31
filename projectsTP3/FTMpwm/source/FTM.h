@@ -91,4 +91,6 @@ void getFTMswTriggerREG(FTMmodules id, uint32_t * p2regSWtrigger, uint32_t * mas
 
 int shapeFTMDifCaptured2Freq(FTMmodules id, int dif);
 
+uint32_t * getCnVadress(FTMmodules id, FTMchannels ch);
+
 #endif /* FTM_H_ */

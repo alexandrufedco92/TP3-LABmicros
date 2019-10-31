@@ -7,6 +7,7 @@
 
 #include "measureFreq.h"
 #include "FTM.h"
+#include "CMP.h"
 #include <stdbool.h>
 
 #define SENSI_DIF 5 //ticks
@@ -33,6 +34,8 @@ void initFreqMeasure(void)
 	measureDataBase.freq = 0;
 	measureDataBase.measuresLost = 0;
 
+	//initCMP(COMP_0);
+
 	FTMconfig_t configInputCapture;
 	configInputCapture.dmaMode = FTM_DMA_DISABLE;
 	configInputCapture.mode = FTM_INPUT_CAPTURE;
@@ -44,6 +47,7 @@ void initFreqMeasure(void)
 	configInputCapture.numOverflows = 0;
 	configInputCapture.prescaler = FTM_PSCX32;
 	configInputCapture.trigger = FTM_SW_TRIGGER;
+	//configInputCapture.trigger = FTM_HW_TRIGGER;
 	configInputCapture.p2callback = measFreqCallback;
 
 	ticksScale = 50000.0/32.0;
@@ -83,7 +87,6 @@ void measFreqCallback(FTMchannels ch)
 			{
 				measureDataBase.freqChanged = false;
 			}
-			i = 0;
 			difAux = dif;
 			if(measureDataBase.newMeasReady)
 			{
@@ -94,7 +97,6 @@ void measFreqCallback(FTMchannels ch)
 				measureDataBase.newMeasReady = true;
 				measureDataBase.measuresLost = 0;
 			}
-
 		}
 	}
 	else //overflow
