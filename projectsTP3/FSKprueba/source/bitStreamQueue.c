@@ -132,3 +132,14 @@ char* GetFrame(void)
 {
 	return signal_frame;
 }
+
+bool pushString(char * string, uint8_t cant){
+	bool success = false;
+	for(uint_8 i = 0;i<cant;i++){
+		success = pushChar(string[i]);
+		if(!success){ /* Failed to push. */
+			return false;
+		}
+	}
+	return true;
+}
