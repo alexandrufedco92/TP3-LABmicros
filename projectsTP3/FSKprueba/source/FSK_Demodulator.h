@@ -12,6 +12,8 @@
 
 #ifndef FSK_DEMODULATOR_H_
 #define FSK_DEMODULATOR_H_
+#define DSP_VERSION			//Uses demodulator with DSP if defined, if commented the demodulator
+							//is implemented via alternate method withouT DSP and ADC.
 
 /**
  * @brief Initializes resources needed for FSK demodulation
@@ -27,7 +29,11 @@ void DemodulatorInit(void);
  * @param result Buffer in which to paste the digital signal values.
  * @return logical symbol of signal or -1 if more samples are needed to finish.
 */
-int8_t DemodulateSignal(float recieved);
+bool DemodulateSignal(float recieved);
+
+bool NeedDemodulation(void);
+
+bool IsDemodulationFinished(void);
 
 
 #endif /* FSK_DEMODULATOR_H_ */

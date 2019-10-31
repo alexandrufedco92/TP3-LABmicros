@@ -33,7 +33,6 @@
 #define IS_MARK_FREQ(f) ( (f >= 1000) && (f <= 1400) )
 #define IS_SPACE_FREQ(f) ( (f >= 2200) && (f <= 2600) )
 
-#define ADC_SAMPLE_PERIOD 83 //Sample time of ADC in microseconds.
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
@@ -66,7 +65,7 @@ char key = MARK_KEY;
 
 void App_Init (void)
 {
-	/*
+
 	uart_cfg_t config;
 	config.baudRate = 9600;
 	config.nBits = 8;
@@ -76,7 +75,6 @@ void App_Init (void)
 	config.mode = NON_BLOCKING_SIMPLE;
 
 	uartInit (U0, config);
-	*/
 
 	if(debugFlag == debugV1)
 	{
@@ -106,8 +104,6 @@ void App_Init (void)
 		ADC_Init( &adc_config);
 		//FSK Demodulator init
 		DemodulatorInit();
-		//Initialize PIT1 as ADC Trigger
-		PITmodifyTimer(1, ADC_SAMPLE_PERIOD);
 
 
 	}
@@ -132,6 +128,18 @@ void App_Init (void)
 
 void App_Run (void)
 {
+
+		 demodFSK();
+		 if(something2send())
+		 {
+		 	 uartWriteMsg(U0, porNextBitstream(), 1);
+		 }
+
+		 if(something2readUART())
+		 {
+		 	 modulateFSK(getLectureUART());
+		 }
+
 	if(debugFlag == debugV2)
 	{
 		//RX
@@ -154,15 +162,14 @@ void App_Run (void)
 	}
 	else if(debugFlag == debugV1)
 	{
-		/*
 		float sample = 0;
-		float digital_symbol = 0;
+		bool digital_symbol = 0;
 		//RX
 		if ( IsConversionFinished() )
 		{
 			sample = ShapeAnalogSample( GetConversionResult());
 			digital_symbol = DemodulateSignal( sample );
-			if( digital_symbol != -1)
+			if( IsDemodulationFinished() )
 			{
 				PushBit(digital_symbol);
 			}
@@ -174,7 +181,7 @@ void App_Run (void)
 		}
 
 		//TX (por ahora se debuggea actualizando con interrupciones)
-		*/
+
 	}
 
 
@@ -218,7 +225,7 @@ void FMcallback(void)
 float  ShapeAnalogSample( ADC_Data_t analog_sample)
 {
 	float sample = 2*analog_sample;
-	return ( analog_sample/( (float)UINT16_MAX )-1 );
+	return ( sample/( (float)UINT16_MAX )-1 );
 }
 
 /*******************************************************************************

@@ -49,7 +49,7 @@ bool isQueueEmpty(void);
  */
 bool popBit(void);
 
-bool PushBit(float);
+bool PushBit(bool);
 
 bool IsFrameReady(void);
 

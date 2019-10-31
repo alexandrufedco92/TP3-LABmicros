@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include "PIT.h"
+#include "DMA.h"
 
 
 #define IS_VALID_ID_WAVEGEN(x)  ((x >= 0) && (x < NUMBER_OF_WAVESGEN))
@@ -132,7 +133,8 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 {
-	FTMconfig_t FTMpwmConfig;
+	FTMconfig_t FTMpwmConfig, FTMpwmTriggerConfig;
+
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
@@ -145,19 +147,32 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmConfig.dmaMode = FTM_DMA_DISABLE;
 	FTMpwmConfig.trigger = FTM_SW_TRIGGER;
 
+	FTMpwmTriggerConfig.mode = FTM_TIMER;
+	FTMpwmTriggerConfig.nModule = FTM1_INDEX;
+	FTMpwmTriggerConfig.nChannel = FTM_CH0;
+	FTMpwmTriggerConfig.countMode = UP_COUNTER;
+	FTMpwmTriggerConfig.prescaler = FTM_PSCX4;
+	FTMpwmTriggerConfig.CnV = 0;
+	FTMpwmTriggerConfig.nTicks = 651;
+	FTMpwmTriggerConfig.numOverflows = 0;
+	FTMpwmTriggerConfig.p2callback = FTMpwmCallback;
+	FTMpwmTriggerConfig.dmaMode = FTM_DMA_ENABLE;
+	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;
+
 	FTMinit(&FTMpwmConfig);
 
 	//disableFTMinterrupts(FTMpwmConfig.nModule);
 
 	//enableFTMinterrupts(FTMpwmConfig.nModule);
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
-								{true,false,false,false}, /* interruptEnable. */
-								{true,false,false,false}, /* timerEnable. */
-								{false,false,false,false}, /* chainMode. */
-								{softwareTriggerFTM,NULL,NULL,NULL} }; /* pitCallbacks. */
 
-	PITinit(&config);
+	/*config_t config = {	{(int)(periodMs*1000.0),0,0,0},
+								{true,false,false,false},
+								{true,false,false,false},
+								{false,false,false,false},
+								{softwareTriggerFTM,NULL,NULL,NULL} };
+
+	PITinit(&config);*/
 
 
 }

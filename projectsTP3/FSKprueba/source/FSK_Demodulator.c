@@ -6,6 +6,7 @@
  */
 
 #include "FSK_Demodulator.h"
+#include "PIT.h"
 #include "gpio.h"	//Solo para Debuggear.
 /***********************************************************
  *					 DEFINES AND MACROS
@@ -14,6 +15,7 @@
 #define FH 2200	//Frequency of a logical '0'
 #define DELAY 0.0004464 //Delay optimo en s
 #define F_SAMPLE 12000 //Sample frecuency of 12KHz
+#define T_SAMPLE_PERIOD 83 //Sample time of ADC in microseconds.
 #define VLOW -0.25
 #define VHIGH 0.25
 #define FIR_ORDER 18
@@ -40,6 +42,7 @@ static float average_aux = 0;		//Average of Comparatpr samples.
 static uint8_t sample_counter = 0;	//Counts number of samples averaged.
 static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
 static bool idle = true;		//Flag that indicates if in idle state
+static bool symbol_detected = false;//Flag that indicates when a digital symbol was detected.
 
 static uint32_t fs; //Sample frequency of the FSK signal
 static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
@@ -68,22 +71,34 @@ float ApplyFIR(void);
  * @param digital_signal
  * @param cant number of samples from analog signal
 */
-int8_t ReconstructSignal(float comp_out);
+bool ReconstructSignal(float comp_out);
 
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  ***********************************************************/
 void DemodulatorInit(void)
 {
+#ifdef DSP_VERSION //DSP_VERSION
 	fs = F_SAMPLE;
 	FSK_signal.curr = -1;
 	PreFiltered_signal.curr = -1;
 
 	prev_samples = (uint8_t)( DELAY*fs);
 	last_sample_value = 1;
+	//Pit initializaion for ADC sampling
+	pit_config_t pit_config;
+	pit_config.timerVal = T_SAMPLE_PERIOD;
+	pit_config.timerNbr = 1;
+	pit_config.chainMode = false;
+	pit_config.pitCallback = NULL;
+	PITinit();
+	PITstartTimer(&pit_config);
+#else	//PWM_VERSION
+#endif
+
 }
 
-int8_t DemodulateSignal(float recieved)
+bool DemodulateSignal(float recieved)
 {
 	float aux = 0;
 	uint16_t aux_index = 0;
@@ -111,6 +126,11 @@ int8_t DemodulateSignal(float recieved)
 	comp_out = ApplyFIR();
 	//Gets bitstream values.
 	return ReconstructSignal(comp_out);
+}
+
+bool IsDemodulationFinished(void)
+{
+	return symbol_detected;
 }
 
 /***********************************************************
@@ -164,8 +184,9 @@ float ApplyFIR(void)
 	return;
 }
 
-int8_t ReconstructSignal(float comp_out)
+bool ReconstructSignal(float comp_out)
 {
+	bool result = false;
 	if(idle)
 	{
 		if( comp_out)
@@ -173,15 +194,19 @@ int8_t ReconstructSignal(float comp_out)
 			if(++sample_counter == AVG_SAMPLES)
 			{
 				sample_counter = 0;
-				return 1;
+				symbol_detected = false;
+			}
+			else
+			{
+				symbol_detected = false;
 			}
 		}
 		else
 		{
 			idle = false;
-			idle_counter = false;
+			idle_counter = 0;
 			sample_counter = 1;
-			return -1;
+			symbol_detected = false;
 		}
 	}
 	else
@@ -197,22 +222,26 @@ int8_t ReconstructSignal(float comp_out)
 				if( (++idle_counter) == IDLE_LIMIT )
 					idle = true;
 				average_aux = 0;
-				return 1;
+				symbol_detected = true;
+				result = true;
 			}
 			else
 			{
 				last_sample_value = 0;
 				idle_counter = 0;
 				average_aux = 0;
-				return 0;
+				symbol_detected = true;
+				result = false;
 			}
 		}
 		else
 		{
-			return -1;
+			symbol_detected = false;
 		}
 
 	}
+
+	return result;
 
 
 }
