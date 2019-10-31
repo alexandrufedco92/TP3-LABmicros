@@ -49,10 +49,10 @@ bool isQueueEmpty(void);
  */
 bool popBit(void);
 
-bool PushBit(bool);
+bool PushBit(char digital_symbol);
 
-bool IsFrameReady(void);
+bool IsFrameReady();
 
-bool GetFrame(bool* buffer);
+char* GetFrame(void);
 
 #endif /* BITSTREAMQUEUE_H_ */
