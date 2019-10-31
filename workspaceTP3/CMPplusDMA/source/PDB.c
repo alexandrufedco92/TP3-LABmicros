@@ -11,8 +11,9 @@
 #define PDB_PRESCALER_DEF 			0
 #define PDB_DIV_MULT_DEF			0
 #define PDB_TRIG_INPUT_DEF			15
-#define PDB_DELAY_VALUE_DEF			1000U
-#define PDB_MOD_VALUE_DEF 			1000U
+//#define PDB_MOD_VALUE_DEF 			1000U
+#define PDB_MOD_VALUE_DEF 			(int)(50000000U/PDB_FREQ_SAMPLE)
+#define PDB_DELAY_VALUE_DEF			PDB_MOD_VALUE_DEF
 #define PDB_DAC_INTERVAL_VALUE_DEF 	800U
 #define PDB_DAC_CH_DEF				0
 
@@ -60,7 +61,7 @@ void getPDBdefaultConfig(pdb_config_t* conf){
 	conf->prescaler_div = PDB_PRESCALER_DEF;
 	conf->divider_mult_factor = PDB_DIV_MULT_DEF;
 	conf->trigger_input_source = PDB_TRIG_INPUT_DEF;//software trigger
-	conf->continuous_mode = true;	//todo cambiar esto a continuo??
+	conf->continuous_mode = true;	//todo cambiar esto true??
 	conf->modulus_value = PDB_MOD_VALUE_DEF;
 	conf->delay_value = PDB_DELAY_VALUE_DEF;
 }

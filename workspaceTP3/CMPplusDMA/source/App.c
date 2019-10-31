@@ -46,6 +46,7 @@ uint16_t destinationBuffer[2] = {0x0000,0x0000};
 uint16_t origin = 0x0001;
 
 dma_transfer_conf_t conf;
+
 pdb_config_t pdb_conf;
 pdb_dac_config_t pdb_dac_conf;
 
