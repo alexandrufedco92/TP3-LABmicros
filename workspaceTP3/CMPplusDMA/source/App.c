@@ -15,6 +15,7 @@
 #include "CMP.h"
 #include "DMA.h"
 #include "PIT.h"
+#include "PDB.h"
 #include "timer.h"
 #include <math.h>
 
@@ -26,7 +27,7 @@
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
-void senoidalCallback(void);
+
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -34,46 +35,56 @@ void senoidalCallback(void);
  ******************************************************************************/
 
 /* Función que se llama 1 vez, al comienzo del programa */
+#define DMA_WAVEGEN_CH 2
+#define DMA_FTM1_CH0 28
+#define DMA_EXAMPLE 2
 
 uint16_t sourceBuffer[16] = {0x1234,0x6789,0x1122,0x2233,0x5588,0x2345,0x3145,0x8172,0x6183,0x3756, 0x1234,0x6789,0x1122,0x2233,0x5588,0x2345};
 uint16_t destiny;
 
-uint16_t destinationBuffer[10] = {0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000,0x0000};
+uint16_t destinationBuffer[2] = {0x0000,0x0000};
 uint16_t origin = 0x0001;
 
 dma_transfer_conf_t conf;
+pdb_config_t pdb_conf;
+pdb_dac_config_t pdb_dac_conf;
 
-void dummy(void){
-	int dummy = 0;
-	dummy++;
+void queti(void){
+	origin++;
 }
-#define DMA_WAVEGEN_CH 0
-#define DMA_FTM1_CH0 28
+
+
+
 
 void App_Init (void)
 {
 	initCMP(CMP_0);
 	initDMA();
+	getPDBdefaultConfig(&pdb_conf);
+	initPDB(&pdb_conf);
+	getPDBforDACdefaultConfig(&pdb_dac_conf);
+	initPDBdac(&pdb_dac_conf);
+	PDBsoftwareTrigger();
 
 //	config_t pit_conf;
-//	pit_conf.chainMode[DMA_WAVEGEN_CH] = false;
+//	pit_conf.chainMode[DMA_EXAMPLE] = false;
 //	pit_conf.interruptEnable[DMA_EXAMPLE] = true;
-//	pit_conf.pitCallbacks[DMA_EXAMPLE] = &dummy;
-//	pit_conf.timerVal[DMA_EXAMPLE] = 1000;
+//	pit_conf.pitCallbacks[DMA_EXAMPLE] = &queti;
+//	pit_conf.timerVal[DMA_EXAMPLE] = 100;
 //	pit_conf.timerEnable[DMA_EXAMPLE] = true;
+//
+////	//memory to peripheral ejemplo
+//	configureDMAMUX(DMA_EXAMPLE, 60, true);
+//	conf.source_address = (uint32_t)sourceBuffer;
+//	conf.dest_address = (uint32_t)&destiny;
+//	conf.offset = 0x02;
+//	conf.transf_size = BITS_16;
+//	conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
+//	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
+//	conf.mode = MEM_2_PERIPHERAL;
+//	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
 
-//	//memory to peripheral ejemplo!!
-	configureDMAMUX(DMA_WAVEGEN_CH, DMA_FTM1_CH0, false);
-	conf.source_address = (uint32_t)sourceBuffer;
-	conf.dest_address = (uint32_t)&destiny;
-	conf.offset = 0x02;
-	conf.transf_size = BITS_16;
-	conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
-	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
-	conf.mode = MEM_2_PERIPHERAL;
-	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);
-
-	//peripheral to memory ejemplo!!
+	//peripheral to memory ejemplo
 //	configureDMAMUX(DMA_EXAMPLE, 60, true);
 //	conf.source_address = (uint32_t)&origin;
 //	conf.dest_address = (uint32_t)destinationBuffer;
@@ -90,7 +101,7 @@ void App_Init (void)
 
 void App_Run (void)
 {
-	bool dummy1 = false;
+	bool dummy1;
 	if(isDMAnTransferDone(2))
 		 dummy1 = true;
 	/* Main program to generate a sinusoidal signal with de DAC, controlling the frequency

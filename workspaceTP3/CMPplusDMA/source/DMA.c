@@ -63,7 +63,7 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
 	uint32_t nbytes = config->bytes_per_request;
 	DMA0->TCD[id].NBYTES_MLNO = nbytes;
 
-	uint32_t citer = config->total_bytes/config->bytes_per_request;
+	uint32_t citer = (uint32_t)config->total_bytes/config->bytes_per_request;
 	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(citer);
 	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(citer);
 
@@ -71,13 +71,13 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
 	{
 		DMA0->TCD[id].SOFF = 0x00;
 		DMA0->TCD[id].DOFF = config->offset;
-		DMA0->TCD[id].SLAST = 0x00;
+		DMA0->TCD[id].SLAST = (uint32_t)0x00;
 		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
 	}
-	if(config->mode == MEM_2_PERIPHERAL)		//memory to peripheral
+	else if(config->mode == MEM_2_PERIPHERAL)		//memory to peripheral
 	{
 		DMA0->TCD[id].SLAST = -citer*nbytes;
-		DMA0->TCD[id].DLAST_SGA = 0x00;
+		DMA0->TCD[id].DLAST_SGA = (uint32_t)0x00;
 		DMA0->TCD[id].SOFF = config->offset;
 		DMA0->TCD[id].DOFF = 0x00;
 	}
