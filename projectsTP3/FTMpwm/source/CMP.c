@@ -11,7 +11,7 @@
 
 #define CMP_ANALOG_IN 1U // PTC7, CMP0_IN1				//PTC3, CMP1_IN1
 #define CMP_ANALOG_REF 7U	//elijo dac
-#define HYST_MASK 0U
+#define HYST_MASK 3U
 #define DAC_VALUE 31U
 #define VREF_SOURCE_VINX 0U
 
