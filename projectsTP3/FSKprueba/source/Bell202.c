@@ -9,7 +9,8 @@
  *  				HEADERS INCLUDED
  ************************************************************/
 #include "Bell202.h"
-#include "comController2pc.h"
+#include "uart.h"
+#include "bitStreamQueue.h"
 #include "FSK_Modulator.h"
 #include "FSK_Demodulator.h"
 #include "ADC.h"
@@ -17,6 +18,8 @@
  * 					DEFINES AND MACROS
  *************************************************************/
 #define FRAME_SIZE 11
+#define MAX_RECIEVED_SIZE 20
+#define DATA_SIZE 8
 
 /***********************************************************
  * 				LOCAL FUNCTION DECLARATIONS
@@ -41,30 +44,35 @@ void ModemInit( void)
 	config.txWaterMark = 2;
 	config.mode = NON_BLOCKING_SIMPLE;
 
-	uartInit (U0, config);
+	uartInit (U0, config);			//Initializes UART module
+	bitStreamQueueInit();			//Initializes data queues
 	ModulatorInit();				//Initializes FSK modulator
 	DemodulatorInit();				//Initializes FSK demodulator
 }
 
 void ModemRun(void)
 {
-	bool digital_symbol = true;
-	char recieved[FRAME_SIZE];
+	char recieved[MAX_RECIEVED_SIZE];
+	uint8_t cant_recieved = 0;	//Recieved bytes from UART.
+	char* msg2send = 0;
 
 	//FSK demodulation
 	if( NeedDemodulation() ) //Checks for sample
 	{
-		digital_symbol = DemodulateSignal(); //Starts Demodulation
-		if( IsDemodulationFinished() )
+		DemodulateSignal(); //Starts Demodulation
+		if( IsFrameReady() )
 		{
-			sendMessage2pc( GetFrameMsg(), FRAME_SIZE); //Send Frame to next station.
+			msg2send = GetFrame();
+			++msg2send;								//Skip start bit from frame
+			uartWriteMsg(U0, msg2send , DATA_SIZE); //Sends data frame
 		}
 	}
 	//FSK modulation
-	if( isMsg() )
+	cant_recieved = uartIsRxMsg(U0);
+	if( cant_recieved )
 	{
-		recieveMessageFromPC(recieved, FRAME_SIZE);
-		ModulateFSK( recieved ); //Chequear que parametro mandar aca
+		uartReadMsg(U0, recieved, cant_recieved );
+		pushString(recieved, cant_recieved);
 	}
 }
 

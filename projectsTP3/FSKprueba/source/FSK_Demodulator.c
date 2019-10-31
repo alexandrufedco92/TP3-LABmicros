@@ -8,6 +8,7 @@
 #include "FSK_Demodulator.h"
 #include "PIT.h"
 #include "ADC.h"
+#include "bitStreamQueue.h"
 
 /***********************************************************
  *					 DEFINES AND MACROS
@@ -72,7 +73,7 @@ float ApplyFIR(void);
  * @param digital_signal
  * @param cant number of samples from analog signal
 */
-bool ReconstructSignal(float comp_out);
+void ReconstructSignal(float comp_out);
 
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
@@ -93,7 +94,7 @@ void DemodulatorInit(void)
 
 }
 
-bool DemodulateSignal(float recieved)
+void DemodulateSignal(float recieved)
 {
 #ifdef DSP_VERSION
 	float aux = 0;
@@ -121,7 +122,7 @@ bool DemodulateSignal(float recieved)
 	//Update result
 	comp_out = ApplyFIR();
 	//Gets bitstream values.
-	return ReconstructSignal(comp_out);
+	ReconstructSignal(comp_out);
 #else
 #endif
 
@@ -196,9 +197,8 @@ float ApplyFIR(void)
 	return;
 }
 
-bool ReconstructSignal(float comp_out)
+void ReconstructSignal(float comp_out)
 {
-	bool result = false;
 	if(idle)
 	{
 		if( comp_out)
@@ -235,7 +235,7 @@ bool ReconstructSignal(float comp_out)
 					idle = true;
 				average_aux = 0;
 				symbol_detected = true;
-				result = true;
+				PushBit(true); //Adds a '1' to the frame.
 			}
 			else
 			{
@@ -243,7 +243,7 @@ bool ReconstructSignal(float comp_out)
 				idle_counter = 0;
 				average_aux = 0;
 				symbol_detected = true;
-				result = false;
+				PushBit(false); //Adds a '0' to the frame.
 			}
 		}
 		else
@@ -252,9 +252,6 @@ bool ReconstructSignal(float comp_out)
 		}
 
 	}
-
-	return result;
-
 
 }
 
@@ -275,12 +272,5 @@ void InitializeHardware(void)
 	adc_config.trigger = HARDWARE_TRIGGER;
 	adc_config.voltage_reference = DEFAULT;
 	ADC_Init( &adc_config);
-	//Pit initializaion for ADC sampling
-	pit_config_t pit_config;
-	pit_config.timerVal = T_SAMPLE_PERIOD;
-	pit_config.timerNbr = 1;
-	pit_config.chainMode = false;
-	pit_config.pitCallback = NULL;
-	PITinit();
-	PITstartTimer(&pit_config);
+
 }

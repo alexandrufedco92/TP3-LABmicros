@@ -89,7 +89,7 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
 		DMA0->TCD[id].DOFF = config->offset;
 	}
 
-
+	//todo borrar esta linea
 	DMA0->TCD[id].CSR = DMA_CSR_INTMAJOR_MASK;		//enable major interrupt
 
 	switch (id)
