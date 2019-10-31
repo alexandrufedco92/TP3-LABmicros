@@ -68,9 +68,10 @@ void FTMinit(FTMconfig_t * p2config)
 		if(p2config->mode == FTM_TIMER)
 		{
 			setFTMtimer(p2config->nModule, p2config->countMode, (uint16_t)(p2config->nTicks), p2config->p2callback);
-			p2FTM->EXTTRIG |= FTM_EXTTRIG_CH0TRIG(1);
+			p2FTM->EXTTRIG |= FTM_EXTTRIG_CH1TRIG(1) | FTM_EXTTRIG_INITTRIGEN(1);
 			SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
 			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
+			p2FTM->SC |=FTM_SC_TOIE(1);
 			NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
 			//p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
 
@@ -84,9 +85,12 @@ void FTMinit(FTMconfig_t * p2config)
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC &= (~FTM_CnSC_MSA_MASK) & (~FTM_CnSC_MSB_MASK);
 			(p2FTM->CONTROLS[FTM_CH0]).CnSC |= FTM_CnSC_MSB(0) | FTM_CnSC_MSA(1);
 			p2FTM->COMBINE &= (~FTM_COMBINE_COMP0_MASK) & (~FTM_COMBINE_DECAPEN0_MASK);
-			p2FTM->SC |=FTM_SC_TOIE(1);
+			p2FTM->EXTTRIG |= FTM_EXTTRIG_CH1TRIG(1);
+
 			p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_CHIE(1);
-			NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
+			//p2FTM->SC |=FTM_SC_TOIE(1);
+			//NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
+
 
 		}
 		else if(p2config->mode == FTM_INPUT_CAPTURE)
@@ -171,8 +175,13 @@ void FTMinit(FTMconfig_t * p2config)
 			else if(p2config->trigger == FTM_HW_TRIGGER)
 			{
 				p2FTM->MODE &= ~FTM_MODE_PWMSYNC_MASK;
-				p2FTM->SYNCONF |= FTM_SYNCONF_HWWRBUF(1);
-				p2FTM->SYNCONF |= FTM_SYNCONF_HWRSTCNT(1);
+				p2FTM->FMS &= ~FTM_FMS_WPEN_MASK;
+				p2FTM->MODE &= ~FTM_MODE_PWMSYNC_MASK;
+				p2FTM->MODE |= FTM_MODE_INIT(1) | FTM_MODE_WPDIS(1) | FTM_MODE_FTMEN(1);
+				p2FTM->SYNCONF |= FTM_SYNCONF_HWWRBUF(1) | FTM_SYNCONF_HWSOC(1);
+				p2FTM->SYNCONF |= FTM_SYNCONF_SWOM_MASK; //enable mask function
+				p2FTM->SYNCONF &= ~FTM_SYNCONF_HWRSTCNT_MASK;
+				//p2FTM->SYNCONF |= FTM_SYNCONF_HWRSTCNT(1);
 				p2FTM->SYNC |= FTM_SYNC_TRIG0(1);
 			}
 
@@ -382,9 +391,9 @@ void enablePinFTM(FTMmodules id, FTMchannels ch)  //This function has to be enha
 	{
 		setPCRmux(PORTB, 18, 3);
 	}
-	else if((id == FTM1_INDEX) && (ch == FTM_CH0))
+	else if((id == FTM1_INDEX) && (ch == FTM_CH1))
 	{
-		setPCRmux(PORTA, 12, 3);
+		setPCRmux(PORTB, 1, 3);
 	}
 }
 

@@ -13,6 +13,7 @@
 #include <math.h>
 #include "PIT.h"
 #include "DMA.h"
+#include "MK64F12.h"
 
 
 #define IS_VALID_ID_WAVEGEN(x)  ((x >= 0) && (x < NUMBER_OF_WAVESGEN))
@@ -136,14 +137,7 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMconfig_t FTMpwmConfig, FTMpwmTriggerConfig;
 	dma_transfer_conf_t conf;
 
-	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),(int)(periodMs*1000.0) ,0,0}, /* timerVal. */
-								{false,true,false,false}, /* interruptEnable. */
-								{true,true,false,false}, /* timerEnable. */
-								{false,false,false,false}, /* chainMode. */
-								{NULL,softwareTriggerFTM,NULL,NULL} }; /* pitCallbacks. */
 
-	PITinit(&config);
 
 
 	/*initDMA();
@@ -157,7 +151,7 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	conf.mode = MEM_2_PERIPHERAL;
 
 	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);*/
-
+	SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
@@ -170,20 +164,21 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmConfig.dmaMode = FTM_DMA_DISABLE;
 	FTMpwmConfig.trigger = FTM_SW_TRIGGER;
 
-	/*FTMpwmTriggerConfig.mode = FTM_TIMER;
+	/*FTMpwmTriggerConfig.mode = FTM_OUTPUT_COMPARE;
 	FTMpwmTriggerConfig.nModule = FTM1_INDEX;
-	FTMpwmTriggerConfig.nChannel = FTM_CH0;
+	FTMpwmTriggerConfig.nChannel = FTM_CH1;
 	FTMpwmTriggerConfig.countMode = UP_COUNTER;
 	FTMpwmTriggerConfig.prescaler = FTM_PSCX4;
-	FTMpwmTriggerConfig.CnV = 651 - 1;
-	FTMpwmTriggerConfig.nTicks = 651;
+	FTMpwmTriggerConfig.CnV = 200;
+	FTMpwmTriggerConfig.nTicks = 201;
 	FTMpwmTriggerConfig.numOverflows = 0;
 	FTMpwmTriggerConfig.p2callback = FTMpwmCallback;
 	FTMpwmTriggerConfig.dmaMode = FTM_DMA_ENABLE;
-	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;
+	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;*/
 
-	FTMinit(&FTMpwmTriggerConfig);*/
 	FTMinit(&FTMpwmConfig);
+	FTMinit(&FTMpwmTriggerConfig);
+
 
 
 
@@ -193,14 +188,14 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 	//enableFTMinterrupts(FTMpwmConfig.nModule);
 	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-
-	/*config_t config = {	{(int)(periodMs*1000.0),0,0,0},
+	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
+	config_t config = {	{(int)(periodMs*1000.0),0,0,0},
 								{true,false,false,false},
 								{true,false,false,false},
 								{false,false,false,false},
 								{softwareTriggerFTM,NULL,NULL,NULL} };
 
-	PITinit(&config);*/
+	PITinit(&config);
 
 
 }
@@ -253,7 +248,7 @@ void softwareTriggerFTM(void)
 	}
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(1, wavesArray[WAVE0_WAVEGEN].periodSignal);
+		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
