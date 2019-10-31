@@ -33,22 +33,28 @@ void ModulatorInit(void);
 
 void ModemInit( void)
 {
-	initResourcesController2pc(); 	//Initializes Communication with PC.
+	uart_cfg_t config;
+	config.baudRate = 9600;
+	config.nBits = 8;
+	config.parity = NO_PARITY_UART;
+	config.rxWaterMark = 5;
+	config.txWaterMark = 2;
+	config.mode = NON_BLOCKING_SIMPLE;
+
+	uartInit (U0, config);
 	ModulatorInit();				//Initializes FSK modulator
 	DemodulatorInit();				//Initializes FSK demodulator
 }
 
 void ModemRun(void)
 {
-	float sample = 0;
 	bool digital_symbol = true;
 	char recieved[FRAME_SIZE];
 
 	//FSK demodulation
 	if( NeedDemodulation() ) //Checks for sample
 	{
-		sample = GetConversionResult(); //ACA directamente pongo  el shape
-		digital_symbol = DemodulateSignal( sample ); //Demodulates sample
+		digital_symbol = DemodulateSignal(); //Starts Demodulation
 		if( IsDemodulationFinished() )
 		{
 			sendMessage2pc( GetFrameMsg(), FRAME_SIZE); //Send Frame to next station.
@@ -58,7 +64,7 @@ void ModemRun(void)
 	if( isMsg() )
 	{
 		recieveMessageFromPC(recieved, FRAME_SIZE);
-		ModulateFSK( ); //Chequear que parametro mandar aca
+		ModulateFSK( recieved ); //Chequear que parametro mandar aca
 	}
 }
 
