@@ -31,7 +31,6 @@ static callback func;
 
 bool SetChannelADC(ADC_Channel_t ch, bool diff, bool in_en);
 void InitializeHardwareTrigger(void);
-void PIT_Debug(void);
 
 /*********************************************************
  * 					HEADER FUNCTIONS

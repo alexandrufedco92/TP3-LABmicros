@@ -36,15 +36,17 @@ void ModulatorInit(void);
 
 void ModemInit( void)
 {
+
 	uart_cfg_t config;
-	config.baudRate = 9600;
+	config.baudRate = 1200;
 	config.nBits = 8;
-	config.parity = NO_PARITY_UART;
+	config.parity = EVEN_PARITY_UART;
 	config.rxWaterMark = 5;
 	config.txWaterMark = 2;
 	config.mode = NON_BLOCKING_SIMPLE;
 
 	uartInit (U0, config);			//Initializes UART module
+
 	bitStreamQueueInit();			//Initializes data queues
 	DemodulatorInit();				//Initializes FSK demodulator
 	ModulatorInit();				//Initializes FSK modulator
@@ -54,7 +56,7 @@ void ModemRun(void)
 {
 	char recieved[MAX_RECIEVED_SIZE];
 	uint8_t cant_recieved = 0;	//Recieved bytes from UART.
-	char* msg2send = 0;
+	char msg2send = 0;
 
 	//FSK demodulation
 	if( NeedDemodulation() ) //Checks for sample
@@ -64,11 +66,11 @@ void ModemRun(void)
 		{
 
 			msg2send = GetFrame();
-			++msg2send;								//Skip start bit from frame
-			uartWriteMsg(U0, msg2send , DATA_SIZE); //Sends data frame
+			uartWriteMsg(U0, &msg2send , 1); //Sends data frame
 
 		}
 	}
+
 	//FSK modulation
 
 	cant_recieved = uartIsRxMsg(U0);

@@ -233,6 +233,9 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1284265667.1683578036" name="Bell202.c" rcbsApplicability="disable" resourcePath="source/Bell202.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.1546198014.31800196">
+						<tool id="com.crt.advproject.gcc.exe.debug.1546198014.31800196" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.1546198014"/>
+					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="SDK"/>
 						<entry flags="LOCAL|VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="source"/>

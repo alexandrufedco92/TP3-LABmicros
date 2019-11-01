@@ -23,6 +23,7 @@ typedef struct{
 	WAVEGENfreq freq;
 	int periodSignal;
 	_Bool freqChangeRequest;
+	WAVEGENmode modeSignal;
 }waveGen_t;
 
 waveGen_t wavesArray[NUMBER_OF_WAVESGEN];
@@ -61,6 +62,7 @@ void initWaveGen(WaveGenConfig_t * p2config)
 				pwmSinWaveGen(p2config->id, p2config->freq);
 				senoidalInit(PWM_WAVEGEN);
 			}
+			wavesArray[p2config->id].modeSignal = p2config->mode;
 
 		}
 	}
@@ -74,6 +76,14 @@ void updateWaveFreq(WAVEGENid id, WAVEGENfreq newFreq)
 		wavesArray[id].freqChangeRequest = true;
 		wavesArray[id].freq = newFreq;
 		wavesArray[id].periodSignal = (int)(1000.0*(1000.0/((float)(newFreq*N_SAMPLES))));
+		if(wavesArray[id].modeSignal == SAMPLES_WAVEGEN)
+		{
+			PDBchangeFrequency(newFreq*N_SAMPLES);
+		}
+		else if(wavesArray[id].modeSignal == PWM_WAVEGEN)
+		{
+
+		}
 	}
 
 }
@@ -135,14 +145,14 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 	DACinit(DAC0_ID, &DACconfig);
 
-	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
-							{true,false,false,false}, /* interruptEnable. */
-							{true,false,false,false}, /* timerEnable. */
-							{false,false,false,false}, /* chainMode. */
-							{softwareTriggerDAC,NULL,NULL,NULL} }; /* pitCallbacks. */
+	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
+	/*config_t config = {	{(int)(periodMs*1000.0),0,0,0},
+							{true,false,false,false},
+							{true,false,false,false},
+							{false,false,false,false},
+							{softwareTriggerDAC,NULL,NULL,NULL} }; */
 
-	PITinit(&config);
+	//PITinit(&config);
 }
 
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)

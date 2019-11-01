@@ -21,6 +21,8 @@
 static void clockGating(void);
 static void setModulusValue(uint32_t);
 static void setCounterDelayValue(uint32_t);
+pdb_config_t pdb_conf_def;
+pdb_dac_config_t pdb_dac_conf_def;
 
 void initPDB(pdb_config_t* conf){
 
@@ -45,12 +47,17 @@ void initPDB(pdb_config_t* conf){
 	PDB0->SC |= PDB_SC_LDOK_MASK;
 }
 
-void PDBchangeFrequency(uint32_t value){
-	setModulusValue((uint32_t)(BUS_CLOCK/value-1));
-	setCounterDelayValue((uint32_t)(BUS_CLOCK/value-1));
+void PDBchangeFrequency(uint32_t new_freq){
+	uint32_t value = BUS_CLOCK/new_freq-1;
+	pdb_conf_def.modulus_value = value;
+	pdb_conf_def.delay_value = value;
+
+	PDB0->DAC[pdb_dac_conf_def.channel].INT = PDB_INT_INT(value);
+
+	setModulusValue((uint32_t)(value));
+	setCounterDelayValue((uint32_t)(value));
 	PDBsoftwareTrigger();
 }
-
 
 void setModulusValue(uint32_t value){
 	PDB0->MOD = PDB_MOD_MOD(value);
@@ -72,12 +79,15 @@ void getPDBdefaultConfig(pdb_config_t* conf){
 	conf->continuous_mode = true;
 	conf->modulus_value = PDB_MOD_VALUE_DEF;
 	conf->delay_value = PDB_DELAY_VALUE_DEF;
+	pdb_conf_def = *conf;
 }
+
 void getPDBforDACdefaultConfig(pdb_dac_config_t* conf){
 	conf->channel = PDB_DAC_CH_DEF;
 	conf->external_trig_input = false;
 	conf->interval_trigger = true;
 	conf->interval_value = PDB_DAC_INTERVAL_VALUE_DEF;
+	pdb_dac_conf_def = *conf;
 }
 
 void initPDBdac(pdb_dac_config_t* conf){
