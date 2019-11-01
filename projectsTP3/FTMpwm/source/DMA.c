@@ -14,7 +14,7 @@
 
 #define NULL 0
 static dmaFun_t dmaFuns[4];
-
+static bool dma_initialized = false;
 
 
 void clockGatingDMA(){
@@ -39,13 +39,17 @@ void initDMA(void){
 	 * 		g. the Control and Status register (DMA_TCDn_CSR) must be setup
 	 *
 	*/
-	clockGatingDMA();
-	initDMAMUX();	//clock gating dmamux
-	NVIC_EnableIRQ(DMA0_IRQn);
-	NVIC_EnableIRQ(DMA1_IRQn);
-	NVIC_EnableIRQ(DMA2_IRQn);
-	NVIC_EnableIRQ(DMA3_IRQn);
-//	NVIC_EnableIRQ(DMA_Error_IRQn);
+	if(!dma_initialized)
+	{
+		clockGatingDMA();
+		initDMAMUX();	//clock gating dmamux
+		NVIC_EnableIRQ(DMA0_IRQn);
+		NVIC_EnableIRQ(DMA1_IRQn);
+		NVIC_EnableIRQ(DMA2_IRQn);
+		NVIC_EnableIRQ(DMA3_IRQn);
+	//	NVIC_EnableIRQ(DMA_Error_IRQn);
+		dma_initialized = true;
+	}
 }
 
 
