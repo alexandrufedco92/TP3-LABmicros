@@ -41,7 +41,9 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq);
 void FTMpwmCallback(FTMchannels ch);
 void softwareTriggerFTM(void);
 
+void callbackInitTrigger(void);
 
+int periodGlobal;
 
 void initWaveGen(WaveGenConfig_t * p2config)
 {
@@ -146,21 +148,12 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	PDBsoftwareTrigger();
 
 	DACinit(DAC0_ID, &DACconfig);
-
-	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	/*config_t config = {	{(int)(periodMs*1000.0),0,0,0},
-							{true,false,false,false},
-							{true,false,false,false},
-							{false,false,false,false},
-							{softwareTriggerDAC,NULL,NULL,NULL} }; */
-
-	//PITinit(&config);
 }
 
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 {
 	FTMconfig_t FTMpwmConfig, FTMpwmTriggerConfig;
-	dma_transfer_conf_t conf, confTrigger;
+	/*dma_transfer_conf_t conf, confTrigger;
 
 
 
@@ -191,9 +184,12 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	confTrigger.periodic_trigger = false;
 	confTrigger.request_source = 60;
 
-	DMAPrepareTransferELINKYES(&conf);
-	DMAPrepareTransferELINKNO(&confTrigger);
+	DMAPrepareTransferELINKNO(&conf);
+	//DMAPrepareTransferELINKNO(&confTrigger);
 	//SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
+	 *
+	 *
+	 */
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
@@ -219,7 +215,7 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;*/
 
 	FTMinit(&FTMpwmConfig);
-	FTMinit(&FTMpwmTriggerConfig);
+	//FTMinit(&FTMpwmTriggerConfig);
 
 
 
@@ -232,13 +228,22 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
 	int periodSampleUs = (int)(periodMs*1000.0);
-	config_t config = {	{periodSampleUs, periodSampleUs,0,0},
-								{false,false,false,false},
-								{true,true,false,false},
-								{false,false,false,false},
-								{NULL,NULL,NULL,NULL} };
+	//periodGlobal = periodSampleUs;
+	PITinit();
+	pit_config_t configP0 = { 	periodSampleUs, 		/* Value of timer in us. */
+									0, 				/* Number of PIT timer. */
+									false,  		/* True if timer in Chain Mode. */
+								softwareTriggerFTM		 	/* Callback for interrupt. NULL if interrupt is disabled. */
+								};
+	//pit_config_t configP1 = { 	periodSampleUs/3, 		/* Value of timer in us. */
+						//				1, 				/* Number of PIT timer. */
+							//			false,  		/* True if timer in Chain Mode. */
+								//		callbackInitTrigger		 	/* Callback for interrupt. NULL if interrupt is disabled. */
+									//};
+	PITstartTimer(&configP0);
+	//PITstartTimer(&configP1);
 
-	PITinit(&config);
+
 
 
 }
@@ -283,7 +288,7 @@ void softwareTriggerDAC(void)
 void softwareTriggerFTM(void)
 {
 	static int i = 0;
-	//updateCnV(FTM0_INDEX, FTM_CH0, pwmSenLUT[i]);
+	updateCnV(FTM0_INDEX, FTM_CH0, pwmSenLUT[i]);
 	softwareFTMtrigger(FTM0_INDEX);
 	i++;
 	if(i == N_SAMPLES)
@@ -292,8 +297,8 @@ void softwareTriggerFTM(void)
 	}
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal/2);
-		PITmodifyTimer(DMA_WAVEGEN_CH, wavesArray[WAVE0_WAVEGEN].periodSignal);
+		//PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal/2);
+		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
@@ -315,4 +320,16 @@ void FTMpwmCallback(FTMchannels ch)
 			counter = 0;
 		}
 	}
+}
+void callbackInitTrigger(void)
+{
+
+	pit_config_t configP1 = { 	periodGlobal, 		/* Value of timer in us. */
+											1, 				/* Number of PIT timer. */
+											false,  		/* True if timer in Chain Mode. */
+											softwareTriggerFTM	 	/* Callback for interrupt. NULL if interrupt is disabled. */
+							};
+	PITstopTimer(1);
+	PITstartTimer(&configP1);
+
 }
