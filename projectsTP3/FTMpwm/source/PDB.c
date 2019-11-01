@@ -7,15 +7,16 @@
 #include "MK64F12.h"
 #include "PDB.h"
 
+
+#define BUS_CLOCK 					50000000U
 #define	PDB_LOAD_VALUE_DEF			0
 #define PDB_PRESCALER_DEF 			0
 #define PDB_DIV_MULT_DEF			0
 #define PDB_TRIG_INPUT_DEF			4U
 #define PDB_DELAY_VALUE_DEF			1000U
 #define PDB_MOD_VALUE_DEF 			1000U
-#define PDB_DAC_INTERVAL_VALUE_DEF 	800U
+#define PDB_DAC_INTERVAL_VALUE_DEF 	BUS_CLOCK/
 #define PDB_DAC_CH_DEF				0
-#define BUS_CLOCK 					50000000U
 
 static void clockGating(void);
 static void setModulusValue(uint32_t);
@@ -90,4 +91,5 @@ void initPDBdac(pdb_dac_config_t* conf){
 
 void PDBsoftwareTrigger(void){
 	PDB0->SC |= PDB_SC_SWTRIG_MASK;
+	PDB0->SC |= PDB_SC_LDOK_MASK;
 }
