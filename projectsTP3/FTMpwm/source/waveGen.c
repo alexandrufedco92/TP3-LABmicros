@@ -247,6 +247,7 @@ void DACcallback(DACev ev)
 
 void softwareTriggerDAC(void)
 {
+	//PDBsoftwareTrigger();
 	updateSoftwareTrigger(DAC0_ID);
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
