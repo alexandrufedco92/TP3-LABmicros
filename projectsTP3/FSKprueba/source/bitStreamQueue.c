@@ -22,6 +22,8 @@
 #define MSB_IDX	7
 /* Index for least significant bit in char. */
 #define LSB_IDX	0
+/* Unit what index get bits from frame. */
+#define CHAR_CANT	8
 
 
 /*******************************************************************************
@@ -134,11 +136,27 @@ bool IsFrameReady(void)
 	return frame_ready;
 }
 
-char* GetFrame(void)
+char GetFrame(void)
 {
 	frame_ready = false;
 	frame_index = 0;
-	return signal_frame;
+	char finalByte = 0x0; /* Where to store char to send. */
+	char value = 0x0;
+
+	for(int i = 0; i<CHAR_CANT; i++){
+		int index = FRAME_SIZE - (i+2);
+		char mask = ~(0x1 <<  i); /* example when i = 3: 11011111 */
+		if(signal_frame[index] == '1'){
+			value = 0x1;
+		}
+		else if(signal_frame[index] == '0'){
+			value = 0x0;
+		}
+		char bit = value << i; /* example when i = 3: 00x00000 */
+		finalByte = (finalByte & mask) | bit; /* example when i = 3: abxdefgh */
+	}
+
+	return finalByte;
 }
 
 bool pushString(char * string, uint8_t cant){

@@ -61,6 +61,6 @@ bool PushBit(char digital_symbol);
 
 bool IsFrameReady();
 
-char* GetFrame(void);
+char GetFrame(void);
 
 #endif /* BITSTREAMQUEUE_H_ */
