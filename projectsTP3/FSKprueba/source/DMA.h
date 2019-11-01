@@ -61,13 +61,10 @@ typedef struct{
 */
 void initDMA(void);
 
-/**
- * @brief
- * @param
- * @return
-*/
+//carga los registros para una transferencia sin channel linking
 void DMAPrepareTransferELINKNO(dma_transfer_conf_t* config);
 
+//carga los registros para una transferencia CON channel linking
 void DMAPrepareTransferELINKYES(dma_transfer_conf_t* config);
 
 

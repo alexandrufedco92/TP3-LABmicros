@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 typedef enum {CMP_0, CMP_1, CMP_COUNT}cmps_ids;
-enum{CMP_FLAG_RISING, CMP_FLAG_FALLING, CMP_OUTPUT_EVENT};
+
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE

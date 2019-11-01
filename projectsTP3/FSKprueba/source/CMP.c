@@ -42,7 +42,7 @@ void initCMP(cmps_ids id){
 	clockGating();
 	configurePins(id);		//solo CMP0
 
-	//todo debug para que la salida salga por el pin
+	//para que la salida salga por el pin
 	base->CR1 |= CMP_CR1_OPE_MASK;
 
 	//histeresis+
@@ -53,8 +53,8 @@ void initCMP(cmps_ids id){
 
 	//setEnableDMA()
 	base->CR1 |= CMP_CR1_EN_MASK;		//enable module
-	enableInterrupts();
-	NVIC_EnableIRQ(arrayCMPirqs[id]);
+	//enableInterrupts();
+	//NVIC_EnableIRQ(arrayCMPirqs[id]);
 }
 
 
@@ -111,11 +111,6 @@ void configureInputs(uint8_t positiveInput, uint8_t negativeInput){
 void configureDAC(){
 
 	base->DACCR |= (CMP_DACCR_VOSEL(DAC_VALUE) | CMP_DACCR_DACEN_MASK | CMP_DACCR_VRSEL_MASK);
-}
-
-void enableDMA(){
-	//todo
-
 }
 
 

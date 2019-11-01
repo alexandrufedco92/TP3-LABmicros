@@ -45,17 +45,22 @@ typedef struct{
  ******************************************************************************/
 
 
-
+//estructura para inicializar el PDB
 void getPDBdefaultConfig(pdb_config_t*);
 
+//inicializa PDB con la estructura anterior
 void initPDB(pdb_config_t*);
 
+//estructura para inicializar el PDB para triggerear DAC
 void getPDBforDACdefaultConfig(pdb_dac_config_t* conf);
 
+//inicializa los registros del PDB para triggerear DAC
 void initPDBdac(pdb_dac_config_t*);
 
+//realiza un software trigger
 void PDBsoftwareTrigger(void);
 
+//cambia frecuencia de trigger del PDB
 void PDBchangeFrequency(uint32_t frequency);
 
 #endif /* PDB_H_ */

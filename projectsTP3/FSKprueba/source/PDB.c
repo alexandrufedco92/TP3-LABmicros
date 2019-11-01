@@ -48,7 +48,7 @@ void initPDB(pdb_config_t* conf){
 }
 
 void PDBchangeFrequency(uint32_t new_freq){
-	uint32_t value = BUS_CLOCK/new_freq-1;
+	uint32_t value = BUS_CLOCK/new_freq-1;		//updateo los registros para que queden en los buffers internos
 	pdb_conf_def.modulus_value = value;
 	pdb_conf_def.delay_value = value;
 
@@ -71,8 +71,8 @@ void clockGating(void){
 	SIM->SCGC6 |= SIM_SCGC6_PDB_MASK;
 }
 
-void getPDBdefaultConfig(pdb_config_t* conf){
-	conf->load_value_mode = PDB_LOAD_VALUE_DEF;
+void getPDBdefaultConfig(pdb_config_t* conf){		//seteo valores por default
+	conf->load_value_mode = PDB_LOAD_VALUE_DEF;	
 	conf->prescaler_div = PDB_PRESCALER_DEF;
 	conf->divider_mult_factor = PDB_DIV_MULT_DEF;
 	conf->trigger_input_source = PDB_TRIG_INPUT_DEF;//software trigger
@@ -101,6 +101,6 @@ void initPDBdac(pdb_dac_config_t* conf){
 }
 
 void PDBsoftwareTrigger(void){
-	PDB0->SC |= PDB_SC_LDOK_MASK;
+	PDB0->SC |= PDB_SC_LDOK_MASK;		//cargo los registros con los valores de los buffers y hago soft trigger
 	PDB0->SC |= PDB_SC_SWTRIG_MASK;
 }
