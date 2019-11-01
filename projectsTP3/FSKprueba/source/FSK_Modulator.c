@@ -21,7 +21,7 @@
 #define MARK_FREQ	1200U /* Frequency in Hz. */
 #ifndef DAC_VERSION
 #define SPACE_FREQ	2400U /* Frequency in Hz. */
-#elif
+#else
 #define SPAC_FREQ 2200U
 #endif
 
