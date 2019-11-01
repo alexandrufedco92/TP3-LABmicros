@@ -46,8 +46,8 @@ void ModemInit( void)
 
 	uartInit (U0, config);			//Initializes UART module
 	bitStreamQueueInit();			//Initializes data queues
-	ModulatorInit();				//Initializes FSK modulator
 	DemodulatorInit();				//Initializes FSK demodulator
+	ModulatorInit();				//Initializes FSK modulator
 }
 
 void ModemRun(void)
@@ -62,20 +62,24 @@ void ModemRun(void)
 		DemodulateSignal(); //Starts Demodulation
 		if( IsFrameReady() )
 		{
+
 			msg2send = GetFrame();
 			++msg2send;								//Skip start bit from frame
 			uartWriteMsg(U0, msg2send , DATA_SIZE); //Sends data frame
+
 		}
 	}
 	//FSK modulation
+
 	cant_recieved = uartIsRxMsg(U0);
 	if( cant_recieved )
 	{
 		uartReadMsg(U0, recieved, cant_recieved );
 		pushString(recieved, cant_recieved);
 	}
+
 }
 
 /******************************************************************
  * 					FUNCTION WITH LOCAL SCOPE
- ******************************************************************
+ ******************************************************************/

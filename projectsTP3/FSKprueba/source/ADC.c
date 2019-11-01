@@ -16,6 +16,7 @@
  *					 DEFINES AND MACROS
  **********************************************************/
 #define PIT1 5 //Alternate trigger for PIT 1
+#define T_SAMPLE_PERIOD 83 //Sample time of ADC in microseconds.
 
 /*********************************************************
  * 					STATIC VARIABLES
@@ -30,6 +31,7 @@ static callback func;
 
 bool SetChannelADC(ADC_Channel_t ch, bool diff, bool in_en);
 void InitializeHardwareTrigger(void);
+void PIT_Debug(void);
 
 /*********************************************************
  * 					HEADER FUNCTIONS

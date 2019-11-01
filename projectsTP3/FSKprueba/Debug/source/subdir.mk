@@ -6,13 +6,14 @@
 C_SRCS += \
 ../source/ADC.c \
 ../source/App.c \
+../source/Bell202.c \
 ../source/DAC.c \
 ../source/FSK_Demodulator.c \
+../source/FSK_Modulator.c \
 ../source/FTM.c \
 ../source/PIT.c \
 ../source/SysTick.c \
 ../source/bitStreamQueue.c \
-../source/comController2pc.c \
 ../source/gpio.c \
 ../source/measureFreq.c \
 ../source/timer.c \
@@ -22,13 +23,14 @@ C_SRCS += \
 OBJS += \
 ./source/ADC.o \
 ./source/App.o \
+./source/Bell202.o \
 ./source/DAC.o \
 ./source/FSK_Demodulator.o \
+./source/FSK_Modulator.o \
 ./source/FTM.o \
 ./source/PIT.o \
 ./source/SysTick.o \
 ./source/bitStreamQueue.o \
-./source/comController2pc.o \
 ./source/gpio.o \
 ./source/measureFreq.o \
 ./source/timer.o \
@@ -38,13 +40,14 @@ OBJS += \
 C_DEPS += \
 ./source/ADC.d \
 ./source/App.d \
+./source/Bell202.d \
 ./source/DAC.d \
 ./source/FSK_Demodulator.d \
+./source/FSK_Modulator.d \
 ./source/FTM.d \
 ./source/PIT.d \
 ./source/SysTick.d \
 ./source/bitStreamQueue.d \
-./source/comController2pc.d \
 ./source/gpio.d \
 ./source/measureFreq.d \
 ./source/timer.d \

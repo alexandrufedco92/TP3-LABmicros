@@ -6,7 +6,6 @@
  */
 
 #include "FSK_Demodulator.h"
-#include "PIT.h"
 #include "ADC.h"
 #include "bitStreamQueue.h"
 
@@ -17,7 +16,6 @@
 #define FH 2200	//Frequency of a logical '0'
 #define DELAY 0.0004464 //Delay optimo en s
 #define F_SAMPLE 12000 //Sample frecuency of 12KHz
-#define T_SAMPLE_PERIOD 83 //Sample time of ADC in microseconds.
 #define VLOW -0.25
 #define VHIGH 0.25
 #define FIR_ORDER 18
@@ -45,6 +43,8 @@ static uint8_t sample_counter = 0;	//Counts number of samples averaged.
 static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
 static bool idle = true;		//Flag that indicates if in idle state
 static bool symbol_detected = false;//Flag that indicates when a digital symbol was detected.
+static ADC_Data_t analog_samples[50]; //DEBUGGEOOOOO
+static unsigned int analog_index = 0;
 
 static uint32_t fs; //Sample frequency of the FSK signal
 static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
@@ -74,6 +74,7 @@ float ApplyFIR(void);
  * @param cant number of samples from analog signal
 */
 void ReconstructSignal(float comp_out);
+void InitializeHardware(void);
 
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
@@ -94,10 +95,24 @@ void DemodulatorInit(void)
 
 }
 
-void DemodulateSignal(float recieved)
+void DemodulateSignal(void)
 {
 #ifdef DSP_VERSION
 	float aux = 0;
+	float recieved;
+	/*
+	if( analog_index < 50)
+		analog_samples[analog_index] = GetConversionResult();
+	analog_index++;
+	*/
+
+
+
+	recieved = GetConversionResult();
+	recieved *= 2;
+	//Turn ADC result to float value ranging from -1 to 1.
+	recieved /= (float)(UINT16_MAX);
+	recieved -= 1;
 	uint16_t aux_index = 0;
 	float comp_out = 0; //Comparator output
 
@@ -194,7 +209,6 @@ float ApplyFIR(void)
 		}
 	}
 
-	return;
 }
 
 void ReconstructSignal(float comp_out)
@@ -203,15 +217,7 @@ void ReconstructSignal(float comp_out)
 	{
 		if( comp_out)
 		{
-			if(++sample_counter == AVG_SAMPLES)
-			{
-				sample_counter = 0;
-				symbol_detected = false;
-			}
-			else
-			{
-				symbol_detected = false;
-			}
+			symbol_detected = false;
 		}
 		else
 		{
@@ -235,7 +241,7 @@ void ReconstructSignal(float comp_out)
 					idle = true;
 				average_aux = 0;
 				symbol_detected = true;
-				PushBit(true); //Adds a '1' to the frame.
+				PushBit('1'); //Adds a '1' to the frame.
 			}
 			else
 			{
@@ -243,7 +249,7 @@ void ReconstructSignal(float comp_out)
 				idle_counter = 0;
 				average_aux = 0;
 				symbol_detected = true;
-				PushBit(false); //Adds a '0' to the frame.
+				PushBit('0'); //Adds a '0' to the frame.
 			}
 		}
 		else
