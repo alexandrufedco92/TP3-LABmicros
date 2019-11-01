@@ -62,6 +62,22 @@ void App_Init (void)
 							};
 	PITstartTimer(configP0);
 
+	PushBit('1');
+	PushBit('1');
+	PushBit('1');
+	PushBit('0');
+	PushBit('1');
+	PushBit('0');
+	PushBit('0');
+	PushBit('1');
+	PushBit('1');
+	PushBit('0');
+	PushBit('1');
+
+	char byte = GetFrame();
+	byte++;
+	byte--;
+
 }
 /* Función que se llama constantemente en un ciclo infinito */
 

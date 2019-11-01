@@ -14,6 +14,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/******************************************************************************
+ * DEFINES AND MACROS
+ ******************************************************************************/
+
+//Number of bits per frame
+#define FRAME_SIZE 11
+
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -31,8 +38,16 @@ void bitStreamQueueInit(void);
 bool pushChar(char value);
 
 /**
+ * @brief Pushes char into Queue if there is space.
+ * @param string Data string to push.
+ * @param cant Length of string.
+ * @return True if push was succesfull.
+ */
+bool pushString(char * string, uint8_t cant);
+
+/**
  * @brief Checks if queue is empty.
- * @return True if Queue is empy, false if there is sitll space.
+ * @return True if Queue is empty, false if there is still space.
  */
 bool isQueueEmpty(void);
 
@@ -41,5 +56,11 @@ bool isQueueEmpty(void);
  * @return True if bit is 1, false if bit is 0. Always check if queue is not empty before popping.
  */
 bool popBit(void);
+
+bool PushBit(char digital_symbol);
+
+bool IsFrameReady();
+
+char GetFrame(void);
 
 #endif /* BITSTREAMQUEUE_H_ */

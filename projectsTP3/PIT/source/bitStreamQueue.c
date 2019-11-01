@@ -10,6 +10,7 @@
  ******************************************************************************/
 
 #include <bitStreamQueue.h>
+#include <stdint.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -21,6 +22,9 @@
 #define MSB_IDX	7
 /* Index for least significant bit in char. */
 #define LSB_IDX	0
+/* Unit what index get bits from frame. */
+#define CHAR_CANT	8
+
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -33,6 +37,9 @@ typedef struct{
 }queue_t;
 
 static queue_t queue;
+static char signal_frame[FRAME_SIZE];
+static bool frame_ready;
+static int frame_index =0;
 
 static void recursiveStore(int index, char value);
 
@@ -52,8 +59,13 @@ static void recursiveStore(int index, char value){
  ******************************************************************************/
 
 void bitStreamQueueInit(void){
+	frame_ready = false;
 	queue.top = -1;
 	queue.bitIdx = MSB_IDX;
+	for(unsigned int i =0; i< FRAME_SIZE; i++)
+	{
+		signal_frame[i] = '5';
+	}
 }
 
 bool pushChar(char value){
@@ -102,6 +114,58 @@ bool popBit(void){
 	return finalValue;
 }
 
+bool PushBit(char bit)
+{
+	if(frame_ready)
+	{
+		return false; //Frame is full cannot add more bits
+	}
+	else
+	{
+		signal_frame[FRAME_SIZE-1-frame_index] = bit;
+		frame_index++;
 
+		if( frame_index == FRAME_SIZE)
+			frame_ready = true; //Frame is completed
+		return true;
+	}
+}
 
+bool IsFrameReady(void)
+{
+	return frame_ready;
+}
 
+char GetFrame(void)
+{
+	frame_ready = false;
+	frame_index = 0;
+	char finalByte = 0x0; /* Where to store char to send. */
+	char value = 0x0;
+
+	for(int i = 0; i<CHAR_CANT; i++){
+		int index = FRAME_SIZE - (i+2);
+		char mask = ~(0x1 <<  i); /* example when i = 3: 11011111 */
+		if(signal_frame[index] == '1'){
+			value = 0x1;
+		}
+		else if(signal_frame[index] == '0'){
+			value = 0x0;
+		}
+		char bit = value << i; /* example when i = 3: 00x00000 */
+		finalByte = (finalByte & mask) | bit; /* example when i = 3: abxdefgh */
+	}
+
+	return finalByte;
+}
+
+bool pushString(char * string, uint8_t cant){
+	bool success = false;
+	for(uint8_t  i = 0;i<cant;i++){
+		success = pushChar(string[i]);
+		if(!success){ /* Failed to push. */
+			return false;
+		}
+	}
+	return true;
+}
