@@ -14,15 +14,15 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "DMAMUX.h"
 
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define DMA_WAVEGEN_CH 0
-#define DMA_FTM1_CH0 28
+#define DMA_WAVEGEN_CH 	1
+#define DMA_PIT1		59
+#define DMA_FTM1_CH0 	28
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -30,6 +30,8 @@
 
 enum dma_bytes_to_transfer{BITS_8 = 0x00, BITS_16 = 0x01, BITS_32 = 0x02};
 typedef enum{MEM_2_MEM, MEM_2_PERIPHERAL, PERIPHERAL_2_MEM}dma_mode_t;
+typedef void (*dmaFun_t)(void);
+
 
 typedef struct{
     uint32_t source_address;					//Source address
@@ -39,6 +41,11 @@ typedef struct{
     uint32_t bytes_per_request;				//bytes a transferir en cada minor loop
     uint32_t total_bytes;              //cantidad total de bytes a transferir
     dma_mode_t mode;
+
+    uint8_t channel;			//info de dma_mux
+    uint16_t request_source;	//request source for dma
+    bool periodic_trigger;		//enable periodic trigger
+    dmaFun_t dma_callback;		//callback para cuando termina major loop
 }dma_transfer_conf_t;
 
 /*******************************************************************************
@@ -56,13 +63,7 @@ void initDMA(void);
  * @param
  * @return
 */
-void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config);
+void DMAPrepareTransfer(dma_transfer_conf_t* config);
 
-/**
- * @brief
- * @param
- * @return
-*/
-bool isDMAnTransferDone(uint8_t id);
 
 #endif /* DMA_H_ */

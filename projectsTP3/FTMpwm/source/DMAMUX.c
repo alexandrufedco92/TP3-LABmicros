@@ -23,7 +23,7 @@ void initDMAMUX(){
 	clockGating();
 }
 
-void configureDMAMUX(uint8_t channel, uint16_t source, bool periodic_trigger){
+void configureDMAMUX(dma_mux_channels channel, uint16_t source, bool periodic_trigger){
 
 	DMAMUX->CHCFG[channel] &= ~DMAMUX_CHCFG_SOURCE_MASK;	//borro la source actual
 

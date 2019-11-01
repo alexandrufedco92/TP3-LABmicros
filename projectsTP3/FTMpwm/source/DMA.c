@@ -12,8 +12,8 @@
 //DMA_Type* dma_ptrs[] = DMA_BASE_PTRS;
 //IRQn_Type arrayDMAirqs[] = DMA_CHN_IRQS;
 
-bool finished[DMA_CHANNEL_COUNT];
-
+#define NULL 0
+static dmaFun_t dmaFuns[4];
 
 
 
@@ -26,7 +26,7 @@ void initDMA(void){
 	 * steps for correct initialization:
 	 *
 	 * 1. clock gating de perifericos dma & dmaMux
-	 * 2. llamar a configureDMAMUX(dma_mux_channels channel, dma_request_source_t source, bool periodic_trigger)
+	 * 2. llamar a confureDMAMUX(dma_mux_channels channel, dma_request_source_t source, bool periodic_trigger)
 	 * 		solo los primeros 4 channels tienen periodic trigger
 	 * 3. set enable request register
 	 * 4. fill the tcd structure
@@ -48,45 +48,43 @@ void initDMA(void){
 //	NVIC_EnableIRQ(DMA_Error_IRQn);
 }
 
-bool isDMAnTransferDone(uint8_t id){
-	return finished[id];
-}
 
+void DMAPrepareTransfer(dma_transfer_conf_t* conf){
+	uint8_t id = conf->channel;
+	dmaFuns[id] = conf->dma_callback;
+	configureDMAMUX(conf->channel, conf->request_source, conf->periodic_trigger);
+	DMA0->TCD[id].SADDR = conf->source_address;
+	DMA0->TCD[id].DADDR = conf->dest_address;
 
-void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
-	finished[id] = false;
-	DMA0->TCD[id].SADDR = config->source_address;
-	DMA0->TCD[id].DADDR = config->dest_address;
+	DMA0->TCD[id].ATTR = DMA_ATTR_SSIZE(conf->transf_size) | DMA_ATTR_DSIZE(conf->transf_size);
 
-	DMA0->TCD[id].ATTR = DMA_ATTR_SSIZE(config->transf_size) | DMA_ATTR_DSIZE(config->transf_size);
-
-	uint32_t nbytes = config->bytes_per_request;
+	uint32_t nbytes = conf->bytes_per_request;
 	DMA0->TCD[id].NBYTES_MLNO = nbytes;
 
-	uint32_t citer = config->total_bytes/config->bytes_per_request;
+	uint32_t citer = conf->total_bytes/conf->bytes_per_request;
 	DMA0->TCD[id].CITER_ELINKNO = DMA_CITER_ELINKNO_CITER(citer);
 	DMA0->TCD[id].BITER_ELINKNO = DMA_BITER_ELINKNO_BITER(citer);
 
-	if(config->mode == PERIPHERAL_2_MEM)		//peripheral to memory
+	if(conf->mode == PERIPHERAL_2_MEM)		//peripheral to memory
 	{
 		DMA0->TCD[id].SOFF = 0x00;
-		DMA0->TCD[id].DOFF = config->offset;
+		DMA0->TCD[id].DOFF = conf->offset;
 		DMA0->TCD[id].SLAST = 0x00;
 		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
 	}
-	if(config->mode == MEM_2_PERIPHERAL)		//memory to peripheral
+	if(conf->mode == MEM_2_PERIPHERAL)		//memory to peripheral
 	{
 		DMA0->TCD[id].SLAST = -citer*nbytes;
 		DMA0->TCD[id].DLAST_SGA = 0x00;
-		DMA0->TCD[id].SOFF = config->offset;
+		DMA0->TCD[id].SOFF = conf->offset;
 		DMA0->TCD[id].DOFF = 0x00;
 	}
 	else		//memory to memory
 	{
 		DMA0->TCD[id].SLAST = -citer*nbytes;
 		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
-		DMA0->TCD[id].SOFF = config->offset;
-		DMA0->TCD[id].DOFF = config->offset;
+		DMA0->TCD[id].SOFF = conf->offset;
+		DMA0->TCD[id].DOFF = conf->offset;
 	}
 
 
@@ -110,28 +108,29 @@ void DMAPrepareTransfer(uint8_t id, dma_transfer_conf_t* config){
 
 }
 
-void DMAIrqHandler(void){
-	DMA0->CINT |= 0;
-}
 
 void DMA0_IRQHandler(){
-	DMAIrqHandler();
-	finished[0] = true;
+	DMA0->CINT |= 0;
+	if(dmaFuns[0] != NULL)
+		dmaFuns[0]();
 }
 
 void DMA1_IRQHandler(){
-	DMAIrqHandler();
-	finished[1] = true;
+	DMA0->CINT |= 0;
+	if(dmaFuns[1] != NULL)
+		dmaFuns[1]();
 }
 
 void DMA2_IRQHandler(){
-	DMAIrqHandler();
-	finished[2] = true;
+	DMA0->CINT |= 0;
+	if(dmaFuns[2] != NULL)
+			dmaFuns[2]();
 }
 
 void DMA3_IRQHandler(){
-	DMAIrqHandler();
-	finished[3] = true;
+	DMA0->CINT |= 0;
+	if(dmaFuns[3] != NULL)
+		dmaFuns[3]();
 }
 
 
