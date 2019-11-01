@@ -23,6 +23,9 @@
 #define DMA_WAVEGEN_CH 	1
 #define DMA_PIT1		59
 #define DMA_FTM1_CH0 	28
+#define DMA_CAPTURE_CH 0
+
+#define DMA_FTM2_CH0 30
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS

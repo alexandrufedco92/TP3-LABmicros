@@ -8,6 +8,7 @@
 #include "measureFreq.h"
 #include "FTM.h"
 #include "CMP.h"
+#include "DMA.h"
 #include <stdbool.h>
 
 #define MIN_DIF 50
@@ -23,9 +24,13 @@ typedef struct{
 	int measuresLost;
 }measureFreq_t;
 
+uint16_t capturesWithDMA[2];
+
 int dif = 0;
 float ticksScale = 1.0;
 measureFreq_t measureDataBase;
+
+void dmaCaptureCallback(void);
 
 void measFreqCallback(FTMchannels ch);
 
@@ -37,6 +42,22 @@ void initFreqMeasure(void)
 	measureDataBase.measuresLost = 0;
 
 	initCMP(CMP_0);
+
+	dma_transfer_conf_t conf;
+
+	//configureDMAMUX(DMA_EXAMPLE, DMA_FTMX_CHX, false);
+	conf.source_address = (uint32_t)getCnVadress(FTM2_INDEX, FTM_CH0);      //al registro
+	conf.dest_address = (uint32_t)capturesWithDMA;     //al arreglo que tiene para poner los dos valores
+	conf.offset = 0x02;         //paso dos bytes (=16 bits)
+	conf.transf_size = BITS_16;
+	conf.bytes_per_request = 0x02;  //2 bytes
+	conf.total_bytes = 0x04;            //el total es 2bytes*2
+	conf.mode = PERIPHERAL_2_MEM;
+	conf.channel = DMA_CAPTURE_CH;
+	conf.dma_callback = dmaCaptureCallback;
+	conf.periodic_trigger = false;
+	conf.request_source = DMA_FTM2_CH0;
+	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
 
 	FTMconfig_t configInputCapture;
 	configInputCapture.dmaMode = FTM_DMA_DISABLE;
@@ -125,6 +146,58 @@ _Bool isNewMeasReady(void)
 _Bool freqHasChanged(void)
 {
 	return measureDataBase.freqChanged;
+}
+
+void dmaCaptureCallback(void)
+{
+	static int i = 0;
+	static int firstMeasure = 0;
+	static int secondMeasure = 0;
+	static int difAux = 0;
+	 if(ch == FTM_CH0)
+	{
+		i++;
+		if(i == 1)
+		{
+			firstMeasure = getCnV(FTM2_INDEX, FTM_CH0);
+		}
+		else if(i == 2)
+		{
+			secondMeasure = getCnV(FTM2_INDEX, FTM_CH0);
+			if(secondMeasure < firstMeasure)  //overflow
+			{
+				firstMeasure = firstMeasure - getMOD_FTM(FTM2_INDEX, FTM_CH0);
+			}
+			dif = secondMeasure - firstMeasure;
+			firstMeasure = secondMeasure;
+			i = 1;
+			if(NO_GLITCH(dif) && DIF_CHANGE_DETECT(dif, difAux))
+			{
+				measureDataBase.freqChanged = true;
+				//measureDataBase.freq = (int)((ticksScale/(float)dif)* 1000.0);
+			}
+			else
+			{
+				measureDataBase.freqChanged = false;
+			}
+			difAux = dif;
+			//i = 0;
+			if(measureDataBase.newMeasReady)
+			{
+				measureDataBase.measuresLost++;
+			}
+			else
+			{
+				measureDataBase.newMeasReady = true;
+				measureDataBase.measuresLost = 0;
+			}
+		}
+	}
+	else //overflow
+	{
+
+	}
+
 }
 
 
