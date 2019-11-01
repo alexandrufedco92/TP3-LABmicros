@@ -141,7 +141,7 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 
 	initDMA();
-	configureDMAMUX(DMA_WAVEGEN_CH, DMA_PIT1, true);
+	//configureDMAMUX(DMA_WAVEGEN_CH, DMA_PIT1, true);
 	conf.source_address = (uint32_t)pwmSenLUT;
 	conf.dest_address = (uint32_t)getCnVadress(FTM0_INDEX, FTM_CH0);
 	conf.offset = 0x02;
@@ -149,8 +149,12 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	conf.bytes_per_request = 0x02;	//paso 16bits=2bytes en cada dma request
 	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
 	conf.mode = MEM_2_PERIPHERAL;
+	conf.channel = DMA_WAVEGEN_CH;
+	conf.dma_callback = NULL;
+	conf.periodic_trigger = true;
+	conf.request_source = DMA_PIT1;
 
-	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);
+	DMAPrepareTransfer(&conf);
 	SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
@@ -250,7 +254,7 @@ void softwareTriggerFTM(void)
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
 		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal/2);
-		PITmodifyTimer(1, wavesArray[WAVE0_WAVEGEN].periodSignal);
+		PITmodifyTimer(DMA_WAVEGEN_CH, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
