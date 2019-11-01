@@ -48,6 +48,7 @@ void initPDB(pdb_config_t* conf){
 void PDBchangeFrequency(uint32_t value){
 	setModulusValue((uint32_t)(BUS_CLOCK/value-1));
 	setCounterDelayValue((uint32_t)(BUS_CLOCK/value-1));
+	PDBsoftwareTrigger();
 }
 
 
@@ -58,7 +59,7 @@ void setModulusValue(uint32_t value){
 void setCounterDelayValue(uint32_t value){
 	PDB0->IDLY = PDB_IDLY_IDLY(value);
 }
-
+b
 void clockGating(void){
 	SIM->SCGC6 |= SIM_SCGC6_PDB_MASK;
 }
