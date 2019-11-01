@@ -75,6 +75,8 @@ void updateCnV(FTMmodules id, FTMchannels ch, int newCnV);
 
 int getCnV(FTMmodules id, FTMchannels ch);
 
+uint32_t * getSYNCadress(FTMmodules id, FTMchannels ch);
+
 int getMOD_FTM(FTMmodules id, FTMchannels ch);
 
 int getCNTIN_FTM(FTMmodules id, FTMchannels ch);

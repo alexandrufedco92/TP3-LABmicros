@@ -31,6 +31,8 @@ waveGen_t wavesArray[NUMBER_OF_WAVESGEN];
 int senLUT[N_SAMPLES];
 int pwmSenLUT[N_SAMPLES];
 
+uint32_t maskSWtriggerFTM = 0x81U;
+
 void senoidalInit(WAVEGENmode wave);
 void sinWaveGen(WAVEGENid id, WAVEGENfreq freq);
 void DACcallback(DACev);
@@ -158,7 +160,7 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 {
 	FTMconfig_t FTMpwmConfig, FTMpwmTriggerConfig;
-	dma_transfer_conf_t conf;
+	dma_transfer_conf_t conf, confTrigger;
 
 
 
@@ -177,8 +179,21 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	conf.periodic_trigger = true;
 	conf.request_source = DMA_PIT1;
 
-	DMAPrepareTransfer(&conf);
-	SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
+	confTrigger.source_address = (uint32_t)(&maskSWtriggerFTM);
+	confTrigger.dest_address = (uint32_t)getSYNCadress(FTM0_INDEX, FTM_CH0);
+	confTrigger.offset = 0;
+	confTrigger.transf_size = BITS_32;
+	confTrigger.bytes_per_request = 0x04;	//paso 16bits=2bytes en cada dma request
+	confTrigger.total_bytes = conf.bytes_per_request*1;	//el total será 2bytes*16
+	confTrigger.mode = MEM_2_PERIPHERAL;
+	confTrigger.channel = 2;
+	confTrigger.dma_callback = NULL;
+	confTrigger.periodic_trigger = false;
+	confTrigger.request_source = 60;
+
+	DMAPrepareTransferELINKYES(&conf);
+	DMAPrepareTransferELINKNO(&confTrigger);
+	//SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
@@ -196,11 +211,11 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmTriggerConfig.nChannel = FTM_CH1;
 	FTMpwmTriggerConfig.countMode = UP_COUNTER;
 	FTMpwmTriggerConfig.prescaler = FTM_PSCX4;
-	FTMpwmTriggerConfig.CnV = 200;
-	FTMpwmTriggerConfig.nTicks = 201;
+	FTMpwmTriggerConfig.CnV = 150;
+	FTMpwmTriggerConfig.nTicks = 300;
 	FTMpwmTriggerConfig.numOverflows = 0;
 	FTMpwmTriggerConfig.p2callback = FTMpwmCallback;
-	FTMpwmTriggerConfig.dmaMode = FTM_DMA_ENABLE;
+	FTMpwmTriggerConfig.dmaMode = FTM_DMA_DISABLE;
 	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;*/
 
 	FTMinit(&FTMpwmConfig);
@@ -217,11 +232,11 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
 	int periodSampleUs = (int)(periodMs*1000.0);
-	config_t config = {	{periodSampleUs/2, periodSampleUs,0,0},
-								{true,false,false,false},
+	config_t config = {	{periodSampleUs, periodSampleUs,0,0},
+								{false,false,false,false},
 								{true,true,false,false},
 								{false,false,false,false},
-								{softwareTriggerFTM,NULL,NULL,NULL} };
+								{NULL,NULL,NULL,NULL} };
 
 	PITinit(&config);
 
@@ -268,7 +283,7 @@ void softwareTriggerDAC(void)
 void softwareTriggerFTM(void)
 {
 	static int i = 0;
-	updateCnV(FTM0_INDEX, FTM_CH0, pwmSenLUT[i]);
+	//updateCnV(FTM0_INDEX, FTM_CH0, pwmSenLUT[i]);
 	softwareFTMtrigger(FTM0_INDEX);
 	i++;
 	if(i == N_SAMPLES)
