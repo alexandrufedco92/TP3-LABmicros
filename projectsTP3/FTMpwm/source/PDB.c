@@ -10,7 +10,7 @@
 #define	PDB_LOAD_VALUE_DEF			0
 #define PDB_PRESCALER_DEF 			0
 #define PDB_DIV_MULT_DEF			0
-#define PDB_TRIG_INPUT_DEF			15
+#define PDB_TRIG_INPUT_DEF			4U
 #define PDB_DELAY_VALUE_DEF			1000U
 #define PDB_MOD_VALUE_DEF 			1000U
 #define PDB_DAC_INTERVAL_VALUE_DEF 	800U
@@ -45,7 +45,8 @@ void initPDB(pdb_config_t* conf){
 }
 
 void PDBchangeFrequency(uint32_t value){
-	setModulusValue((int)(BUS_CLOCK/value-1));
+	setModulusValue((uint32_t)(BUS_CLOCK/value-1));
+	setCounterDelayValue((uint32_t)(BUS_CLOCK/value-1));
 }
 
 
