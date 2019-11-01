@@ -26,7 +26,10 @@
 #define IDLE_VAL	true /* Logic Value for Idle state. */
 #define LOGIC_1_VAL	true
 #define LOGIC_0_VAL	false
+#define DATA_SIZE 8
 
+static unsigned int index = 0;
+static bool idle = true;
 static bool currVal;
 static bool nextVal;
 static WAVEGENid wId;
@@ -45,6 +48,9 @@ void ModulateFSK(void);
  *************************************************************/
 void ModulatorInit(void)
 {
+	//Initialize flags
+	idle = true;
+	index = 0;
 	/* Initialize Wave Generator. */
 	WaveGenConfig_t waveConf;
 	waveConf.freq = IDLE_FREQ;
@@ -60,8 +66,7 @@ void ModulatorInit(void)
 	initWaveGen(&waveConf);
 
 	/* Initialize Modulator Timer. */
-	//InitializeTimers();
-	//SetTimer(MODULATION, MOD_PERIOD_US+1, ModulateFSK);
+
 	PITinit();
 	pit_config_t configP3 = { 	MOD_PERIOD_US, 	/* Value of timer in us. */
 								2, 				/* Number of PIT timer. */
@@ -84,18 +89,34 @@ void ModulateFSK(void){
 		if(currVal != IDLE_VAL){ /* Transition to Idle state. */
 			updateWaveFreq(wId, IDLE_FREQ);
 			currVal = IDLE_VAL;
+			idle = true;
 		}
 	}
 	else{ /* Data Queue has new value. */
-		nextVal = popBit();
-		if( nextVal != currVal ){ /* Transition needed. */
-			if(nextVal == LOGIC_1_VAL){
-				updateWaveFreq(wId, MARK_FREQ);
+		if( idle ){
+			idle = false;
+			updateWaveFreq(wId, SPACE_FREQ); //Send start bit.
+		}
+		if( index == DATA_SIZE){
+			updateWaveFreq(wId, MARK_FREQ); //Send parity bit.
+			index++;
+		}
+		else  if( index == DATA_SIZE+1){
+			updateWaveFreq(wId, MARK_FREQ); //Send stop bit.
+			index = 0;
+		}
+		else{
+			nextVal = popBit();
+			index++;
+			if( nextVal != currVal ){ /* Transition needed. */
+				if(nextVal == LOGIC_1_VAL){
+					updateWaveFreq(wId, MARK_FREQ);
+				}
+				else{ /* LOGIC_0_VAL */
+					updateWaveFreq(wId, SPACE_FREQ);
+				}
+				currVal = nextVal;
 			}
-			else{ /* LOGIC_0_VAL */
-				updateWaveFreq(wId, SPACE_FREQ);
-			}
-			nextVal = currVal;
 		}
 	}
 }

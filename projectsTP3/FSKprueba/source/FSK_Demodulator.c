@@ -8,6 +8,7 @@
 #include "FSK_Demodulator.h"
 #include "ADC.h"
 #include "bitStreamQueue.h"
+#include "timer.h"
 
 /***********************************************************
  *					 DEFINES AND MACROS
@@ -43,8 +44,6 @@ static uint8_t sample_counter = 0;	//Counts number of samples averaged.
 static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
 static bool idle = true;		//Flag that indicates if in idle state
 static bool symbol_detected = false;//Flag that indicates when a digital symbol was detected.
-static ADC_Data_t analog_samples[50]; //DEBUGGEOOOOO
-static unsigned int analog_index = 0;
 
 static uint32_t fs; //Sample frequency of the FSK signal
 static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
@@ -55,8 +54,6 @@ static float fir_coeffs[] = {0.0099524156275609069, 0.025829664997474223, 0.0052
 							0.030240182765554114, -0.039485305772910186, -0.050258725765821938,
 							-0.020566023428597952, 0.0052301942208776179, 0.025829664997474223,
 							0.0099524156275609069};
-
-
 
 /***********************************************************
  * 				LOCAL FUNCTIONS DECLARATIONS
@@ -75,20 +72,19 @@ float ApplyFIR(void);
 */
 void ReconstructSignal(float comp_out);
 void InitializeHardware(void);
-
+void ADC_Callback(void); //DEBUGGEO
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  ***********************************************************/
 void DemodulatorInit(void)
 {
 #ifdef DSP_VERSION //DSP_VERSION
-	InitializeHardware();
 	fs = F_SAMPLE;
 	FSK_signal.curr = -1;
 	PreFiltered_signal.curr = -1;
-
 	prev_samples = (uint8_t)( DELAY*fs);
 	last_sample_value = 1;
+	InitializeHardware();
 
 #else	//PWM_VERSION
 #endif
@@ -100,13 +96,6 @@ void DemodulateSignal(void)
 #ifdef DSP_VERSION
 	float aux = 0;
 	float recieved;
-	/*
-	if( analog_index < 50)
-		analog_samples[analog_index] = GetConversionResult();
-	analog_index++;
-	*/
-
-
 
 	recieved = GetConversionResult();
 	recieved *= 2;
@@ -222,6 +211,7 @@ void ReconstructSignal(float comp_out)
 		else
 		{
 			idle = false;
+			PushBit('0');	//Start bit
 			idle_counter = 0;
 			sample_counter = 1;
 			symbol_detected = false;
@@ -237,8 +227,6 @@ void ReconstructSignal(float comp_out)
 			if( average_aux >= MID )
 			{
 				last_sample_value = 1;
-				if( (++idle_counter) == IDLE_LIMIT )
-					idle = true;
 				average_aux = 0;
 				symbol_detected = true;
 				PushBit('1'); //Adds a '1' to the frame.
@@ -251,6 +239,8 @@ void ReconstructSignal(float comp_out)
 				symbol_detected = true;
 				PushBit('0'); //Adds a '0' to the frame.
 			}
+			if( IsFrameReady() )
+				idle = true;
 		}
 		else
 		{
@@ -280,3 +270,5 @@ void InitializeHardware(void)
 	ADC_Init( &adc_config);
 
 }
+
+
