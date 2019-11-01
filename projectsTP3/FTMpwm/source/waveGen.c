@@ -13,6 +13,7 @@
 #include <math.h>
 #include "PIT.h"
 #include "DMA.h"
+#include "PDB.h"
 #include "MK64F12.h"
 
 
@@ -112,13 +113,25 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	DACconfig_t DACconfig;
 	DACconfig.dmaMode = DAC_DMA_DISABLE;
 	DACconfig.mode = DAC_BUFFER_MODE;
-	DACconfig.triggerMode = DAC_TRIGGER_SW;
+	DACconfig.triggerMode = DAC_TRIGGER_HW;
+	//DACconfig.triggerMode = DAC_TRIGGER_SW;
 	DACconfig.p2callback = DACcallback;
 	DACconfig.irqMode = DAC_IRQ_ENABLE;
 	if(N_SAMPLES <= DAC_BUFFER_SIZE)  //buffer refreshment is not necessary
 	{
 		DACconfig.irqMode = DAC_IRQ_DISABLE;
 	}
+
+	pdb_dac_config_t pdbDACconfig;
+	pdb_config_T pdbConfig;
+
+	getPDBforDACdefaultConfig(pdbDACconfig);
+	getPDBdefaultConfig(pdbConfig);
+
+	initPDB(&pdbConfig);
+	initPDBdac(pdbDACconfig);
+
+	PDBsoftwareTrigger();
 
 	DACinit(DAC0_ID, &DACconfig);
 
