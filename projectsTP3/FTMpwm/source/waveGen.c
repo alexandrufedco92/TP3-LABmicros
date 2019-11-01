@@ -136,13 +136,13 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	DACinit(DAC0_ID, &DACconfig);
 
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),0,0,0}, /* timerVal. */
-							{true,false,false,false}, /* interruptEnable. */
-							{true,false,false,false}, /* timerEnable. */
-							{false,false,false,false}, /* chainMode. */
-							{softwareTriggerDAC,NULL,NULL,NULL} }; /* pitCallbacks. */
+	/*config_t config = {	{(int)(periodMs*1000.0),0,0,0},
+							{true,false,false,false},
+							{true,false,false,false},
+							{false,false,false,false},
+							{softwareTriggerDAC,NULL,NULL,NULL} }; */
 
-	PITinit(&config);
+	//PITinit(&config);
 }
 
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)

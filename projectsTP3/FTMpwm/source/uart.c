@@ -99,9 +99,9 @@ void uartInit (uint8_t id, uart_cfg_t config)
 		p2uart->C2 &= (~(UART_C2_TE_MASK | UART_C2_RE_MASK)); //para configurar correctamente deshabilito la transmision y la recepcion
 
 
-		//UART_setParity(p2uart, config.parity);
+		UART_setParity(p2uart, config.parity);
 		UART_setBaudRate(p2uart, config.baudRate);
-		//UART_setNdataBits(p2uart, config.nBits);
+		UART_setNdataBits(p2uart, config.nBits);
 
 		portRX = PIN2PORT(uartRXpins[id]);
 		numPinRX = PIN2NUM(uartRXpins[id]);
