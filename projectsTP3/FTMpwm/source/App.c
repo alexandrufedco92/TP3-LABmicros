@@ -40,7 +40,7 @@ void FMcallback(void);
  ******************************************************************************/
 enum{debugV1, debugV2};
 
-int debugFlag = debugV2;
+int debugFlag = debugV1;
 
 //DAC
 

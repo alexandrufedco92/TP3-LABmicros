@@ -123,14 +123,14 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	}
 
 	pdb_dac_config_t pdbDACconfig;
-	pdb_config_T pdbConfig;
+	pdb_config_t pdbConfig;
 
-	getPDBforDACdefaultConfig(pdbDACconfig);
-	getPDBdefaultConfig(pdbConfig);
+	getPDBforDACdefaultConfig(&pdbDACconfig);
+	getPDBdefaultConfig(&pdbConfig);
 
 	initPDB(&pdbConfig);
-	initPDBdac(pdbDACconfig);
-
+	initPDBdac(&pdbDACconfig);
+	PDBchangeFrequency(1200*N_SAMPLES);
 	PDBsoftwareTrigger();
 
 	DACinit(DAC0_ID, &DACconfig);
