@@ -145,14 +145,14 @@ char GetFrame(void)
 
 	for(int i = 0; i<CHAR_CANT; i++){
 		int index = FRAME_SIZE - (i+2);
-		char mask = ~(0x1 <<  i); /* example when i = 3: 11011111 */
+		char mask = ~(0x1 <<  (CHAR_CANT-(i+1))); /* example when i = 3: 11011111 */
 		if(signal_frame[index] == '1'){
 			value = 0x1;
 		}
 		else if(signal_frame[index] == '0'){
 			value = 0x0;
 		}
-		char bit = value << i; /* example when i = 3: 00x00000 */
+		char bit = value << (CHAR_CANT-(i+1)); /* example when i = 3: 00x00000 */
 		finalByte = (finalByte & mask) | bit; /* example when i = 3: abxdefgh */
 	}
 
