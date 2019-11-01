@@ -120,7 +120,7 @@ void DMAPrepareTransferELINKYES(dma_transfer_conf_t* conf){
 
 	uint8_t id = conf->channel;
 	dmaFuns[id] = conf->dma_callback;
-	configureDMAMUX(conf->channel, conf->request_source, conf->periodic_trigger);
+//	configureDMAMUX(conf->channel, conf->request_source, conf->periodic_trigger);
 	DMA0->TCD[id].SADDR = conf->source_address;
 	DMA0->TCD[id].DADDR = conf->dest_address;
 
@@ -131,13 +131,14 @@ void DMAPrepareTransferELINKYES(dma_transfer_conf_t* conf){
 
 	uint32_t citer = conf->total_bytes/conf->bytes_per_request;
 	DMA0->TCD[id].CITER_ELINKYES |= DMA_CITER_ELINKYES_ELINK_MASK;	//enable elink
-	DMA0->TCD[id].CITER_ELINKYES |= DMA_CITER_ELINKYES_CITER(citer);
 	DMA0->TCD[id].CITER_ELINKYES |= DMA_CITER_ELINKYES_LINKCH(2);
-	DMA0->TCD[id].BITER_ELINKYES |= DMA_BITER_ELINKYES_ELINK_MASK;	//enable elink
+	DMA0->TCD[id].CITER_ELINKYES |= DMA_CITER_ELINKYES_CITER(citer);
+//	DMA0->TCD[id].BITER_ELINKYES |= DMA_BITER_ELINKYES_ELINK_MASK;	//enable elink
+//	DMA0->TCD[id].BITER_ELINKYES |= DMA_BITER_ELINKYES_LINKCH(2);
 	DMA0->TCD[id].BITER_ELINKYES |= DMA_BITER_ELINKYES_BITER(citer);
-	DMA0->TCD[id].BITER_ELINKYES |= DMA_BITER_ELINKYES_LINKCH(2);
-	DMA0->TCD[id].CSR |= DMA_CSR_MAJORELINK_MASK;
+
 	DMA0->TCD[id].CSR |= DMA_CSR_MAJORLINKCH(2);
+	DMA0->TCD[id].CSR |= DMA_CSR_MAJORELINK_MASK;
 
 	if(conf->mode == PERIPHERAL_2_MEM)		//peripheral to memory
 	{
