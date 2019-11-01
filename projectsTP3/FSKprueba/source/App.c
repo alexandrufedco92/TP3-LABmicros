@@ -10,18 +10,7 @@
 /*
 
 */
-//#include "comController2pc.h"
-#include "uart.h"
-#include "waveGen.h"
-#include "timer.h"
-#include <math.h>
-#include <stdint.h>
-#include "gpio.h"
-#include "ADC.h"
-#include "FSK_Demodulator.h"
-#include "PIT.h"
-#include "measureFreq.h"
-#include "bitStreamQueue.h"
+#include "Bell202.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -38,136 +27,21 @@
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-void FMcallback(void);
-float  ShapeAnalogSample( ADC_Data_t sample);
-
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
-enum{debugV1, debugV2};
-
-int debugFlag = debugV1;
-
-//FM demodulation
-static bool frame_to_send[FRAME_SIZE];
-//DAC
-
-
-//INPUT CAPTURE
-int freq = 0;
-//UART
-
-char key = MARK_KEY;
-
-/* Función que se llama 1 vez, al comienzo del programa */
 
 void App_Init (void)
 {
-
-	uart_cfg_t config;
-	config.baudRate = 9600;
-	config.nBits = 8;
-	config.parity = NO_PARITY_UART;
-	config.rxWaterMark = 5;
-	config.txWaterMark = 2;
-	config.mode = NON_BLOCKING_SIMPLE;
-
-	uartInit (U0, config);
-
-	if(debugFlag == debugV1)
-	{
-		WaveGenConfig_t waveConf;
-		waveConf.freq = 1200;
-		waveConf.id = WAVE0_WAVEGEN;
-		waveConf.mode = SAMPLES_WAVEGEN;
-		waveConf.waveName = SIN_WAVEGEN;
-		initWaveGen(&waveConf);
-		InitializeTimers();
-		SetTimer(MODULATION, 833, FMcallback);
-
-
-		DemodulatorInit();
-
-
-	}
-	else if(debugFlag == debugV2)
-	{
-		initFreqMeasure();
-
-		WaveGenConfig_t waveConf;
-		waveConf.freq = 1200;
-		waveConf.id = WAVE0_WAVEGEN;
-		waveConf.mode = PWM_WAVEGEN;
-		waveConf.waveName = SIN_WAVEGEN;
-		initWaveGen(&waveConf);
-	}
-
-
-
-
-
+	ModemInit();
 }
 /* Función que se llama constantemente en un ciclo infinito */
 
 void App_Run (void)
 {
-
-		 demodFSK();
-		 if(something2send())
-		 {
-		 	 uartWriteMsg(U0, porNextBitstream(), 1);
-		 }
-
-		 if(something2readUART())
-		 {
-		 	 modulateFSK(getLectureUART());
-		 }
-
-	if(debugFlag == debugV2)
-	{
-		//RX
-		if(isNewMeasReady())
-		{
-			freq = getFreqMeasure();
-		}
-		if(IS_MARK_FREQ(freq))
-		{
-			key = MARK_KEY;
-		}
-		else if(IS_SPACE_FREQ(freq))
-		{
-			key = SPACE_KEY;
-		}
-		uartWriteMsg(U0, &key, 1);
-
-		//TX  (por ahora se debuggea actualizando con interrupciones)
-
-	}
-	else if(debugFlag == debugV1)
-	{
-		float sample = 0;
-		bool digital_symbol = 0;
-		//RX
-		if ( IsConversionFinished() )
-		{
-			sample = ShapeAnalogSample( GetConversionResult());
-			digital_symbol = DemodulateSignal( sample );
-			if( IsDemodulationFinished() )
-			{
-				PushBit(digital_symbol);
-			}
-			if( IsFrameReady() )
-			{
-				GetFrame( frame_to_send );//Mando el frame por Uart.
-			}
-
-		}
-
-		//TX (por ahora se debuggea actualizando con interrupciones)
-
-	}
+	ModemRun();
 
 
 	/* Main program to generate a sinusoidal signal with de DAC, controlling the frequency
@@ -190,28 +64,6 @@ void App_Run (void)
  *******************************************************************************
  ******************************************************************************/
 
-
-void FMcallback(void)
-{
-	static int i = 2;
-	if((i % 2) == 0)
-	{
-		i = 3;
-		updateWaveFreq(WAVE0_WAVEGEN, 1200);
-
-	}
-	else
-	{
-		i = 2;
-		updateWaveFreq(WAVE0_WAVEGEN, 2200);
-	}
-}
-
-float  ShapeAnalogSample( ADC_Data_t analog_sample)
-{
-	float sample = 2*analog_sample;
-	return ( sample/( (float)UINT16_MAX )-1 );
-}
 
 /*******************************************************************************
  ******************************************************************************/

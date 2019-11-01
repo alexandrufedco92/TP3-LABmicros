@@ -29,7 +29,7 @@ void DemodulatorInit(void);
  * @param result Buffer in which to paste the digital signal values.
  * @return logical symbol of signal or -1 if more samples are needed to finish.
 */
-void DemodulateSignal(float recieved);
+void DemodulateSignal(void);
 
 bool NeedDemodulation(void);
 

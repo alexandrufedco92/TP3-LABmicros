@@ -13,6 +13,7 @@
 #include "measureFreq.h"
 #include "bitStreamQueue.h"
 #include "PIT.h"
+#include "timer.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -48,7 +49,7 @@ void ModulatorInit(void)
 	WaveGenConfig_t waveConf;
 	waveConf.freq = IDLE_FREQ;
 	waveConf.id = WAVE0_WAVEGEN;
-	Wid = WAVE0_WAVEGEN;
+	wId = WAVE0_WAVEGEN;
 	waveConf.waveName = SIN_WAVEGEN;
 	#ifdef DAC_VERSION
 		waveConf.mode = SAMPLES_WAVEGEN;
@@ -59,13 +60,15 @@ void ModulatorInit(void)
 	initWaveGen(&waveConf);
 
 	/* Initialize Modulator Timer. */
+	//InitializeTimers();
+	//SetTimer(MODULATION, MOD_PERIOD_US+1, ModulateFSK);
 	PITinit();
 	pit_config_t configP3 = { 	MOD_PERIOD_US, 	/* Value of timer in us. */
-								3, 				/* Number of PIT timer. */
+								2, 				/* Number of PIT timer. */
 								false,  		/* True if timer in Chain Mode. */
 								ModulateFSK 	/* Callback for interrupt. NULL if interrupt is disabled. */
 							};
-	PITstartTimer(configP0);
+	PITstartTimer(&configP3);
 
 	/* Initialize local variables. */
 	currVal = IDLE_VAL; /* Idle starting value is logic 1. */
@@ -79,18 +82,20 @@ void ModulatorInit(void)
 void ModulateFSK(void){
 	if(isQueueEmpty()){ /* Data Queue empty. */
 		if(currVal != IDLE_VAL){ /* Transition to Idle state. */
-			updateWaveFreq(Wid, IDLE_FREQ);
+			updateWaveFreq(wId, IDLE_FREQ);
+			currVal = IDLE_VAL;
 		}
 	}
 	else{ /* Data Queue has new value. */
 		nextVal = popBit();
 		if( nextVal != currVal ){ /* Transition needed. */
 			if(nextVal == LOGIC_1_VAL){
-				updateWaveFreq(Wid, MARK_FREQ);
+				updateWaveFreq(wId, MARK_FREQ);
 			}
 			else{ /* LOGIC_0_VAL */
-				updateWaveFreq(Wid, SPACE_FREQ);
+				updateWaveFreq(wId, SPACE_FREQ);
 			}
+			nextVal = currVal;
 		}
 	}
 }
