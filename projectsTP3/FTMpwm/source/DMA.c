@@ -54,6 +54,7 @@ void initDMA(void){
 
 
 void DMAPrepareTransfer(dma_transfer_conf_t* conf){
+
 	uint8_t id = conf->channel;
 	dmaFuns[id] = conf->dma_callback;
 	configureDMAMUX(conf->channel, conf->request_source, conf->periodic_trigger);

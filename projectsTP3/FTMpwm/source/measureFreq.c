@@ -57,7 +57,7 @@ void initFreqMeasure(void)
 	conf.dma_callback = dmaCaptureCallback;
 	conf.periodic_trigger = false;
 	conf.request_source = DMA_FTM2_CH0;
-	DMAPrepareTransfer(DMA_EXAMPLE, &conf);
+	DMAPrepareTransfer(&conf);
 
 	FTMconfig_t configInputCapture;
 	configInputCapture.dmaMode = FTM_DMA_DISABLE;
