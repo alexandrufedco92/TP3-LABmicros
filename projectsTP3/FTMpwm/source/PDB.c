@@ -15,6 +15,7 @@
 #define PDB_MOD_VALUE_DEF 			1000U
 #define PDB_DAC_INTERVAL_VALUE_DEF 	800U
 #define PDB_DAC_CH_DEF				0
+#define BUS_CLOCK 					50000000U
 
 static void clockGating(void);
 static void setModulusValue(uint32_t);
@@ -42,6 +43,11 @@ void initPDB(pdb_config_t* conf){
 	PDB0->SC |= PDB_SC_PDBEN_MASK;
 	PDB0->SC |= PDB_SC_LDOK_MASK;
 }
+
+void PDBchangeFrequency(uint32_t value){
+	setModulusValue((int)(BUS_CLOCK/value-1));
+}
+
 
 void setModulusValue(uint32_t value){
 	PDB0->MOD = PDB_MOD_MOD(value);

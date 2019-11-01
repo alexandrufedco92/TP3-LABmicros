@@ -18,7 +18,7 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define SYSTICK_ISR_FREQ_HZ 20000UL //Clk de periodo 50us
+#define SYSTICK_ISR_FREQ_HZ 1200UL //Clk de periodo 833us
 
 
 

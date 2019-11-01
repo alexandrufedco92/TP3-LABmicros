@@ -56,4 +56,6 @@ void initPDBdac(pdb_dac_config_t*);
 
 void PDBsoftwareTrigger(void);
 
+void PDBchangeFrequency(uint32_t frequency);
+
 #endif /* PDB_H_ */

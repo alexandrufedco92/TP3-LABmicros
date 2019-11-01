@@ -10,6 +10,7 @@
  ******************************************************************************/
 
 #include <bitStreamQueue.h>
+#include <stdint.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -56,8 +57,13 @@ static void recursiveStore(int index, char value){
  ******************************************************************************/
 
 void bitStreamQueueInit(void){
+	frame_ready = false;
 	queue.top = -1;
 	queue.bitIdx = MSB_IDX;
+	for(unsigned int i =0; i< FRAME_SIZE; i++)
+	{
+		signal_frame[i] = '5';
+	}
 }
 
 bool pushChar(char value){
@@ -114,7 +120,7 @@ bool PushBit(char bit)
 	}
 	else
 	{
-		signal_frame[frame_index] = bit;
+		signal_frame[FRAME_SIZE-1-frame_index] = bit;
 		frame_index++;
 
 		if( frame_index == FRAME_SIZE)
@@ -130,12 +136,14 @@ bool IsFrameReady(void)
 
 char* GetFrame(void)
 {
+	frame_ready = false;
+	frame_index = 0;
 	return signal_frame;
 }
 
 bool pushString(char * string, uint8_t cant){
 	bool success = false;
-	for(uint_8 i = 0;i<cant;i++){
+	for(uint8_t  i = 0;i<cant;i++){
 		success = pushChar(string[i]);
 		if(!success){ /* Failed to push. */
 			return false;
