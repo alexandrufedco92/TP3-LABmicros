@@ -66,7 +66,9 @@ void initDMA(void);
  * @param
  * @return
 */
-void DMAPrepareTransfer(dma_transfer_conf_t* config);
+void DMAPrepareTransferELINKNO(dma_transfer_conf_t* config);
+
+void DMAPrepareTransferELINKYES(dma_transfer_conf_t* config);
 
 
 #endif /* DMA_H_ */

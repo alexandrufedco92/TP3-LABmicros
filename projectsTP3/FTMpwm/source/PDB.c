@@ -59,7 +59,7 @@ void setModulusValue(uint32_t value){
 void setCounterDelayValue(uint32_t value){
 	PDB0->IDLY = PDB_IDLY_IDLY(value);
 }
-b
+
 void clockGating(void){
 	SIM->SCGC6 |= SIM_SCGC6_PDB_MASK;
 }
