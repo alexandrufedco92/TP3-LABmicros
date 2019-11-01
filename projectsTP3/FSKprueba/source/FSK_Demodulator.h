@@ -12,7 +12,7 @@
 
 #ifndef FSK_DEMODULATOR_H_
 #define FSK_DEMODULATOR_H_
-#define DSP_VERSION			//Uses demodulator with DSP if defined, if commented the demodulator
+//#define DSP_VERSION			//Uses demodulator with DSP if defined, if commented the demodulator
 							//is implemented via alternate method withouT DSP and ADC.
 
 /**
@@ -32,8 +32,6 @@ void DemodulatorInit(void);
 void DemodulateSignal(void);
 
 bool NeedDemodulation(void);
-
-bool IsDemodulationFinished(void);
 
 
 #endif /* FSK_DEMODULATOR_H_ */

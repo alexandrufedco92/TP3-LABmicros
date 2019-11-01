@@ -13,14 +13,18 @@
 #include "measureFreq.h"
 #include "bitStreamQueue.h"
 #include "PIT.h"
-#include "timer.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
 #define MARK_FREQ	1200U /* Frequency in Hz. */
-#define SPACE_FREQ	2200U /* Frequency in Hz. */
+#ifndef DAC_VERSION
+#define SPACE_FREQ	2400U /* Frequency in Hz. */
+#elif
+#define SPAC_FREQ 2200U
+#endif
+
 #define IDLE_FREQ	MARK_FREQ
 #define MOD_PERIOD_US	833 /* Period of the modulated signal. */
 #define IDLE_VAL	true /* Logic Value for Idle state. */
@@ -60,7 +64,6 @@ void ModulatorInit(void)
 	#ifdef DAC_VERSION
 		waveConf.mode = SAMPLES_WAVEGEN;
 	#else	//PWM Version
-		initFreqMeasure();
 		waveConf.mode = PWM_WAVEGEN;
 	#endif
 	initWaveGen(&waveConf);

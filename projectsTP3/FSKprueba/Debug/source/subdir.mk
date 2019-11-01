@@ -7,16 +7,17 @@ C_SRCS += \
 ../source/ADC.c \
 ../source/App.c \
 ../source/Bell202.c \
+../source/CMP.c \
 ../source/DAC.c \
+../source/DMAMUX.c \
 ../source/FSK_Demodulator.c \
 ../source/FSK_Modulator.c \
 ../source/FTM.c \
+../source/PDB.c \
 ../source/PIT.c \
-../source/SysTick.c \
 ../source/bitStreamQueue.c \
 ../source/gpio.c \
 ../source/measureFreq.c \
-../source/timer.c \
 ../source/uart.c \
 ../source/waveGen.c 
 
@@ -24,16 +25,17 @@ OBJS += \
 ./source/ADC.o \
 ./source/App.o \
 ./source/Bell202.o \
+./source/CMP.o \
 ./source/DAC.o \
+./source/DMAMUX.o \
 ./source/FSK_Demodulator.o \
 ./source/FSK_Modulator.o \
 ./source/FTM.o \
+./source/PDB.o \
 ./source/PIT.o \
-./source/SysTick.o \
 ./source/bitStreamQueue.o \
 ./source/gpio.o \
 ./source/measureFreq.o \
-./source/timer.o \
 ./source/uart.o \
 ./source/waveGen.o 
 
@@ -41,16 +43,17 @@ C_DEPS += \
 ./source/ADC.d \
 ./source/App.d \
 ./source/Bell202.d \
+./source/CMP.d \
 ./source/DAC.d \
+./source/DMAMUX.d \
 ./source/FSK_Demodulator.d \
 ./source/FSK_Modulator.d \
 ./source/FTM.d \
+./source/PDB.d \
 ./source/PIT.d \
-./source/SysTick.d \
 ./source/bitStreamQueue.d \
 ./source/gpio.d \
 ./source/measureFreq.d \
-./source/timer.d \
 ./source/uart.d \
 ./source/waveGen.d 
 

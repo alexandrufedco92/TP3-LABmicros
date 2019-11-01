@@ -1,6 +1,6 @@
 source/FSK_Demodulator.o source/FSK_Demodulator.d: \
  ../source/FSK_Demodulator.c ../source/FSK_Demodulator.h ../source/ADC.h \
- ../source/bitStreamQueue.h ../source/timer.h
+ ../source/bitStreamQueue.h ../source/measureFreq.h
 
 ../source/FSK_Demodulator.h:
 
@@ -8,4 +8,4 @@ source/FSK_Demodulator.o source/FSK_Demodulator.d: \
 
 ../source/bitStreamQueue.h:
 
-../source/timer.h:
+../source/measureFreq.h:

@@ -64,10 +64,8 @@ void ModemRun(void)
 		DemodulateSignal(); //Starts Demodulation
 		if( IsFrameReady() )
 		{
-
 			msg2send = GetFrame();
 			uartWriteMsg(U0, &msg2send , 1); //Sends data frame
-
 		}
 	}
 

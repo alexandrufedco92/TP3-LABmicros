@@ -8,7 +8,7 @@
 #include "FSK_Demodulator.h"
 #include "ADC.h"
 #include "bitStreamQueue.h"
-#include "timer.h"
+#include "measureFreq.h"
 
 /***********************************************************
  *					 DEFINES AND MACROS
@@ -28,6 +28,12 @@
 //Size of Buffers
 #define CIRCULAR_BUFFER_SIZE 40
 
+#define MARK_KEY '1'
+#define SPACE_KEY '0'
+
+#define IS_MARK_FREQ(f) ( (f >= 1000) && (f <= 1400) )
+#define IS_SPACE_FREQ(f) ( (f >= 2200) && (f <= 2600) )
+
 typedef struct{
 	float buffer[CIRCULAR_BUFFER_SIZE];
 	int16_t curr; //indice del ultimo elemento agregado
@@ -43,7 +49,6 @@ static float average_aux = 0;		//Average of Comparator samples.
 static uint8_t sample_counter = 0;	//Counts number of samples averaged.
 static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
 static bool idle = true;		//Flag that indicates if in idle state
-static bool symbol_detected = false;//Flag that indicates when a digital symbol was detected.
 
 static uint32_t fs; //Sample frequency of the FSK signal
 static uint8_t prev_samples; //number of samples acorrding to the delay and the fs.
@@ -72,7 +77,7 @@ float ApplyFIR(void);
 */
 void ReconstructSignal(float comp_out);
 void InitializeHardware(void);
-void ADC_Callback(void); //DEBUGGEO
+
 /***********************************************************
  * 				FUNCTIONS WITH GLOBAL SCOPE
  ***********************************************************/
@@ -87,6 +92,7 @@ void DemodulatorInit(void)
 	InitializeHardware();
 
 #else	//PWM_VERSION
+	initFreqMeasure();
 #endif
 
 }
@@ -128,25 +134,32 @@ void DemodulateSignal(void)
 	//Gets bitstream values.
 	ReconstructSignal(comp_out);
 #else
+	int freq = 0;
+	freq = getFreqMeasure( );
+	if( IS_MARK_FREQ(freq) && (!idle))
+	{
+		PushBit(MARK_KEY);
+	}
+	else if( IS_SPACE_FREQ(freq) )
+	{
+		idle = false;
+		PushBit(SPACE_KEY);
+	}
+	if(IsFrameReady())
+	{
+		idle = true;
+	}
 #endif
 
 }
 
-bool IsDemodulationFinished(void)
-{
-#ifdef DSP_VERSION
-	return symbol_detected;
-
-#else //PWM_VERSION
-#endif
-}
 
 bool NeedDemodulation(void)
 {
 	#ifdef DSP_VERSION
 		return IsConversionFinished();
 	#else	//PWM_VERSION
-		//Complete
+		return isNewMeasReady();
 	#endif
 }
 
@@ -204,17 +217,12 @@ void ReconstructSignal(float comp_out)
 {
 	if(idle)
 	{
-		if( comp_out)
-		{
-			symbol_detected = false;
-		}
-		else
+		if(!comp_out)
 		{
 			idle = false;
 			PushBit('0');	//Start bit
 			idle_counter = 0;
 			sample_counter = 1;
-			symbol_detected = false;
 		}
 	}
 	else
@@ -228,7 +236,6 @@ void ReconstructSignal(float comp_out)
 			{
 				last_sample_value = 1;
 				average_aux = 0;
-				symbol_detected = true;
 				PushBit('1'); //Adds a '1' to the frame.
 			}
 			else
@@ -236,15 +243,10 @@ void ReconstructSignal(float comp_out)
 				last_sample_value = 0;
 				idle_counter = 0;
 				average_aux = 0;
-				symbol_detected = true;
 				PushBit('0'); //Adds a '0' to the frame.
 			}
 			if( IsFrameReady() )
 				idle = true;
-		}
-		else
-		{
-			symbol_detected = false;
 		}
 
 	}

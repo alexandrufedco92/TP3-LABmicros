@@ -8,6 +8,8 @@
 #ifndef FTM_H_
 #define FTM_H_
 
+#include <stdint.h>
+
 #define NUMBER_OF_FTM_MODULES 4
 #define FTM_MAX_PRESCALER 128
 #define FTM_MIN_PRESCALER 1
@@ -73,6 +75,8 @@ void updateCnV(FTMmodules id, FTMchannels ch, int newCnV);
 
 int getCnV(FTMmodules id, FTMchannels ch);
 
+uint32_t * getSYNCadress(FTMmodules id, FTMchannels ch);
+
 int getMOD_FTM(FTMmodules id, FTMchannels ch);
 
 int getCNTIN_FTM(FTMmodules id, FTMchannels ch);
@@ -84,5 +88,11 @@ void disableFTMinterrupts(FTMmodules id);
 void softwareFTMtrigger(FTMmodules id);
 
 int shapeDuty2cnv(FTMmodules id, float dutyPercent);
+
+void getFTMswTriggerREG(FTMmodules id, uint32_t * p2regSWtrigger, uint32_t * mask2SWtrigger);
+
+int shapeFTMDifCaptured2Freq(FTMmodules id, int dif);
+
+uint32_t * getCnVadress(FTMmodules id, FTMchannels ch);
 
 #endif /* FTM_H_ */
