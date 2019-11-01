@@ -140,8 +140,8 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 
 
-	/*initDMA();
-	configureDMAMUX(0, 58, true);
+	initDMA();
+	configureDMAMUX(DMA_WAVEGEN_CH, DMA_PIT1, true);
 	conf.source_address = (uint32_t)pwmSenLUT;
 	conf.dest_address = (uint32_t)getCnVadress(FTM0_INDEX, FTM_CH0);
 	conf.offset = 0x02;
@@ -150,7 +150,7 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	conf.total_bytes = conf.bytes_per_request*16;	//el total será 2bytes*16
 	conf.mode = MEM_2_PERIPHERAL;
 
-	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);*/
+	DMAPrepareTransfer(DMA_WAVEGEN_CH, &conf);
 	SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
@@ -189,9 +189,10 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	//enableFTMinterrupts(FTMpwmConfig.nModule);
 	//float periodMs = 1000.0/((float)(freq*N_SAMPLES));
 	float periodMs = 1000.0/((float)(freq*N_SAMPLES));
-	config_t config = {	{(int)(periodMs*1000.0),0,0,0},
+	int periodSampleUs = (int)(periodMs*1000.0);
+	config_t config = {	{periodSampleUs/2, periodSampleUs,0,0},
 								{true,false,false,false},
-								{true,false,false,false},
+								{true,true,false,false},
 								{false,false,false,false},
 								{softwareTriggerFTM,NULL,NULL,NULL} };
 
@@ -248,7 +249,8 @@ void softwareTriggerFTM(void)
 	}
 	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
-		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
+		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal/2);
+		PITmodifyTimer(1, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }

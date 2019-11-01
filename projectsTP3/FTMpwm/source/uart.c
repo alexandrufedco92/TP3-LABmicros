@@ -13,7 +13,7 @@
 
 
 
-#define MAX_BAUD_RATE 0x1FFF
+#define MAX_BAUD_RATE 0xFFFF
 #define MIN_BAUD_RATE 0x0000
 #define BAUD_RATE_DEFAULT 15500
 
