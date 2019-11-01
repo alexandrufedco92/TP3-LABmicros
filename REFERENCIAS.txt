@@ -10,3 +10,4 @@ https://www.nxp.com/docs/en/application-note/AN4369.pdf
 
 SOBRE DMA con DAC y DAC buffer:
 https://hackaday.io/project/12543-solid-state-flow-sensing-using-eis/log/41575-dac-with-dma-and-buffer-on-a-teensy-32
+-Using the DMA module in Kinetis devices, by Freescale Semiconductor.
