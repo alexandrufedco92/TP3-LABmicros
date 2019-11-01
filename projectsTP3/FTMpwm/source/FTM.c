@@ -127,6 +127,7 @@ void FTMinit(FTMconfig_t * p2config)
 			else if(p2config->dmaMode == FTM_DMA_ENABLE)
 			{
 				p2FTM->CONTROLS[p2config->nChannel].CnSC |= FTM_CnSC_DMA(1);
+				//NVIC_EnableIRQ(arrayFTMirqs[p2config->nModule]);
 			}
 			if(p2config->trigger == FTM_HW_TRIGGER)
 			{
