@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #define MAX_TOP	(QUEUE_SIZE-2)
-#define QUEUE_SIZE	100
+#define QUEUE_SIZE	8000
 /* Index for most significant bit in char. */
 #define MSB_IDX	7
 /* Index for least significant bit in char. */
@@ -62,10 +62,6 @@ void bitStreamQueueInit(void){
 	frame_ready = false;
 	queue.top = -1;
 	queue.bitIdx = MSB_IDX;
-	for(unsigned int i =0; i< FRAME_SIZE; i++)
-	{
-		signal_frame[i] = '5';
-	}
 }
 
 bool pushChar(char value){

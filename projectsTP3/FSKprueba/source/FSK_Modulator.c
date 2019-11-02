@@ -22,7 +22,7 @@
 #ifndef DAC_VERSION
 #define SPACE_FREQ	2400U /* Frequency in Hz. */
 #else
-#define SPAC_FREQ 2200U
+#define SPACE_FREQ 2200U
 #endif
 
 #define IDLE_FREQ	MARK_FREQ
@@ -31,6 +31,7 @@
 #define LOGIC_1_VAL	true
 #define LOGIC_0_VAL	false
 #define DATA_SIZE 8
+#define SYNC_SYMBOLS 6
 
 static unsigned int index = 0;
 static bool idle = true;
@@ -93,6 +94,7 @@ void ModulateFSK(void){
 			updateWaveFreq(wId, IDLE_FREQ);
 			currVal = IDLE_VAL;
 			idle = true;
+			index = 0;
 		}
 	}
 	else{ /* Data Queue has new value. */
@@ -101,12 +103,24 @@ void ModulateFSK(void){
 			updateWaveFreq(wId, SPACE_FREQ); //Send start bit.
 		}
 		if( index == DATA_SIZE){
-			updateWaveFreq(wId, MARK_FREQ); //Send parity bit.
+			updateWaveFreq(wId, IDLE_FREQ); //Send parity bit.
+			currVal = IDLE_VAL;
 			index++;
 		}
 		else  if( index == DATA_SIZE+1){
-			updateWaveFreq(wId, MARK_FREQ); //Send stop bit.
+			updateWaveFreq(wId, IDLE_FREQ); //Send stop bit.
+			currVal = IDLE_VAL;
+			index++;
+		}
+		else if( (index > (DATA_SIZE+1) ) &&(index <= DATA_SIZE+SYNC_SYMBOLS) )
+		{
+			updateWaveFreq(wId, IDLE_FREQ); //'1's for synchronization
+			currVal = IDLE_VAL;
+			index++;
+		}
+		else if( index == DATA_SIZE+SYNC_SYMBOLS+1){
 			index = 0;
+			currVal = IDLE_VAL;
 		}
 		else{
 			nextVal = popBit();

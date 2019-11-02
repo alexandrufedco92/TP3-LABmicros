@@ -28,8 +28,8 @@
 
 #define TX_MESSAGE_MAX_LEN 8
 
-#define RX_BUFFER_LEN 8
-#define TX_BUFFER_LEN 200
+#define RX_BUFFER_LEN 8000
+#define TX_BUFFER_LEN 2000
 
 #define EMPTY -1
 #define TX_FIFO_SIZE_K64 7

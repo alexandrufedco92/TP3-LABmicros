@@ -18,7 +18,6 @@
  * 					DEFINES AND MACROS
  *************************************************************/
 #define FRAME_SIZE 11
-#define MAX_RECIEVED_SIZE 20
 #define DATA_SIZE 8
 
 /***********************************************************
@@ -54,8 +53,7 @@ void ModemInit( void)
 
 void ModemRun(void)
 {
-	char recieved[MAX_RECIEVED_SIZE];
-	uint8_t cant_recieved = 0;	//Recieved bytes from UART.
+	char recieved =0;
 	char msg2send = 0;
 
 	//FSK demodulation
@@ -71,11 +69,10 @@ void ModemRun(void)
 
 	//FSK modulation
 
-	cant_recieved = uartIsRxMsg(U0);
-	if( cant_recieved )
+	if( uartIsRxMsg(U0) )
 	{
-		uartReadMsg(U0, recieved, cant_recieved );
-		pushString(recieved, cant_recieved);
+		uartReadMsg(U0, &recieved, 1 );
+		pushChar(recieved);
 	}
 
 }

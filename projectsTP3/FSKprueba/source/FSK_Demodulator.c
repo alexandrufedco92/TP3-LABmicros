@@ -22,11 +22,10 @@
 #define FIR_ORDER 18
 //Reconstruction parameters
 #define AVG_SAMPLES 10 //Number of samples to average to decide '1' or '0'.
-#define MID 0.5				//Treshold for deciding between '0' and '1'.
-#define IDLE_LIMIT 8		//Nummber of '1' symbols in a row that start idle state.
+#define MID 5				//Treshold for deciding between '0' and '1'.
 
 //Size of Buffers
-#define CIRCULAR_BUFFER_SIZE 40
+#define CIRCULAR_BUFFER_SIZE 100
 
 #define MARK_KEY '1'
 #define SPACE_KEY '0'
@@ -47,7 +46,6 @@ static float last_fir_output = 1;
 static float last_sample_value;		//Last digital value recieved
 static float average_aux = 0;		//Average of Comparator samples.
 static uint8_t sample_counter = 0;	//Counts number of samples averaged.
-static uint8_t idle_counter = 0;	//Counter that indicates if in idle state.
 static bool idle = true;		//Flag that indicates if in idle state
 
 static uint32_t fs; //Sample frequency of the FSK signal
@@ -221,7 +219,6 @@ void ReconstructSignal(float comp_out)
 		{
 			idle = false;
 			PushBit('0');	//Start bit
-			idle_counter = 0;
 			sample_counter = 1;
 		}
 	}
@@ -231,7 +228,6 @@ void ReconstructSignal(float comp_out)
 		if( (++sample_counter) == AVG_SAMPLES)
 		{
 			sample_counter = 0;
-			average_aux /= AVG_SAMPLES;
 			if( average_aux >= MID )
 			{
 				last_sample_value = 1;
@@ -241,7 +237,6 @@ void ReconstructSignal(float comp_out)
 			else
 			{
 				last_sample_value = 0;
-				idle_counter = 0;
 				average_aux = 0;
 				PushBit('0'); //Adds a '0' to the frame.
 			}
