@@ -47,14 +47,31 @@ void ModemInit( void)
 	uartInit (U0, config);			//Initializes UART module
 
 	bitStreamQueueInit();			//Initializes data queues
-	DemodulatorInit();				//Initializes FSK demodulator
-	ModulatorInit();				//Initializes FSK modulator
+	//DemodulatorInit();				//Initializes FSK demodulator
+	//ModulatorInit();				//Initializes FSK modulator
 }
+typedef enum{RECIEVING,RECIEVED};
 
 void ModemRun(void)
 {
-	char recieved =0;
+	char recieved;
 	char msg2send = 0;
+	bool state;
+	//Prueba solo con UART
+
+	if( ! isQueueEmpty() )
+		{
+			msg2send = popChar();
+			uartWriteMsg(U0, &msg2send , 1); //Sends data frame
+		}
+
+
+	if( uartIsRxMsg(U0) )
+		{
+			uartReadMsg(U0, &recieved, 1 );
+			pushChar(recieved);
+		}
+	/*
 
 	//FSK demodulation
 	if( NeedDemodulation() ) //Checks for sample
@@ -74,6 +91,7 @@ void ModemRun(void)
 		uartReadMsg(U0, &recieved, 1 );
 		pushChar(recieved);
 	}
+	*/
 
 }
 

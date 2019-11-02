@@ -100,26 +100,28 @@ void ModulateFSK(void){
 	else{ /* Data Queue has new value. */
 		if( idle ){
 			idle = false;
+			index = 0;
 			updateWaveFreq(wId, SPACE_FREQ); //Send start bit.
+			currVal = LOGIC_0_VAL;
 		}
-		if( index == DATA_SIZE){
+		else if( index == DATA_SIZE){
 			updateWaveFreq(wId, IDLE_FREQ); //Send parity bit.
 			currVal = IDLE_VAL;
 			index++;
 		}
 		else  if( index == DATA_SIZE+1){
-			updateWaveFreq(wId, IDLE_FREQ); //Send stop bit.
-			currVal = IDLE_VAL;
+			currVal = IDLE_VAL;	//Send stop bit
 			index++;
 		}
 		else if( (index > (DATA_SIZE+1) ) &&(index <= DATA_SIZE+SYNC_SYMBOLS) )
 		{
-			updateWaveFreq(wId, IDLE_FREQ); //'1's for synchronization
+			//Delay for synchronization
 			currVal = IDLE_VAL;
 			index++;
 		}
 		else if( index == DATA_SIZE+SYNC_SYMBOLS+1){
 			index = 0;
+			idle = true;
 			currVal = IDLE_VAL;
 		}
 		else{

@@ -218,7 +218,6 @@ void ReconstructSignal(float comp_out)
 		if(!comp_out)
 		{
 			idle = false;
-			PushBit('0');	//Start bit
 			sample_counter = 1;
 		}
 	}

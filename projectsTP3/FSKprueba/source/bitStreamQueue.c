@@ -165,3 +165,14 @@ bool pushString(char * string, uint8_t cant){
 	}
 	return true;
 }
+
+char popChar(void)
+{
+	if( isQueueEmpty()){ /* Queue empty. */
+			return 0;
+		}
+		else{ /* pops last char */
+			--(queue.top);
+			return queue.bitStreamQueue[(queue.top)+1];
+		}
+}

@@ -37,6 +37,8 @@ void bitStreamQueueInit(void);
  */
 bool pushChar(char value);
 
+//FUNCION PAA DEBUGGEAR
+char popChar(void);
 /**
  * @brief Pushes char into Queue if there is space.
  * @param string Data string to push.

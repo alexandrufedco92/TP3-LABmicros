@@ -9,6 +9,7 @@ C_SRCS += \
 ../source/Bell202.c \
 ../source/CMP.c \
 ../source/DAC.c \
+../source/DMA.c \
 ../source/DMAMUX.c \
 ../source/FSK_Demodulator.c \
 ../source/FSK_Modulator.c \
@@ -27,6 +28,7 @@ OBJS += \
 ./source/Bell202.o \
 ./source/CMP.o \
 ./source/DAC.o \
+./source/DMA.o \
 ./source/DMAMUX.o \
 ./source/FSK_Demodulator.o \
 ./source/FSK_Modulator.o \
@@ -45,6 +47,7 @@ C_DEPS += \
 ./source/Bell202.d \
 ./source/CMP.d \
 ./source/DAC.d \
+./source/DMA.d \
 ./source/DMAMUX.d \
 ./source/FSK_Demodulator.d \
 ./source/FSK_Modulator.d \
