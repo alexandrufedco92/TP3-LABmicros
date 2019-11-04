@@ -41,11 +41,14 @@ void initDMA(void){
 	{
 		clockGatingDMA();
 		initDMAMUX();	//clock gating dmamux
+		NVIC_ClearPendingIRQ(DMA0_IRQn);
 		NVIC_EnableIRQ(DMA0_IRQn);
+		NVIC_ClearPendingIRQ(DMA1_IRQn);
 		NVIC_EnableIRQ(DMA1_IRQn);
+		NVIC_ClearPendingIRQ(DMA2_IRQn);
 		NVIC_EnableIRQ(DMA2_IRQn);
+		NVIC_ClearPendingIRQ(DMA3_IRQn);
 		NVIC_EnableIRQ(DMA3_IRQn);
-	//	NVIC_EnableIRQ(DMA_Error_IRQn);
 		dma_initialized = true;
 	}
 }
@@ -75,7 +78,7 @@ void DMAPrepareTransferELINKNO(dma_transfer_conf_t* conf){
 		DMA0->TCD[id].SLAST = 0x00;
 		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
 	}
-	if(conf->mode == MEM_2_PERIPHERAL)		//memory to peripheral
+	else if(conf->mode == MEM_2_PERIPHERAL)		//memory to peripheral
 	{
 		if(conf->offset == 0)
 			DMA0->TCD[id].SLAST = (uint32_t)0;
@@ -119,8 +122,8 @@ void DMAPrepareTransferELINKYES(dma_transfer_conf_t* conf){
 	uint8_t id = conf->channel;
 	dmaFuns[id] = conf->dma_callback;
 //	configureDMAMUX(conf->channel, conf->request_source, conf->periodic_trigger);
-	DMA0->TCD[id].SADDR = conf->source_address;
-	DMA0->TCD[id].DADDR = conf->dest_address;
+	DMA0->TCD[id].SADDR = (uint32_t)(conf->source_address);
+	DMA0->TCD[id].DADDR = (uint32_t)(conf->dest_address);
 
 	DMA0->TCD[id].ATTR = DMA_ATTR_SSIZE(conf->transf_size) | DMA_ATTR_DSIZE(conf->transf_size);
 
@@ -146,7 +149,7 @@ void DMAPrepareTransferELINKYES(dma_transfer_conf_t* conf){
 		DMA0->TCD[id].SLAST = 0x00;
 		DMA0->TCD[id].DLAST_SGA = -citer*nbytes;
 	}
-	if(conf->mode == MEM_2_PERIPHERAL)		//memory to peripheral
+	else if(conf->mode == MEM_2_PERIPHERAL)		//memory to peripheral
 	{
 		if(conf->offset == 0)
 			DMA0->TCD[id].SLAST = (uint32_t)0;
@@ -192,10 +195,12 @@ void DMA0_IRQHandler(){
 		dmaFuns[0]();
 }
 
+int dmacounter=0;
 void DMA1_IRQHandler(){
 	DMA0->CINT |= 0;
 	if(dmaFuns[1] != NULL)
 		dmaFuns[1]();
+	dmacounter++;
 }
 
 void DMA2_IRQHandler(){
