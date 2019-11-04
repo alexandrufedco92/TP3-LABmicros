@@ -50,19 +50,32 @@ void ModemInit( void)
 	//DemodulatorInit();				//Initializes FSK demodulator
 	//ModulatorInit();				//Initializes FSK modulator
 }
-typedef enum{RECIEVING,RECIEVED};
+typedef enum{NOT_SENDING, SENDING}tansmission_state_t;
 
 void ModemRun(void)
 {
 	char recieved;
+	char aux =0;
 	char msg2send = 0;
-	bool state;
+	tansmission_state_t state = NOT_SENDING;
+
 	//Prueba solo con UART
 
 	if( ! isQueueEmpty() )
 		{
-			msg2send = popChar();
-			uartWriteMsg(U0, &msg2send , 1); //Sends data frame
+			if( state == NOT_SENDING)
+			{
+				msg2send = popChar();
+				uartWriteMsg(U0, &msg2send , 1); //Sends data frame
+				state = SENDING;
+			}
+			else
+			{
+				if( uartIsTxMsgComplete(U0))
+				{
+					state = NOT_SENDING;
+				}
+			}
 		}
 
 
@@ -71,8 +84,9 @@ void ModemRun(void)
 			uartReadMsg(U0, &recieved, 1 );
 			pushChar(recieved);
 		}
-	/*
 
+
+/*
 	//FSK demodulation
 	if( NeedDemodulation() ) //Checks for sample
 	{
@@ -89,9 +103,10 @@ void ModemRun(void)
 	if( uartIsRxMsg(U0) )
 	{
 		uartReadMsg(U0, &recieved, 1 );
-		pushChar(recieved);
+		aux = AdjustParity(recieved);
+		pushChar(aux);
 	}
-	*/
+*/
 
 }
 

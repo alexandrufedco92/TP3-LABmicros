@@ -99,8 +99,9 @@ void uartInit (uint8_t id, uart_cfg_t config)
 		p2uart->C2 &= (~(UART_C2_TE_MASK | UART_C2_RE_MASK)); //para configurar correctamente deshabilito la transmision y la recepcion
 
 
-		//UART_setParity(p2uart, config.parity);
 		UART_setBaudRate(p2uart, config.baudRate);
+		UART_setParity(p2uart, config.parity);
+		p2uart->BDH &= ~UART_BDH_SBNS_MASK;
 		//UART_setNdataBits(p2uart, config.nBits);
 
 		portRX = PIN2PORT(uartRXpins[id]);
@@ -315,6 +316,7 @@ void UARTX_LON_IRQHandler(uint8_t id)
 }
 void UARTX_RX_TX_IRQHandler(uint8_t id)
 {
+	//NVIC_DisableIRQ( uartIRQs_TX_RX[id] ); //Deshabilito interrupciones para que no se pisen datos
 	//tengo que ver que me llamo a la interrupción
 	//para esto, leo el status
 	UART_Type * p2uartsArray[] = UART_BASE_PTRS;
@@ -384,6 +386,7 @@ void UARTX_RX_TX_IRQHandler(uint8_t id)
 		}
 
 	}
+	//NVIC_EnableIRQ(uartIRQs_TX_RX[id]); //Vuelvo a habilitar interrupciones
 }
 
 
@@ -444,10 +447,12 @@ void UART_setParity(UART_Type * p2uart, uint8_t parity)
 		case ODD_PARITY_UART:
 			p2uart->C1 |= UART_C1_PE_MASK;
 			p2uart->C1 |= UART_C1_PT_MASK;
+			p2uart->C1 |= UART_C1_M_MASK;
 			break;
 		case EVEN_PARITY_UART:
 			p2uart->C1 |= UART_C1_PE_MASK;
 			p2uart->C1 &= (~UART_C1_PT_MASK);
+			p2uart->C1 |= UART_C1_M_MASK;
 			break;
 		case NO_PARITY_UART:
 			p2uart->C1 &= (~UART_C1_PE_MASK);
