@@ -455,6 +455,7 @@ void UART_setParity(UART_Type * p2uart, uint8_t parity)
 			p2uart->C1 |= UART_C1_M_MASK;
 			break;
 		case NO_PARITY_UART:
+			p2uart->C1 &= ~UART_C1_M_MASK;
 			p2uart->C1 &= (~UART_C1_PE_MASK);
 			break;
 	}

@@ -25,25 +25,25 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: FSK.axf
+all: FTMpwm.axf
 
 # Tool invocations
-FSK.axf: $(OBJS) $(USER_OBJS)
+FTMpwm.axf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU Linker'
-	arm-none-eabi-gcc -nostdlib -Xlinker -Map="FSK.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "FTMpwm_Debug.ld" -o "FSK.axf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -nostdlib -Xlinker -Map="FTMpwm.map" -Xlinker --gc-sections -Xlinker -print-memory-usage -Xlinker --sort-section=alignment -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -T "FTMpwm_Debug.ld" -o "FTMpwm.axf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) FSK.axf
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) FTMpwm.axf
 	-@echo ' '
 
 post-build:
 	-@echo 'Performing post-build steps'
-	-arm-none-eabi-size "FSK.axf"; # arm-none-eabi-objcopy -v -O binary "FSK.axf" "FSK.bin" ; # checksum -p MK64FN1M0xxx12 -d "FSK.bin";
+	-arm-none-eabi-size "FTMpwm.axf"; # arm-none-eabi-objcopy -v -O binary "FTMpwm.axf" "FTMpwm.bin" ; # checksum -p MK64FN1M0xxx12 -d "FTMpwm.bin";
 	-@echo ' '
 
 .PHONY: all clean dependents post-build

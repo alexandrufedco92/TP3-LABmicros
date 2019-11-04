@@ -11,17 +11,31 @@
 #include "DMA.h"
 #include <stdbool.h>
 
-#define MIN_DIF 50
+#define MIN_DIF 100
 #define SENSI_DIF 5 //ticks
 #define NO_GLITCH(x) (x > MIN_DIF)
 #define DIF_CHANGE_DETECT(x, y) ((x < y - SENSI_DIF) || (x > y + SENSI_DIF))
 #define TICK_FREQ 0.01
+
+#define MARK_DIF 650
+#define SPACE_DIF 325
+
+#define IS_MARK_DIF(dif) ((dif > (MARK_DIF - 100)) && (dif < (MARK_DIF + 100)) )
+#define IS_SPACE_DIF(dif) ((dif > (SPACE_DIF - 100)) && (dif < (SPACE_DIF +100)) )
+#define IS_VALID_DIF(dif)  ( IS_SPACE_DIF(dif) || IS_MARK_DIF(dif) )
+
+#define MARK_COUNTER_LIMIT 2
+#define SPACE_COUNTER_LIMIT 4
+
+#define AUX_MARK_FREQ 1200
+#define AUX_SPACE_FREQ 2400
 
 typedef struct{
 	int freq; //Hz
 	_Bool freqChanged;
 	_Bool newMeasReady;
 	int measuresLost;
+	int diference;
 }measureFreq_t;
 
 uint16_t capturesWithDMA[2];
@@ -72,7 +86,7 @@ void initFreqMeasure(void)
 	configInputCapture.numOverflows = 0;
 	configInputCapture.prescaler = FTM_PSCX32;
 	//configInputCapture.trigger = FTM_SW_TRIGGER;
-	configInputCapture.trigger = FTM_HW_TRIGGER;
+	configInputCapture.trigger = FTM_SW_TRIGGER;
 	configInputCapture.p2callback = measFreqCallback;
 
 	ticksScale = 50000.0/32.0;
@@ -85,6 +99,7 @@ void measFreqCallback(FTMchannels ch)
 	static int i = 0;
 	static int firstMeasure = 0;
 	static int secondMeasure = 0;
+	static int markCounter = 0, spaceCounter = 0;
 	static int difAux = 0;
 	 if(ch == FTM_CH0)
 	{
@@ -103,7 +118,44 @@ void measFreqCallback(FTMchannels ch)
 			dif = secondMeasure - firstMeasure;
 			firstMeasure = secondMeasure;
 			i = 1;
-			if(NO_GLITCH(dif) && DIF_CHANGE_DETECT(dif, difAux))
+			if(IS_VALID_DIF(dif))
+			{
+				if(IS_MARK_DIF(dif))
+				{
+					if(markCounter == 0)
+					{
+						measureDataBase.newMeasReady = true;
+						measureDataBase.diference = dif;
+						measureDataBase.freq = AUX_MARK_FREQ;
+					}
+					markCounter++;
+					spaceCounter = 0;
+					if(markCounter == MARK_COUNTER_LIMIT)
+					{
+						markCounter = 0;
+					}
+				}
+				else if(IS_SPACE_DIF(dif))
+				{
+					if(spaceCounter == 0)
+					{
+						measureDataBase.newMeasReady = true;
+						measureDataBase.diference = dif;
+						measureDataBase.freq = AUX_SPACE_FREQ;
+					}
+					spaceCounter++;
+					markCounter = 0;
+					if(spaceCounter == SPACE_COUNTER_LIMIT)
+					{
+						spaceCounter = 0;
+					}
+				}
+			}
+			else
+			{
+
+			}
+			/*if(NO_GLITCH(dif) && DIF_CHANGE_DETECT(dif, difAux))
 			{
 				measureDataBase.freqChanged = true;
 				//measureDataBase.freq = (int)((ticksScale/(float)dif)* 1000.0);
@@ -123,6 +175,7 @@ void measFreqCallback(FTMchannels ch)
 				measureDataBase.newMeasReady = true;
 				measureDataBase.measuresLost = 0;
 			}
+		}*/
 		}
 	}
 	else //overflow
@@ -136,7 +189,7 @@ void measFreqCallback(FTMchannels ch)
 int getFreqMeasure(void)
 {
 	measureDataBase.newMeasReady = false;
-	measureDataBase.freq = (int)((ticksScale/(float)dif)* 500.0);
+	//measureDataBase.freq = (int)((ticksScale/(float)measureDataBase.diference)* 500.0);
 	return measureDataBase.freq;
 }
 

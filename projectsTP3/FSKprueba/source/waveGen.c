@@ -86,7 +86,8 @@ void updateWaveFreq(WAVEGENid id, WAVEGENfreq newFreq)
 		}
 		else if(wavesArray[id].modeSignal == PWM_WAVEGEN)
 		{
-
+			PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
+			wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 		}
 	}
 
@@ -295,12 +296,12 @@ void softwareTriggerFTM(void)
 	{
 		i = 0;
 	}
-	if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
+	/*if(wavesArray[WAVE0_WAVEGEN].freqChangeRequest)
 	{
 		//PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal/2);
 		PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
-	}
+	}*/
 }
 void FTMpwmCallback(FTMchannels ch)
 {
