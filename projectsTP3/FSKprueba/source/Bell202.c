@@ -47,46 +47,17 @@ void ModemInit( void)
 	uartInit (U0, config);			//Initializes UART module
 
 	bitStreamQueueInit();			//Initializes data queues
-	//DemodulatorInit();				//Initializes FSK demodulator
-	//ModulatorInit();				//Initializes FSK modulator
+	DemodulatorInit();				//Initializes FSK demodulator
+	ModulatorInit();				//Initializes FSK modulator
 }
 typedef enum{NOT_SENDING, SENDING}tansmission_state_t;
 
 void ModemRun(void)
 {
 	char recieved;
-	char aux =0;
 	char msg2send = 0;
-	tansmission_state_t state = NOT_SENDING;
+	//tansmission_state_t state = NOT_SENDING;
 
-	//Prueba solo con UART
-
-	if( ! isQueueEmpty() )
-		{
-			if( state == NOT_SENDING)
-			{
-				msg2send = popChar();
-				uartWriteMsg(U0, &msg2send , 1); //Sends data frame
-				state = SENDING;
-			}
-			else
-			{
-				if( uartIsTxMsgComplete(U0))
-				{
-					state = NOT_SENDING;
-				}
-			}
-		}
-
-
-	if( uartIsRxMsg(U0) )
-		{
-			uartReadMsg(U0, &recieved, 1 );
-			pushChar(recieved);
-		}
-
-
-/*
 	//FSK demodulation
 	if( NeedDemodulation() ) //Checks for sample
 	{
@@ -103,10 +74,8 @@ void ModemRun(void)
 	if( uartIsRxMsg(U0) )
 	{
 		uartReadMsg(U0, &recieved, 1 );
-		aux = AdjustParity(recieved);
-		pushChar(aux);
+		pushChar(recieved);
 	}
-*/
 
 }
 

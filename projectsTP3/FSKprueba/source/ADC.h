@@ -104,8 +104,6 @@ typedef uint16_t ADC_Data_t;
  */
 bool ADC_Init( const ADC_Config_t* config);
 
-bool ADC_Calibrate(void);
-
 bool SetChannelADC(ADC_Channel_t ch, bool diff, bool in_en);
 
 void SetInterruptCallback(callback intrpt_func);
@@ -115,8 +113,6 @@ bool StartConversion(ADC_Channel_t channel, bool differential_mode, bool interru
 bool IsConversionFinished(void);
 
 ADC_Data_t GetConversionResult(void);
-
-void SetVoltageReference(ADC_VoltageRef_t);
 
 
 
