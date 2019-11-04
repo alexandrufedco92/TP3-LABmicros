@@ -41,14 +41,14 @@ void initDMA(void){
 	{
 		clockGatingDMA();
 		initDMAMUX();	//clock gating dmamux
-		NVIC_ClearPendingIRQ(DMA0_IRQn);
-		NVIC_EnableIRQ(DMA0_IRQn);
-		NVIC_ClearPendingIRQ(DMA1_IRQn);
-		NVIC_EnableIRQ(DMA1_IRQn);
-		NVIC_ClearPendingIRQ(DMA2_IRQn);
-		NVIC_EnableIRQ(DMA2_IRQn);
-		NVIC_ClearPendingIRQ(DMA3_IRQn);
-		NVIC_EnableIRQ(DMA3_IRQn);
+//		NVIC_ClearPendingIRQ(DMA0_IRQn);
+//		NVIC_EnableIRQ(DMA0_IRQn);
+//		NVIC_ClearPendingIRQ(DMA1_IRQn);
+//		NVIC_EnableIRQ(DMA1_IRQn);
+//		NVIC_ClearPendingIRQ(DMA2_IRQn);
+//		NVIC_EnableIRQ(DMA2_IRQn);
+//		NVIC_ClearPendingIRQ(DMA3_IRQn);
+//		NVIC_EnableIRQ(DMA3_IRQn);
 		dma_initialized = true;
 	}
 }
