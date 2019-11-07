@@ -29,7 +29,7 @@ typedef struct{
 waveGen_t wavesArray[NUMBER_OF_WAVESGEN];
 
 int senLUT[N_SAMPLES];
-int pwmSenLUT[N_SAMPLES];
+uint16_t __attribute__ ((aligned (32))) pwmSenLUT[N_SAMPLES];
 
 uint32_t maskSWtriggerFTM = 0x81U;
 
@@ -87,6 +87,7 @@ void updateWaveFreq(WAVEGENid id, WAVEGENfreq newFreq)
 		else if(wavesArray[id].modeSignal == PWM_WAVEGEN)
 		{
 			PITmodifyTimer(0, wavesArray[WAVE0_WAVEGEN].periodSignal);
+			PITmodifyTimer(1, wavesArray[WAVE0_WAVEGEN].periodSignal);
 			wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 		}
 	}
@@ -150,17 +151,16 @@ void sinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 
 	DACinit(DAC0_ID, &DACconfig);
 }
-
+static int ftm_counter=0;
 void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 {
-	FTMconfig_t FTMpwmConfig, FTMpwmTriggerConfig;
-	/*dma_transfer_conf_t conf, confTrigger;
+	FTMconfig_t FTMpwmConfig;
+	dma_transfer_conf_t conf;
 
 
 
 
 	initDMA();
-	//configureDMAMUX(DMA_WAVEGEN_CH, DMA_PIT1, true);
 	conf.source_address = (uint32_t)pwmSenLUT;
 	conf.dest_address = (uint32_t)getCnVadress(FTM0_INDEX, FTM_CH0);
 	conf.offset = 0x02;
@@ -173,24 +173,25 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	conf.periodic_trigger = true;
 	conf.request_source = DMA_PIT1;
 
-	confTrigger.source_address = (uint32_t)(&maskSWtriggerFTM);
-	confTrigger.dest_address = (uint32_t)getSYNCadress(FTM0_INDEX, FTM_CH0);
-	confTrigger.offset = 0;
-	confTrigger.transf_size = BITS_32;
-	confTrigger.bytes_per_request = 0x04;	//paso 16bits=2bytes en cada dma request
-	confTrigger.total_bytes = conf.bytes_per_request*1;	//el total será 2bytes*16
-	confTrigger.mode = MEM_2_PERIPHERAL;
-	confTrigger.channel = 2;
-	confTrigger.dma_callback = NULL;
-	confTrigger.periodic_trigger = false;
-	confTrigger.request_source = 60;
+//	confTrigger.source_address = (uint32_t)(&maskSWtriggerFTM);
+//	confTrigger.dest_address = (uint32_t)getSYNCadress(FTM0_INDEX, FTM_CH0);
+//	confTrigger.offset = 0;
+//	confTrigger.transf_size = BITS_32;
+//	confTrigger.bytes_per_request = 0x04;	//paso 16bits=2bytes en cada dma request
+//	confTrigger.total_bytes = conf.bytes_per_request*1;	//el total será 2bytes*16
+//	confTrigger.mode = MEM_2_PERIPHERAL;
+//	confTrigger.channel = 2;
+//	confTrigger.dma_callback = NULL;
+//	confTrigger.periodic_trigger = false;
+//	confTrigger.request_source = 60;
 
 	DMAPrepareTransferELINKNO(&conf);
 	//DMAPrepareTransferELINKNO(&confTrigger);
 	//SIM->SOPT4 |=SIM_SOPT4_FTM0TRG0SRC(1);   //FTM1 triggers FTM trigger 0
-	 *
-	 *
-	 */
+
+
+
+
 	FTMpwmConfig.mode = FTM_EPWM;
 	FTMpwmConfig.nModule = FTM0_INDEX;
 	FTMpwmConfig.nChannel = FTM_CH0;
@@ -203,20 +204,9 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 	FTMpwmConfig.dmaMode = FTM_DMA_DISABLE;
 	FTMpwmConfig.trigger = FTM_SW_TRIGGER;
 
-	/*FTMpwmTriggerConfig.mode = FTM_OUTPUT_COMPARE;
-	FTMpwmTriggerConfig.nModule = FTM1_INDEX;
-	FTMpwmTriggerConfig.nChannel = FTM_CH1;
-	FTMpwmTriggerConfig.countMode = UP_COUNTER;
-	FTMpwmTriggerConfig.prescaler = FTM_PSCX4;
-	FTMpwmTriggerConfig.CnV = 150;
-	FTMpwmTriggerConfig.nTicks = 300;
-	FTMpwmTriggerConfig.numOverflows = 0;
-	FTMpwmTriggerConfig.p2callback = FTMpwmCallback;
-	FTMpwmTriggerConfig.dmaMode = FTM_DMA_DISABLE;
-	FTMpwmTriggerConfig.trigger = FTM_SW_TRIGGER;*/
+
 
 	FTMinit(&FTMpwmConfig);
-	//FTMinit(&FTMpwmTriggerConfig);
 
 
 
@@ -236,13 +226,20 @@ void pwmSinWaveGen(WAVEGENid id, WAVEGENfreq freq)
 									false,  		/* True if timer in Chain Mode. */
 								softwareTriggerFTM		 	/* Callback for interrupt. NULL if interrupt is disabled. */
 								};
-	//pit_config_t configP1 = { 	periodSampleUs/3, 		/* Value of timer in us. */
-						//				1, 				/* Number of PIT timer. */
-							//			false,  		/* True if timer in Chain Mode. */
-								//		callbackInitTrigger		 	/* Callback for interrupt. NULL if interrupt is disabled. */
-									//};
+	pit_config_t configP1 = { 	periodSampleUs, 		/* Value of timer in us. */
+										1, 				/* Number of PIT timer. */
+										false,  		/* True if timer in Chain Mode. */
+										NULL		 	/* Callback for interrupt. NULL if interrupt is disabled. */
+									};
 	PITstartTimer(&configP0);
-	//PITstartTimer(&configP1);
+	uint8_t i=0;
+	for(i=0;i<4;i++)
+	{
+		asm("nop");
+	}
+	PITstartTimer(&configP1);
+	dmacounter=0;
+	ftm_counter=0;
 
 
 
@@ -286,11 +283,15 @@ void softwareTriggerDAC(void)
 		wavesArray[WAVE0_WAVEGEN].freqChangeRequest = false;
 	}
 }
+
 void softwareTriggerFTM(void)
 {
+
 	static int i = 0;
-	updateCnV(FTM0_INDEX, FTM_CH0, pwmSenLUT[i]);
+//	updateCnV(FTM0_INDEX, FTM_CH0, pwmSenLUT[i]);
 	softwareFTMtrigger(FTM0_INDEX);
+	ftm_counter++;
+
 	i++;
 	if(i == N_SAMPLES)
 	{

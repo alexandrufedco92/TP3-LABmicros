@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
+extern int dmacounter;
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
